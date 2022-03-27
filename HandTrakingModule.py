@@ -67,9 +67,8 @@ class HandDetector():
 
         """
         self.allHands = []
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        self.results = self.hands.process(imgRGB)
+        self.results = self.hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         self.resultsData = False
 
         # collecting infos
@@ -117,8 +116,7 @@ class HandDetector():
 
     def drawHands(self, img, **kwargs):
         for drawFun in self.drawFunList:
-            if self.resultsData:
-                img = drawFun(self, img, **kwargs)
+            img = drawFun(self, img, **kwargs)
         return img
 
     def getHandsInfo(self, handNo=-1):
@@ -171,10 +169,10 @@ def main():
         detector = HandDetector(detectionCon=.8, trackCon=.8,
                                 drawFunList=[
                                     DrawModule.drawFps,
-                                            DrawModule.drawHand,
-                                            DrawModule.drawBbox,
-                                            DrawModule.drawFingerTip,
-                                            DrawModule.drawCommands])
+                                    DrawModule.drawHand,
+                                    DrawModule.drawBbox,
+                                    DrawModule.drawFingerTip,
+                                    DrawModule.drawCommands])
 
         while True:
             success, img = cap.read()
@@ -185,15 +183,14 @@ def main():
                                      drawBbox=True, drawBboxColor=(0, 0, 255), # BGR
                                      drawFingerTip=True, drawFingerTipRadius=5,
                                      drawFingerTipColor=(0, 255, 255), # BGR
-                                     drawCommand=True,
-                                     drawCommandLine=2
+                                     drawCommand=True, drawCommandLine=2
                                      )
             #lmList = detector.getHandsInfo(handNo=-1)
             #lmList = detector.getHandsInfo(handNo="Left")
 
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
-            if key == 27:
+            if key == 27: # ESC
                 break
 
         cap.release()

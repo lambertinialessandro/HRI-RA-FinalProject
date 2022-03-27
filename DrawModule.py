@@ -87,7 +87,7 @@ def drawCommands(obj):
                 angle = math.degrees(math.atan2(ity-imy, itx-imx))
                 #print(angle)
                 drawCommandColor = (0, 0, 0)
-                delta = 25
+                delta = 25 # max 45
                 action = ""
 
                 (mtx, mty, mtz) = rHand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
