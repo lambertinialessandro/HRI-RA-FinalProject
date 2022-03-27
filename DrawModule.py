@@ -76,30 +76,48 @@ def drawCommands(obj):
             rHand = self.getHandsInfo(handNo="Right")
             if rHand:
                 #(cx, cy) = rHand["center"]
-                (d1x, d1y, d1z) = rHand["lmList"][HandEnum.WRIST.value]
-                (d2x, d2y, d2z) = rHand["lmList"][HandEnum.PINKY_MCP.value]
-                (cx, cy, cz) = rHand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
-                (px, py, pz) = rHand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
+                (wx, wy, wz) = rHand["lmList"][HandEnum.WRIST.value]
+                (pmx, pmy, pmz) = rHand["lmList"][HandEnum.PINKY_MCP.value]
+                (imx, imy, imz) = rHand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
+                (itx, ity, itz) = rHand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
 
-                minDist = max(math.dist((d1x, d1y), (d2x, d2y)), math.dist((cx, cy), (d2x, d2y)))
+                minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))
 
-                distance = math.dist((cx, cy), (px, py))
-                angle = math.degrees(math.atan2(py-cy, px-cx))
-                print(angle)
+                distance = math.dist((imx, imy), (itx, ity))
+                angle = math.degrees(math.atan2(ity-imy, itx-imx))
+                #print(angle)
                 drawCommandColor = (0, 0, 0)
-                delta = 15
+                delta = 25
+                action = ""
 
-                if distance > minDist:
+                (mtx, mty, mtz) = rHand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
+                (rtx, rty, rtz) = rHand["lmList"][HandEnum.RING_FINGER_TIP.value]
+                (ptx, pty, ptz) = rHand["lmList"][HandEnum.PINKY_TIP.value]
+                (rmx, rmy, rmz) = rHand["lmList"][HandEnum.RING_FINGER_MCP.value]
+
+                otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
+                                       math.dist((rtx, rty), (rmx, rmy)),
+                                       math.dist((ptx, pty), (rmx, rmy)))
+                if otherFingersDist > minDist*0.5:
+                    return img
+
+                if distance > minDist*0.75:
                     if (-45+delta) < angle and angle < (45-delta):
                         drawCommandColor = (255, 0, 0) # Blue -> left
+                        action = "left"
                     elif (45+delta) < angle and angle < (135-delta):
                         drawCommandColor = (0, 255, 0) # Green -> bottom
+                        action = "down"
                     elif (-135+delta) < angle and angle < (-45-delta):
                         drawCommandColor = (0, 0, 255) # Red -> top
+                        action = "up"
                     elif (135+delta) < angle or angle < (-135-delta):
                         drawCommandColor = (255, 0, 255) # magenta -> right
+                        action = "right"
 
-                cv2.line(img, (cx, cy), (px, py), drawCommandColor, drawCommandLine)
+                cv2.line(img, (imx, imy), (itx, ity), drawCommandColor, drawCommandLine)
+                cv2.putText(img, action, (itx, ity), cv2.FONT_HERSHEY_PLAIN, 3,
+                            drawCommandColor, 3)
 
         return img
     return f
