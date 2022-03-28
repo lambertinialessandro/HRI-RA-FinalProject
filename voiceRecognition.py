@@ -8,15 +8,39 @@ Created on Fri Mar 25 13:02:58 2022
 # pip install speechRecognition
 # pip install pyttsx3
 
+# pip install djitellopy
+
 # pip install pipwin
 # pipwin install pyaudio
 
 import speech_recognition as sr
 import pyttsx3
 
+from djitellopy import Tello
+
+import cv2
+from threading import Thread
+
 import HandTrakingModule
 
 name = "alexa"
+tello = Tello()
+tello.connect()
+
+keepRecording = True
+tello.streamon()
+frame_read = tello.get_frame_read()
+
+def videoShow():
+    try:
+        while True:
+            img = frame_read.frame
+            cv2.imshow("Image", img)
+            key = cv2.waitKey(1)
+            if key == 27: # ESC
+                break
+    finally:
+        cv2.destroyAllWindows()
 
 listener = sr.Recognizer()
 engine = pyttsx3.init()
@@ -42,7 +66,6 @@ def take_command():
         pass
     return command
 
-proc = None
 def run_alexa():
     command = take_command()
     print("Executing: "+command)
@@ -55,12 +78,15 @@ def run_alexa():
 
     elif 'take off' in command:
         talk("Starting drone! wrwrwr")
+        tello.takeoff()
 
     elif 'land' in command:
         talk("Stopping drone! wrwrwr")
+        tello.land()
 
     elif 'follow me' in command:
         talk("i'm following")
+        tello.move_forward(100)
 
     elif 'turn off' in command:
         talk("Stop execution")
@@ -73,4 +99,9 @@ def run_alexa():
 
 state = True
 while state:
+    recorder = Thread(target=videoRecorder)
+    recorder.start()
+
     state = run_alexa()
+
+    recorder.join()
