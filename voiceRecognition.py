@@ -14,7 +14,9 @@ Created on Fri Mar 25 13:02:58 2022
 import speech_recognition as sr
 import pyttsx3
 
-name = "tello"
+import HandTrakingModule
+
+name = "alexa"
 
 listener = sr.Recognizer()
 engine = pyttsx3.init()
@@ -40,14 +42,21 @@ def take_command():
         pass
     return command
 
-
+proc = None
 def run_alexa():
     command = take_command()
     print("Executing: "+command)
-    if 'start' in command:
+    if 'start video' in command:
+        talk("Starting video!")
+        HandTrakingModule.main()
+
+    elif 'stop video' in command:
+        talk("Video stopped!")
+
+    elif 'take off' in command:
         talk("Starting drone! wrwrwr")
 
-    elif 'stop' in command:
+    elif 'land' in command:
         talk("Stopping drone! wrwrwr")
 
     elif 'follow me' in command:
