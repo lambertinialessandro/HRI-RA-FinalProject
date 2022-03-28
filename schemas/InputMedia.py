@@ -10,7 +10,7 @@ from abc import ABC, abstractclassmethod
 import cv2
 
 
-class InputMedia(ABC):
+class AbstractInputMedia(ABC):
     def __init__(self):
         pass
 
@@ -23,7 +23,7 @@ class InputMedia(ABC):
         pass
 
 
-class VideoDroneInputMedia(InputMedia):
+class VideoDroneInputMedia(AbstractInputMedia):
     def __init__(self):
         super.__init__(self)
 
@@ -34,7 +34,7 @@ class VideoDroneInputMedia(InputMedia):
         pass
 
 
-class VideoPCInputMedia(InputMedia):
+class VideoPCInputMedia(AbstractInputMedia):
     def __init__(self):
         super().__init__()
 
@@ -52,7 +52,7 @@ class VideoPCInputMedia(InputMedia):
     def releasStream(self):
         self.cap.release()
 
-class AudioPCInputMedia(InputMedia):
+class AudioPCInputMedia(AbstractInputMedia):
     def __init__(self):
         super.__init__(self)
 
