@@ -30,7 +30,7 @@ class HandEnum(Enum):
     PINKY_DIP = 19
     PINKY_TIP = 20
 
-    def tips():
-        return [HandEnum.THUMB_TIP.value, HandEnum.INDEX_FINGER_TIP.value,
-                HandEnum.MIDDLE_FINGER_TIP.value, HandEnum.RING_FINGER_TIP.value,
-                HandEnum.PINKY_TIP.value]
+    def tips(self):
+        return [self.THUMB_TIP.value, self.INDEX_FINGER_TIP.value,
+                self.MIDDLE_FINGER_TIP.value, self.RING_FINGER_TIP.value,
+                self.PINKY_TIP.value]
