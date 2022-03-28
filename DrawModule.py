@@ -17,9 +17,9 @@ def drawFps(obj):
     obj.pTime = 0
     obj.cTime = 0
 
-    def f(self, img, drawFps=False, drawFpsColor=(255, 0, 255), **kwargs):
+    def f(self, img, drawFps=False, drawFpsColor=(255, 0, 255)):#, **kwargs):
         if drawFps:
-            self.cTime = time.time();
+            self.cTime = time.time()
             fps = 1/(self.cTime - self.pTime)
             self.pTime = self.cTime
 
@@ -30,7 +30,7 @@ def drawFps(obj):
 
 # Draw hand connections
 def drawHand(obj):
-    def f(self, img, drawHand=False, **kwargs):
+    def f(self, img, drawHand=False):#, **kwargs):
         if self.resultsData and drawHand:
             for handLms in self.results.multi_hand_landmarks:
                     self.mpDraw.draw_landmarks(img, handLms,
@@ -40,7 +40,7 @@ def drawHand(obj):
 
 # Draw Bbox
 def drawBbox(obj):
-    def f(self, img, drawBbox=False, drawBboxColor=(255, 0, 255), **kwargs):
+    def f(self, img, drawBbox=False, drawBboxColor=(255, 0, 255)):#, **kwargs):
         if self.resultsData and drawBbox:
             for hand in self.allHands:
                 bbox = hand["bbox"]
@@ -55,7 +55,7 @@ def drawBbox(obj):
 # Draw finger tip
 def drawFingerTip(obj):
     def f(self, img, drawFingerTip=False, drawFingerTipRadius=15,
-          drawFingerTipColor=(255, 0, 255), **kwargs):
+          drawFingerTipColor=(255, 0, 255)):#, **kwargs):
         if self.resultsData and drawFingerTip:
             for hand in self.allHands:
                 lmList = hand["lmList"]
@@ -71,7 +71,7 @@ def drawFingerTip(obj):
     return f
 
 def drawCommands(obj):
-    def f(self, img, drawCommand=False, drawCommandLine=3, **kwargs):
+    def f(self, img, drawCommand=False, drawCommandLine=3):#, **kwargs):
         if self.resultsData and drawCommand:
             rHand = self.getHandsInfo(handNo="Right")
             if rHand:
@@ -81,7 +81,7 @@ def drawCommands(obj):
                 (imx, imy, imz) = rHand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
                 (itx, ity, itz) = rHand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
 
-                minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))
+                minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
 
                 distance = math.dist((imx, imy), (itx, ity))
                 angle = math.degrees(math.atan2(ity-imy, itx-imx))
@@ -98,10 +98,10 @@ def drawCommands(obj):
                 otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
                                        math.dist((rtx, rty), (rmx, rmy)),
                                        math.dist((ptx, pty), (rmx, rmy)))
-                if otherFingersDist > minDist*0.5:
+                if otherFingersDist > minDist:
                     return img
 
-                if distance > minDist*0.75:
+                if distance > minDist:
                     if (-45+delta) < angle and angle < (45-delta):
                         drawCommandColor = (255, 0, 0) # Blue -> left
                         action = "left"

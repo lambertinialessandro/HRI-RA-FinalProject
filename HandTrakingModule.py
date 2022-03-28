@@ -10,17 +10,26 @@ import mediapipe as mp
 
 import DrawModule
 
+#
+# [ WARN:0@967.915] global D:\...\cap_msmf.cpp (539)
+# `anonymous-namespace'::SourceReaderCB::~SourceReaderCB terminating async callback
+#
+# https://github.com/opencv/opencv-python/issues/198
+#
+# solved with cv2.CAP_DSHOW
+#
+
 """
-STATIC_IMAGE_MODE
+STATIC_IMAGE_MODE:
 If set to false, the solution treats the input images as a video stream. It will try to detect hands in the first input images, and upon a successful detection further localizes the hand landmarks. In subsequent images, once all max_num_hands hands are detected and the corresponding hand landmarks are localized, it simply tracks those landmarks without invoking another detection until it loses track of any of the hands. This reduces latency and is ideal for processing video frames. If set to true, hand detection runs on every input image, ideal for processing a batch of static, possibly unrelated, images. Default to false.
 
-MAX_NUM_HANDS
+MAX_NUM_HANDS:
 Maximum number of hands to detect. Default to 2.
 
-MODEL_COMPLEXITY
+MODEL_COMPLEXITY:
 Complexity of the hand landmark model: 0 or 1. Landmark accuracy as well as inference latency generally go up with the model complexity. Default to 1.
 
-MIN_DETECTION_CONFIDENCE
+MIN_DETECTION_CONFIDENCE:
 Minimum confidence value ([0.0, 1.0]) from the hand detection model for the detection to be considered successful. Default to 0.5.
 
 MIN_TRACKING_CONFIDENCE:
@@ -47,6 +56,7 @@ class HandDetector():
         for drawFun in drawFunList:
             self.drawFunList.append(drawFun(self))
 
+        self.allHands = []
         self.resultsData = False
 
     def analizeImage(self, img, flipType=True):
@@ -116,7 +126,10 @@ class HandDetector():
 
     def drawHands(self, img, **kwargs):
         for drawFun in self.drawFunList:
-            img = drawFun(self, img, **kwargs)
+            funCode = drawFun.__code__
+            params = {k: kwargs[k] for k in funCode.co_varnames[2:funCode.co_argcount] if k in kwargs.keys()}
+
+            img = drawFun(self, img, **params)#**kwargs)
         return img
 
     def getHandsInfo(self, handNo=-1):
@@ -163,7 +176,7 @@ class HandDetector():
 
 def main():
     try:
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
         detector = HandDetector(detectionCon=.8, trackCon=.8,
@@ -180,8 +193,8 @@ def main():
             img = detector.drawHands(img,
                                      drawFps=True, drawFpsColor=(255, 0, 0), # BGR
                                      drawHand=False,
-                                     drawBbox=True, drawBboxColor=(0, 0, 255), # BGR
-                                     drawFingerTip=True, drawFingerTipRadius=5,
+                                     drawBbox=False, drawBboxColor=(0, 0, 255), # BGR
+                                     drawFingerTip=False, drawFingerTipRadius=5,
                                      drawFingerTipColor=(0, 255, 255), # BGR
                                      drawCommand=True, drawCommandLine=2
                                      )
