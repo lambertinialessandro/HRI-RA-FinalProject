@@ -5,14 +5,6 @@ Created on Fri Mar 25 13:02:58 2022
 @author: lambe
 """
 
-# pip install speechRecognition
-# pip install pyttsx3
-
-# pip install djitellopy
-
-# pip install pipwin
-# pipwin install pyaudio
-
 import speech_recognition as sr
 import pyttsx3
 

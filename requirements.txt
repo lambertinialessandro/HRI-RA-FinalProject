@@ -1,0 +1,4 @@
+speechRecognition
+pyttsx3
+djitellopy
+opencv-python
