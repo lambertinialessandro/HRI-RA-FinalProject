@@ -25,7 +25,7 @@ class AbstractInputMedia(ABC):
 
 class VideoDroneInputMedia(AbstractInputMedia):
     def __init__(self):
-        super.__init__(self)
+        super().__init__()
 
     def getStream(self):
         return self
@@ -52,9 +52,10 @@ class VideoPCInputMedia(AbstractInputMedia):
     def releasStream(self):
         self.cap.release()
 
+
 class AudioPCInputMedia(AbstractInputMedia):
     def __init__(self):
-        super.__init__(self)
+        super().__init__()
 
     def getStream(self):
         return []
