@@ -5,12 +5,11 @@ Created on Mon Mar 28 14:19:26 2022
 @author: lambe
 """
 
-import cv2
+from modules.VideoStreamModule import VideoDroneStream, WebcamStream
+from modules.AudioStreamModule import AudioPcStream
 
-from modules.VideoStreamModule import VideoStreamModule, VideoDroneStream, WebcamStream
 
-
-class FactoryInputMedia:
+class StreamFactory:
     VideoDrone = "VideoDrone"
     VideoPC = "VideoPC"
     AudioPC = "AudioPC"
@@ -21,28 +20,30 @@ class FactoryInputMedia:
     def createInput(self, typeInputMedia):
         inputMedia = None
         if typeInputMedia == self.VideoDrone:
-            inputMedia = VideoDroneInputMedia()
+            inputMedia = VideoDroneStream()
         if typeInputMedia == self.VideoPC:
-            inputMedia = VideoPCInputMedia()
+            inputMedia = WebcamStream()
         if typeInputMedia == self.AudioPC:
-            inputMedia = AudioPCInputMedia()
+            inputMedia = AudioPcStream()
 
         return inputMedia
 
 
 if __name__ == "__main__":
-    fim = FactoryInputMedia()
-    inputMedia = fim.createInput(FactoryInputMedia.VideoPC)
+    import cv2
+
+    sf = StreamFactory()
+    inputMedia = sf.createInput(StreamFactory.VideoPC)
 
     try:
         while True:
-            success, img = inputMedia.getStream()
+            img = inputMedia.get_stream()
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
             if key == 27: # ESC
                 break
     finally:
-        inputMedia.releasStream()
+        inputMedia.release_stream()
         cv2.destroyAllWindows()
 
 
