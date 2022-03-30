@@ -1,11 +1,17 @@
-from modules import drone, VideoStreamModule
+from modules import drone, VideoStreamModule, ControlModule
 
 import cv2
 
 
 tello = drone.DJITello()
 
-video_stream_module = VideoStreamModule.VideoDroneStream(tello)
+# 1: VideoStreamModule
+# video_stream_module = VideoStreamModule.VideoDroneStream(tello)
+video_stream_module = VideoStreamModule.WebcamStream()
+# 2: CommandRecognitionModule
+# TODO
+# 3: ControlModule
+control_module = ControlModule.ControlModule(tello)
 
 try:
     while True:

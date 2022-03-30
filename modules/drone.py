@@ -4,6 +4,7 @@ from djitellopy import Tello
 
 
 class Drone(ABC):
+    # Camera
     @property
     @abstractmethod
     def frame(self):
@@ -15,6 +16,15 @@ class Drone(ABC):
 
     @abstractmethod
     def streamoff(self):
+        pass
+
+    # Controls
+    @abstractmethod
+    def take_off(self):
+        pass
+
+    @abstractmethod
+    def land(self):
         pass
 
     @abstractmethod
@@ -37,6 +47,12 @@ class DJITello(Drone):
 
     def streamoff(self):
         self._tello.streamoff()
+
+    def take_off(self):
+        self._tello.takeoff()
+
+    def land(self):
+        self._tello.land()
 
     def end(self):
         self.end()
