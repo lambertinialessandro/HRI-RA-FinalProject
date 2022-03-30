@@ -18,6 +18,12 @@ class Drone(ABC):
     def streamoff(self):
         pass
 
+    # State
+    @property
+    @abstractmethod
+    def battery(self):
+        pass
+
     # Controls
     @abstractmethod
     def take_off(self):
@@ -47,6 +53,10 @@ class DJITello(Drone):
 
     def streamoff(self):
         self._tello.streamoff()
+
+    @property
+    def battery(self):
+        return self._tello.get_battery()
 
     def take_off(self):
         self._tello.takeoff()

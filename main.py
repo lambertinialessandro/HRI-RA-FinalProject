@@ -14,7 +14,10 @@ video_stream_module, command_recognition, control_module = fim.createInput(Globa
 
 try:
     while True:
-        cv2.imshow("Video", video_stream_module.get_stream_frame())
+        frame = video_stream_module.get_stream_frame()
+        cv2.putText(frame, f"Battery: {tello.battery}%", (10, 10), cv2.FONT_HERSHEY_PLAIN, fontScale=2, color=(0, 0, 255))
+        cv2.imshow("Video", frame)
+
         key = cv2.waitKey(1)
         if key == 27:  # ESC
             break
