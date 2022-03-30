@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 30 12:07:52 2022
-
-@author: lambe
-"""
-
 from abc import ABC, abstractmethod
+
+import speech_recognition
 import speech_recognition as sr
-import pyttsx3
+# import pyttsx3
 
 
 class AudioStreamModule(ABC):
@@ -16,7 +11,7 @@ class AudioStreamModule(ABC):
 
     @classmethod
     @abstractmethod
-    def get_stream(cls):
+    def get_stream_word(cls):
         pass
 
     @classmethod
@@ -25,37 +20,31 @@ class AudioStreamModule(ABC):
         pass
 
 
-class AudioPcStream(AudioStreamModule):
+class ComputerMicrophoneStream(AudioStreamModule):
     def __init__(self):
         super().__init__()
-        self.name = "alexa"
+        self.name = "mario"
 
         self.listener = sr.Recognizer()
-        self.engine = pyttsx3.init()
-        self.voices = self.engine.getProperty('voices')
-        self.engine.setProperty('voice', self.voices[1].id)
+        # self.engine = pyttsx3.init()
+        # self.voices = self.engine.getProperty('voices')
+        # self.engine.setProperty('voice', self.voices[1].id)
 
-    def talk(self, text):
-        self.engine.say(text)
-        self.engine.runAndWait()
+    # def talk(self, text):
+    #     self.engine.say(text)
+    #     self.engine.runAndWait()
 
-    def take_command(self):
-        command = ''
-        try:
-            with sr.Microphone() as source:
-                print('listening...')
-                voice = self.listener.listen(source)
+    def get_stream_word(self):
+        with sr.Microphone() as source:
+            voice = self.listener.listen(source, timeout=5, phrase_time_limit=5)
+            try:
                 command = self.listener.recognize_google(voice)
-                command = command.lower()
-                print(command)
-                if self.name in command:
-                    command = command.replace(self.name, '')
-        except:
-            pass
+            except speech_recognition.UnknownValueError:
+                return ""
+            command = command.lower()
+            if self.name in command:
+                command = command.replace(self.name, '')
         return command
-
-    def get_stream(self):
-        return self.take_command()
 
     def release_stream(self):
         pass

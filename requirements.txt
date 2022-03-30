@@ -1,5 +1,6 @@
 djitellopy
 mediapipe
 opencv-python
-speechRecognition
+SpeechRecognition
+pyaudio
 pyttsx3
