@@ -49,7 +49,7 @@ class WebcamStream(VideoStreamModule):
         self.w = 1280//2
         self.h = 720//2
 
-        self.cap = cv2.VideoCapture(self.inputIdx, cv2.CAP_DSHOW)
+        self.cap = cv2.VideoCapture(self.inputIdx)#, cv2.CAP_DSHOW)
         # self.cap.set(3, self.w)
         # self.cap.set(4, self.h)
 
