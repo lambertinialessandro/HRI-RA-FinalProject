@@ -1,10 +1,11 @@
-from modules import VideoStreamModule
-
+from modules import drone, VideoStreamModule
 
 import cv2
 
 
-video_stream_module = VideoStreamModule.WebcamStream()
+tello = drone.DJITello()
+
+video_stream_module = VideoStreamModule.VideoDroneStream(tello)
 
 try:
     while True:
@@ -18,3 +19,6 @@ except KeyboardInterrupt:
 finally:
     cv2.destroyAllWindows()
     video_stream_module.release_stream()
+
+
+tello.end()
