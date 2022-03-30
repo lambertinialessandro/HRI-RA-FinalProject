@@ -23,6 +23,7 @@ keepRecording = True
 tello.streamon()
 frame_read = tello.get_frame_read()
 
+
 def videoShow():
     try:
         while True:
@@ -58,6 +59,7 @@ def take_command():
         pass
     return command
 
+
 def run_alexa():
     command = take_command()
     print("Executing: "+command)
@@ -88,6 +90,7 @@ def run_alexa():
         talk('Please say the command again.')
 
     return True
+
 
 state = True
 while state:
