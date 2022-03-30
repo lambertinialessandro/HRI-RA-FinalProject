@@ -17,34 +17,32 @@ class StreamFactory:
     def __init__(self):
         pass
 
-    def createInput(self, typeInputMedia, drone=None):
-        inputMedia = None
-        if typeInputMedia == self.VideoDrone:
-            inputMedia = VideoDroneStream(drone)
-        if typeInputMedia == self.VideoPC:
-            inputMedia = WebcamStream()
-        if typeInputMedia == self.AudioPC:
-            inputMedia = ComputerMicrophoneStream()
+    def create_input(self, type_input_media, drone=None):
+        input_media = None
+        if type_input_media == self.VideoDrone:
+            assert drone is not None
+            input_media = VideoDroneStream(drone)
+        if type_input_media == self.VideoPC:
+            input_media = WebcamStream()
+        if type_input_media == self.AudioPC:
+            input_media = ComputerMicrophoneStream()
 
-        return inputMedia
+        return input_media
 
 
 if __name__ == "__main__":
     import cv2
 
     sf = StreamFactory()
-    inputMedia = sf.createInput(StreamFactory.VideoPC)
+    inputMedia = sf.create_input(StreamFactory.VideoPC)
 
     try:
         while True:
             img = inputMedia.get_stream_frame()
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
-            if key == 27: # ESC
+            if key == 27:  # ESC
                 break
     finally:
         inputMedia.release_stream()
         cv2.destroyAllWindows()
-
-
-
