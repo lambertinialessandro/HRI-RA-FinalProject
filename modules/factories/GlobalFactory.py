@@ -7,7 +7,7 @@ Created on Wed Mar 30 12:43:10 2022
 
 from modules.factories.StreamFactory import StreamFactory
 # from modules.factories.ControlRecognitionFactory import ControlRecognitionFactory
-# from modules import ControlModule
+from modules import ControlModule
 
 class GlobalFactory:
     VideoDrone = "VideoDrone"
@@ -18,22 +18,22 @@ class GlobalFactory:
         self.sf = StreamFactory()
         #self.crf = ControlRecognitionFactory()
 
-    def createInput(self, typeMedia):
+    def createInput(self, typeMedia, drone):
         stream = None
         command_recognition = None
         control = None
         if typeMedia == self.VideoDrone:
             stream = self.sf.createInput(StreamFactory.VideoDrone)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
-            # control = ControlModule()
+            control = ControlModule.ControlModule(drone)
         if typeMedia == self.VideoPC:
             stream = self.sf.createInput(StreamFactory.VideoPC)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
-            # control = ControlModule()
+            control = ControlModule.ControlModule(drone)
         if typeMedia == self.AudioPC:
             stream = self.sf.createInput(StreamFactory.AudioPC)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Audio)
-            # control = ControlModule()
+            control = ControlModule.ControlModule(drone)
 
         return stream, command_recognition, control
 

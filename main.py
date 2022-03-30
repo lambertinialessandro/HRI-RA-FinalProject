@@ -4,10 +4,11 @@ from modules.factories.GlobalFactory import GlobalFactory
 
 import cv2
 
-fim = GlobalFactory()
-video_stream_module, command_recognition, control_module = fim.createInput(GlobalFactory.VideoPC)
-
 tello = drone.DJITello()
+
+fim = GlobalFactory()
+video_stream_module, command_recognition, control_module = fim.createInput(GlobalFactory.VideoPC, tello)
+
 
 try:
     while True:
