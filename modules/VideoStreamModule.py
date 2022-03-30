@@ -29,12 +29,14 @@ class VideoDroneStream(VideoStreamModule):
     def __init__(self, tello: Tello):
         super().__init__()
         self.tello = tello
+        self.w = 1280//2
+        self.h = 720//2
 
         tello.streamon()
         self.frame_read = tello.get_frame_read()
 
     def get_stream(self):
-        return cv2.resize(self.frame_read.frame, (1280, 720))
+        return cv2.resize(self.frame_read.frame, (self.w, self.h))
 
     def release_stream(self):
         self.frame_read = None
