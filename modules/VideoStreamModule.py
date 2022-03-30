@@ -7,7 +7,8 @@ Created on Mon Mar 28 14:28:45 2022
 
 from abc import ABC, abstractmethod
 import cv2
-from djitellopy import Tello
+
+from modules.drone import Drone
 
 
 class VideoStreamModule(ABC):
@@ -26,21 +27,19 @@ class VideoStreamModule(ABC):
 
 
 class VideoDroneStream(VideoStreamModule):
-    def __init__(self, tello: Tello):
+    def __init__(self, drone: Drone):
         super().__init__()
-        self.tello = tello
+        self.drone = drone
         self.w = 1280//2
         self.h = 720//2
 
-        tello.streamon()
-        self.frame_read = tello.get_frame_read()
+        drone.streamon()
 
     def get_stream(self):
-        return cv2.resize(self.frame_read.frame, (self.w, self.h))
+        return cv2.resize(self.drone.frame, (self.w, self.h))
 
     def release_stream(self):
-        self.frame_read = None
-        self.tello.streamoff()
+        self.drone.streamoff()
 
 
 class WebcamStream(VideoStreamModule):
@@ -51,9 +50,7 @@ class WebcamStream(VideoStreamModule):
         self.w = 1280//2
         self.h = 720//2
 
-        self.cap = cv2.VideoCapture(self.inputIdx)#, cv2.CAP_DSHOW)
-        # self.cap.set(3, self.w)
-        # self.cap.set(4, self.h)
+        self.cap = cv2.VideoCapture(self.inputIdx)
 
     def get_stream(self):
         _, frame = self.cap.read()
