@@ -17,7 +17,7 @@ class VideoStreamModule(ABC):
 
     @classmethod
     @abstractmethod
-    def get_stream(cls):
+    def get_stream_frame(cls):
         pass
 
     @classmethod
@@ -35,7 +35,7 @@ class VideoDroneStream(VideoStreamModule):
 
         drone.streamon()
 
-    def get_stream(self):
+    def get_stream_frame(self):
         return cv2.resize(self.drone.frame, (self.w, self.h))
 
     def release_stream(self):
@@ -52,7 +52,7 @@ class WebcamStream(VideoStreamModule):
 
         self.cap = cv2.VideoCapture(self.inputIdx)
 
-    def get_stream(self):
+    def get_stream_frame(self):
         _, frame = self.cap.read()
         return frame
 
