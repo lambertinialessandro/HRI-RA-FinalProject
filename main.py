@@ -7,7 +7,7 @@ import cv2
 tello = drone.DJITello()
 
 fim = GlobalFactory()
-video_stream_module, command_recognition, control_module = fim.createInput(GlobalFactory.VideoPC, tello)
+video_stream_module, command_recognition, control_module = fim.createInput(GlobalFactory.VideoDrone, tello)
 
 
 try:

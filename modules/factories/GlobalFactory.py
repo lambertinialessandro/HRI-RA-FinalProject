@@ -18,12 +18,12 @@ class GlobalFactory:
         self.sf = StreamFactory()
         #self.crf = ControlRecognitionFactory()
 
-    def createInput(self, typeMedia, drone):
+    def createInput(self, typeMedia, drone=None):
         stream = None
         command_recognition = None
         control = None
         if typeMedia == self.VideoDrone:
-            stream = self.sf.createInput(StreamFactory.VideoDrone)
+            stream = self.sf.createInput(StreamFactory.VideoDrone, drone)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
         if typeMedia == self.VideoPC:

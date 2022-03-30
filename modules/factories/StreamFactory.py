@@ -17,12 +17,12 @@ class StreamFactory:
     def __init__(self):
         pass
 
-    def createInput(self, typeInputMedia):
+    def createInput(self, typeInputMedia, drone=None):
         inputMedia = None
         if typeInputMedia == self.VideoDrone:
             inputMedia = VideoDroneStream()
         if typeInputMedia == self.VideoPC:
-            inputMedia = WebcamStream()
+            inputMedia = WebcamStream(drone)
         if typeInputMedia == self.AudioPC:
             inputMedia = AudioPcStream()
 
