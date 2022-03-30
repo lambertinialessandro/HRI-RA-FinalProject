@@ -1,10 +1,10 @@
-from modules import VideoStreamModule
 
+from modules.factories.GlobalFactory import GlobalFactory
 
 import cv2
 
-
-video_stream_module = VideoStreamModule.WebcamStream()
+fim = GlobalFactory()
+video_stream_module, command_recognition, control = fim.createInput(GlobalFactory.VideoPC)
 
 try:
     while True:

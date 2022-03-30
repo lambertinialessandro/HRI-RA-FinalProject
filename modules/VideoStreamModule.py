@@ -29,6 +29,7 @@ class VideoDroneStream(VideoStreamModule):
     def __init__(self, tello: Tello):
         super().__init__()
         self.tello = tello
+
         self.w = 1280//2
         self.h = 720//2
 
