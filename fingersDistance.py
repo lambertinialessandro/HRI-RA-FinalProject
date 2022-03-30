@@ -9,7 +9,6 @@ import cv2
 import time
 import math
 from HandTrakingModule import HandDetector
-from win32api import GetSystemMetrics
 
 cap = cv2.VideoCapture(1)
 detector = HandDetector(maxHands=2, detectionCon=.75, trackCon=.75)
@@ -36,8 +35,6 @@ def pltDistance(p, d):
 pTime = 0
 cTime = 0
 
-dim = (GetSystemMetrics(0), GetSystemMetrics(1))
-
 while True:
     success, img = cap.read()
     img = detector.findHands(img, fingerTipRadius=5)
@@ -56,8 +53,6 @@ while True:
     cTime = time.time();
     fps = 1/(cTime - pTime)
     pTime = cTime
-
-    # img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 
     cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3,
                 (255, 0, 255), 3)
