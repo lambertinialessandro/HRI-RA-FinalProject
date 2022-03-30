@@ -7,7 +7,7 @@ Created on Mon Mar 28 14:19:26 2022
 
 import cv2
 
-from InputMedia import VideoDroneInputMedia, VideoPCInputMedia, AudioPCInputMedia
+from modules.VideoStreamModule import VideoStreamModule, VideoDroneStream, WebcamStream
 
 
 class FactoryInputMedia:
@@ -28,6 +28,7 @@ class FactoryInputMedia:
             inputMedia = AudioPCInputMedia()
 
         return inputMedia
+
 
 if __name__ == "__main__":
     fim = FactoryInputMedia()
