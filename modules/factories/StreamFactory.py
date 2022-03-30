@@ -6,7 +6,7 @@ Created on Mon Mar 28 14:19:26 2022
 """
 
 from modules.VideoStreamModule import VideoDroneStream, WebcamStream
-from modules.AudioStreamModule import AudioPcStream
+from modules.AudioStreamModule import ComputerMicrophoneStream
 
 
 class StreamFactory:
@@ -20,11 +20,11 @@ class StreamFactory:
     def createInput(self, typeInputMedia, drone=None):
         inputMedia = None
         if typeInputMedia == self.VideoDrone:
-            inputMedia = VideoDroneStream()
+            inputMedia = VideoDroneStream(drone)
         if typeInputMedia == self.VideoPC:
-            inputMedia = WebcamStream(drone)
+            inputMedia = WebcamStream()
         if typeInputMedia == self.AudioPC:
-            inputMedia = AudioPcStream()
+            inputMedia = ComputerMicrophoneStream()
 
         return inputMedia
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            img = inputMedia.get_stream()
+            img = inputMedia.get_stream_frame()
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
             if key == 27: # ESC

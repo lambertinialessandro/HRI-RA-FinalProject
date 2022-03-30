@@ -1,4 +1,4 @@
-
+#!/usr/local/bin/python3
 from modules import drone
 from modules.factories.GlobalFactory import GlobalFactory
 
