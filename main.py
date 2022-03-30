@@ -1,17 +1,14 @@
-from modules import drone, VideoStreamModule, ControlModule
+
+from modules import drone
+from modules.factories.GlobalFactory import GlobalFactory
 
 import cv2
 
-
 tello = drone.DJITello()
 
-# 1: VideoStreamModule
-# video_stream_module = VideoStreamModule.VideoDroneStream(tello)
-video_stream_module = VideoStreamModule.WebcamStream()
-# 2: CommandRecognitionModule
-# TODO
-# 3: ControlModule
-control_module = ControlModule.ControlModule(tello)
+fim = GlobalFactory()
+video_stream_module, command_recognition, control_module = fim.createInput(GlobalFactory.VideoDrone, tello)
+
 
 try:
     while True:
