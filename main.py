@@ -2,6 +2,8 @@
 from modules import drone
 from modules.factories.GlobalFactory import GlobalFactory
 
+from modules.ControlModule import Command
+
 import cv2
 
 tello = drone.DJITello()
@@ -16,11 +18,13 @@ try:
         key = cv2.waitKey(1)
         if key == 27:  # ESC
             break
+        elif key == ord('t'):
+            control_module.execute(Command.TAKE_OFF)
+        elif key == ord('l'):
+            control_module.execute(Command.LAND)
 except KeyboardInterrupt:
     pass
 finally:
     cv2.destroyAllWindows()
     video_stream_module.release_stream()
-
-
-tello.end()
+    control_module.end()

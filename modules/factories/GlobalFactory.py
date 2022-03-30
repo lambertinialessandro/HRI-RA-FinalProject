@@ -9,6 +9,7 @@ from modules.factories.StreamFactory import StreamFactory
 # from modules.factories.ControlRecognitionFactory import ControlRecognitionFactory
 from modules import ControlModule
 
+
 class GlobalFactory:
     VideoDrone = "VideoDrone"
     VideoPC = "VideoPC"
@@ -23,15 +24,15 @@ class GlobalFactory:
         command_recognition = None
         control = None
         if typeMedia == self.VideoDrone:
-            stream = self.sf.createInput(StreamFactory.VideoDrone, drone)
+            stream = self.sf.create_input(StreamFactory.VideoDrone, drone)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
         if typeMedia == self.VideoPC:
-            stream = self.sf.createInput(StreamFactory.VideoPC)
+            stream = self.sf.create_input(StreamFactory.VideoPC)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
         if typeMedia == self.AudioPC:
-            stream = self.sf.createInput(StreamFactory.AudioPC)
+            stream = self.sf.create_input(StreamFactory.AudioPC)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Audio)
             control = ControlModule.ControlModule(drone)
 

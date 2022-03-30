@@ -19,3 +19,7 @@ class ControlModule(ABC):
         elif command == Command.LAND:
             self._drone.land()
 
+    def end(self):
+        self._drone.land()
+        self._drone.end()
+
