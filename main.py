@@ -5,17 +5,22 @@ from modules.factories.GlobalFactory import GlobalFactory
 from modules.ControlModule import Command
 
 import cv2
+import schedule
+
 
 tello = drone.DJITello()
+battery = tello.battery
+schedule.every(10).seconds.do(lambda: globals().__setitem__("battery", tello.battery))
 
 fim = GlobalFactory()
-video_stream_module, command_recognition, control_module = fim.createInput(GlobalFactory.VideoDrone, tello)
-
+video_stream_module, command_recognition, control_module = fim.create_input(GlobalFactory.VideoDrone, tello)
 
 try:
     while True:
+        schedule.run_pending()  # update the battery if 10 seconds have passed
+
         frame = video_stream_module.get_stream_frame()
-        cv2.putText(frame, f"Battery: {tello.battery}%", (10, 10), cv2.FONT_HERSHEY_PLAIN, fontScale=2, color=(0, 0, 255))
+        cv2.putText(frame, f"Battery: {battery}%", (10, 40), cv2.FONT_HERSHEY_PLAIN, fontScale=3, color=(0, 0, 255), thickness=2)
         cv2.imshow("Video", frame)
 
         key = cv2.waitKey(1)

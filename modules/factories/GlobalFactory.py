@@ -17,21 +17,21 @@ class GlobalFactory:
 
     def __init__(self):
         self.sf = StreamFactory()
-        #self.crf = ControlRecognitionFactory()
+        # self.crf = ControlRecognitionFactory()
 
-    def createInput(self, typeMedia, drone=None):
+    def create_input(self, type_media, drone=None):
         stream = None
         command_recognition = None
         control = None
-        if typeMedia == self.VideoDrone:
+        if type_media == self.VideoDrone:
             stream = self.sf.create_input(StreamFactory.VideoDrone, drone)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
-        if typeMedia == self.VideoPC:
+        if type_media == self.VideoPC:
             stream = self.sf.create_input(StreamFactory.VideoPC)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
-        if typeMedia == self.AudioPC:
+        if type_media == self.AudioPC:
             stream = self.sf.create_input(StreamFactory.AudioPC)
             # command_recognition = self.crf.createInput(ControlRecognitionFactory.Audio)
             control = ControlModule.ControlModule(drone)
