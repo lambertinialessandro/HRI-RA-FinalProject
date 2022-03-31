@@ -1,26 +1,34 @@
 #!/usr/local/bin/python3
-from modules import drone
-from modules.factories.GlobalFactory import GlobalFactory
-
-from modules.ControlModule import Command
 
 import cv2
 import schedule
 
+from modules.DroneFactory import DroneFactory
+from modules.GlobalFactory import GlobalFactory
 
-tello = drone.DJITello()
-battery = tello.battery
-schedule.every(10).seconds.do(lambda: globals().__setitem__("battery", tello.battery))
 
-fim = GlobalFactory()
-video_stream_module, command_recognition, control_module = fim.create_input(GlobalFactory.VideoDrone, tello)
+from modules.control.ControlModule import Command
+
+
+df = DroneFactory()
+drone = df.create(DroneFactory.FakeDrone, CaptureAPI=cv2.CAP_DSHOW)
+
+battery = drone.battery
+schedule.every(10).seconds.do(lambda: globals().__setitem__("battery", drone.battery))
+
+gf = GlobalFactory()
+video_stream_module, command_recognition, control_module = gf.create(GlobalFactory.VideoDrone, drone)
 
 try:
     while True:
         schedule.run_pending()  # update the battery if 10 seconds have passed
 
         frame = video_stream_module.get_stream_frame()
-        cv2.putText(frame, f"Battery: {battery}%", (10, 40), cv2.FONT_HERSHEY_PLAIN, fontScale=3, color=(0, 0, 255), thickness=2)
+        command = command_recognition.get_command(frame)
+        control_module.execute(command)
+
+        cv2.putText(frame, f"Battery: {battery}%", (10, 15), cv2.FONT_HERSHEY_PLAIN,
+                    fontScale=1, color=(0, 0, 255), thickness=1)
         cv2.imshow("Video", frame)
 
         key = cv2.waitKey(1)
