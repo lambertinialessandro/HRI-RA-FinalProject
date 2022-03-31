@@ -1,9 +1,9 @@
+
 from abc import ABC
 from enum import Enum
-
-from modules.drone import Drone
-
 from threading import Thread
+
+from modules.drone.DroneModule import Drone
 
 
 class Command(Enum):
@@ -25,11 +25,11 @@ class ControlModule(ABC):
         Thread(target=self._execute, args=[command]).start()
 
     def end(self):
-        try:
-            self._drone.land()
-        except Exception:
-            # Drone has just landed
-            pass
-        
+        # try:
+        #     self._drone.land()
+        # except Exception:
+        #     # Drone has just landed
+        #     pass
+
         self._drone.end()
 
