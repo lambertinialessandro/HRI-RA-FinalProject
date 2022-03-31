@@ -1,4 +1,7 @@
+
 from abc import ABC, abstractmethod
+import cv2
+import numpy as np
 
 from djitellopy import Tello
 
@@ -66,3 +69,42 @@ class DJITello(Drone):
 
     def end(self):
         self._tello.end()
+
+
+class FakeDrone(Drone):
+    def __init__(self, CaptureAPI=None):
+        super(Drone, self).__init__()
+        self.inputIdx = 0
+        self.w = 1280//2
+        self.h = 720//2
+
+        self.cap = cv2.VideoCapture(self.inputIdx, CaptureAPI)
+
+    @property
+    def frame(self):
+        _, frame = self.cap.read()
+        return frame
+
+    def streamon(self):
+        print("Stream on")
+
+    def streamoff(self):
+        self.cap.release()
+        cv2.destroyAllWindows()
+        print("Stream off")
+
+    @property
+    def battery(self):
+        return str(np.random.randint(low=1, high=101))
+
+    def take_off(self):
+        print("Take off")
+
+    def land(self):
+        print("Land")
+
+    def end(self):
+        self.cap.release()
+        cv2.destroyAllWindows()
+
+
