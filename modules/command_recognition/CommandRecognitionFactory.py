@@ -9,7 +9,7 @@ import sys
 sys.path.append('../../')
 
 from modules.command_recognition.VideoCommandRecognitionModule import VideoCommandRecognition
-#from modules.command_recognition.AudioCommandRecognitionModule import AudioCommandRecognition
+from modules.command_recognition.AudioCommandRecognitionModule import AudioCommandRecognition
 
 
 class CommandRecognitionFactory:
@@ -23,8 +23,8 @@ class CommandRecognitionFactory:
         command_recognition = None
         if type_input == self.Video:
             command_recognition = VideoCommandRecognition()
-        # if type_input == self.Audio:
-        #     command_recognition = AudioCommandRecognition()
+        elif type_input == self.Audio:
+            command_recognition = AudioCommandRecognition()
 
         return command_recognition
 
