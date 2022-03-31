@@ -8,7 +8,7 @@ Created on Mon Mar 28 14:28:45 2022
 from abc import ABC, abstractmethod
 import cv2
 
-from modules.drone import Drone
+from modules.drone.DroneModule import Drone
 
 
 class VideoStreamModule(ABC):
@@ -43,14 +43,14 @@ class VideoDroneStream(VideoStreamModule):
 
 
 class WebcamStream(VideoStreamModule):
-    def __init__(self):
+    def __init__(self, CaptureAPI=None):
         super().__init__()
 
         self.inputIdx = 0
         self.w = 1280//2
         self.h = 720//2
 
-        self.cap = cv2.VideoCapture(self.inputIdx)
+        self.cap = cv2.VideoCapture(self.inputIdx, CaptureAPI)
 
     def get_stream_frame(self):
         _, frame = self.cap.read()
