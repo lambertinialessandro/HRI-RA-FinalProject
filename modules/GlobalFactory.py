@@ -22,7 +22,7 @@ class GlobalFactory:
         self.sf = StreamFactory()
         self.crf = CommandRecognitionFactory()
 
-    def create(self, type_input, drone=None, CaptureAPI=None):
+    def create(self, type_input, drone=None, capture_api=None):
         stream = None
         command_recognition = None
         control = None
@@ -31,7 +31,7 @@ class GlobalFactory:
             command_recognition = self.crf.create(CommandRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
         elif type_input == self.VideoPC:
-            stream = self.sf.create(StreamFactory.VideoPC, CaptureAPI)
+            stream = self.sf.create(StreamFactory.VideoPC, capture_api)
             command_recognition = self.crf.create(CommandRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
         elif type_input == self.AudioPC:
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     gf = GlobalFactory()
     stream, command_recognition, control = gf.create(
         GlobalFactory.VideoPC,
-        CaptureAPI=cv2.CAP_DSHOW) # cv2.CAP_DSHOW, None
+        capture_api=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
 
     try:
         while True:
@@ -62,4 +62,3 @@ if __name__ == "__main__":
     finally:
         stream.release_stream()
         cv2.destroyAllWindows()
-    pass
