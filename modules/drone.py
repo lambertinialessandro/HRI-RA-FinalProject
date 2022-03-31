@@ -65,4 +65,4 @@ class DJITello(Drone):
         self._tello.land()
 
     def end(self):
-        self.end()
+        self._tello.end()
