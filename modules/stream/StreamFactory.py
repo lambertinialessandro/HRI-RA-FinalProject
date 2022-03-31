@@ -25,9 +25,9 @@ class StreamFactory:
         if type_input == self.VideoDrone:
             assert drone is not None
             stream = VideoDroneStream(drone)
-        if type_input == self.VideoPC:
+        elif type_input == self.VideoPC:
             stream = WebcamStream(CaptureAPI)
-        if type_input == self.AudioPC:
+        elif type_input == self.AudioPC:
             stream = ComputerMicrophoneStream()
 
         return stream

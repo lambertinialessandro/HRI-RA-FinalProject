@@ -31,6 +31,8 @@ try:
                     fontScale=1, color=(0, 0, 255), thickness=1)
         cv2.imshow("Video", frame)
 
+
+
         key = cv2.waitKey(1)
         if key == 27:  # ESC
             break

@@ -30,11 +30,11 @@ class GlobalFactory:
             stream = self.sf.create(StreamFactory.VideoDrone, drone)
             command_recognition = self.crf.create(CommandRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
-        if type_input == self.VideoPC:
+        elif type_input == self.VideoPC:
             stream = self.sf.create(StreamFactory.VideoPC, CaptureAPI)
             command_recognition = self.crf.create(CommandRecognitionFactory.Video)
             control = ControlModule.ControlModule(drone)
-        if type_input == self.AudioPC:
+        elif type_input == self.AudioPC:
             stream = self.sf.create(StreamFactory.AudioPC)
             command_recognition = self.crf.create(CommandRecognitionFactory.Audio)
             control = ControlModule.ControlModule(drone)
