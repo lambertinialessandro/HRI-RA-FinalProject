@@ -127,7 +127,8 @@ class FakeDrone(Drone):
         print("Land")
 
     def end(self):
-        self.cap.release()
+        if self.stream_on:
+            self.cap.release()
         cv2.destroyAllWindows()
 
 
