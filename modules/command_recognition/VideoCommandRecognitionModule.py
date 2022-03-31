@@ -34,3 +34,5 @@ class VideoCommandRecognition(AbstractVideoCommandRecognition):
                     fontScale=1, color=(0, 0, 255), thickness=1)
 
         return None
+
+
