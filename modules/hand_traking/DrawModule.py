@@ -9,7 +9,7 @@ import time
 import cv2
 import math
 
-from HandEnum import HandEnum
+from modules.hand_traking.HandEnum import HandEnum
 
 
 # Draw FPS on the top left corner

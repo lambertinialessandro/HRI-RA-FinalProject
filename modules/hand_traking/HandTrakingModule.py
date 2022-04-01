@@ -6,9 +6,12 @@ Created on Fri Sep 17 12:11:55 2021
 """
 
 import cv2
+import math
 import mediapipe as mp
 
-import DrawModule
+from modules.hand_traking.HandEnum import HandEnum
+
+from modules.control.ControlModule import Command
 
 #
 # [ WARN:0@967.915] global D:\...\cap_msmf.cpp (539)
@@ -38,8 +41,7 @@ Minimum confidence value ([0.0, 1.0]) from the landmark-tracking model for the h
 
 class HandDetector():
     def __init__(self, mode=False, maxHands=2,
-                 detectionCon=.5, trackCon=.5,
-                 drawFunList=[]):
+                 detectionCon=.5, trackCon=.5):
         self.mode = mode # STATIC_IMAGE_MODE
         self.maxHands = maxHands # MAX_NUM_HANDS
         self.detectionCon = detectionCon # MIN_DETECTION_CONFIDENCE
@@ -52,20 +54,16 @@ class HandDetector():
                                         min_detection_confidence=self.detectionCon,
                                         min_tracking_confidence=self.trackCon)
 
-        self.drawFunList = []
-        for drawFun in drawFunList:
-            self.drawFunList.append(drawFun(self))
-
         self.allHands = []
         self.resultsData = False
 
-    def analizeImage(self, img, flipType=True):
+    def analize_frame(self, frame, flip_type=True):
         """
         Parameters
         ----------
         img : 3-dimensional array
 
-        flipType : boolean, optional
+        flip_type : boolean, optional
             The default is True.
             flip hands lable between left and right
         Returns
@@ -78,13 +76,13 @@ class HandDetector():
         """
         self.allHands = []
 
-        self.results = self.hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        self.results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         self.resultsData = False
 
         # collecting infos
         if self.results.multi_hand_landmarks:
             self.resultsData = True
-            h, w, c = img.shape
+            h, w, c = frame.shape
             for handType, handLms in zip(self.results.multi_handedness, self.results.multi_hand_landmarks):
                 myHand = {}
                 mylmList = []
@@ -115,7 +113,7 @@ class HandDetector():
                 myHand["bbox"] = bbox
                 myHand["center"] = (cx, cy)
 
-                if flipType:
+                if flip_type:
                     if handType.classification[0].label == "Right":
                         myHand["type"] = "Left"
                     else:
@@ -124,13 +122,60 @@ class HandDetector():
                     myHand["type"] = handType.classification[0].label
                 self.allHands.append(myHand)
 
-    def drawHands(self, img, **kwargs):
-        for drawFun in self.drawFunList:
-            funCode = drawFun.__code__
-            params = {k: kwargs[k] for k in funCode.co_varnames[2:funCode.co_argcount] if k in kwargs.keys()}
+    def execute(self, frame):
+        command = None
 
-            img = drawFun(self, img, **params)#**kwargs)
-        return img
+        rHand = self.getHandsInfo(handNo="Right")
+        if rHand:
+            #(cx, cy) = rHand["center"]
+            (wx, wy, wz) = rHand["lmList"][HandEnum.WRIST.value]
+            (pmx, pmy, pmz) = rHand["lmList"][HandEnum.PINKY_MCP.value]
+            (imx, imy, imz) = rHand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = rHand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
+
+            minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
+
+            distance = math.dist((imx, imy), (itx, ity))
+            angle = math.degrees(math.atan2(ity-imy, itx-imx))
+            #print(angle)
+            drawCommandColor = (0, 0, 0)
+            delta = 25 # max 45
+            action = ""
+
+            (mtx, mty, mtz) = rHand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = rHand["lmList"][HandEnum.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = rHand["lmList"][HandEnum.PINKY_TIP.value]
+            (rmx, rmy, rmz) = rHand["lmList"][HandEnum.RING_FINGER_MCP.value]
+
+            otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
+                                   math.dist((rtx, rty), (rmx, rmy)),
+                                   math.dist((ptx, pty), (rmx, rmy)))
+            if otherFingersDist > minDist:
+                return None
+
+            if distance > minDist:
+                if (-45+delta) < angle and angle < (45-delta):
+                    drawCommandColor = (255, 0, 0) # Blue -> left
+                    command = Command.ROTATE_CCW
+                    action = "ROTATE_CCW"
+                elif (45+delta) < angle and angle < (135-delta):
+                    drawCommandColor = (0, 255, 0) # Green -> bottom
+                    command = Command.MOVE_BACKWARD
+                    action = "MOVE_BACKWARD"
+                elif (-135+delta) < angle and angle < (-45-delta):
+                    drawCommandColor = (0, 0, 255) # Red -> top
+                    command = Command.MOVE_FORWARD
+                    action = "MOVE_FORWARD"
+                elif (135+delta) < angle or angle < (-135-delta):
+                    drawCommandColor = (255, 0, 255) # magenta -> right
+                    command = Command.ROTATE_CW
+                    action = "ROTATE_CW"
+
+            cv2.line(frame, (imx, imy), (itx, ity), drawCommandColor, 2)
+            cv2.putText(frame, action, (itx, ity), cv2.FONT_HERSHEY_PLAIN, 2,
+                        drawCommandColor, 2)
+
+        return command
 
     def getHandsInfo(self, handNo=-1):
         """
@@ -189,7 +234,7 @@ def main():
 
         while True:
             success, img = cap.read()
-            detector.analizeImage(img, flipType=True)
+            detector.analizeImage(img, flip_type=True)
             img = detector.drawHands(img,
                                      drawFps=True, drawFpsColor=(255, 0, 0), # BGR
                                      drawHand=False,
