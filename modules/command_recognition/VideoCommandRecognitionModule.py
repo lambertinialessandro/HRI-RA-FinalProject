@@ -6,11 +6,10 @@ Created on Thu Mar 31 17:09:20 2022
 """
 
 import sys
-sys.path.append('../')
+sys.path.append('../../')
 
 from abc import ABC, abstractmethod
 
-from modules.hand_traking import DrawModule
 from modules.hand_traking.HandTrakingModule import HandDetector
 
 class AbstractVideoCommandRecognition(ABC):

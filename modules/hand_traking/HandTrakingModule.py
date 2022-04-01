@@ -5,6 +5,9 @@ Created on Fri Sep 17 12:11:55 2021
 @author: lambe
 """
 
+import sys
+sys.path.append('../../')
+
 import cv2
 import math
 import mediapipe as mp
@@ -12,15 +15,6 @@ import mediapipe as mp
 from modules.hand_traking.HandEnum import HandEnum
 
 from modules.control.ControlModule import Command
-
-#
-# [ WARN:0@967.915] global D:\...\cap_msmf.cpp (539)
-# `anonymous-namespace'::SourceReaderCB::~SourceReaderCB terminating async callback
-#
-# https://github.com/opencv/opencv-python/issues/198
-#
-# solved with cv2.CAP_DSHOW
-#
 
 """
 STATIC_IMAGE_MODE:
@@ -56,6 +50,7 @@ class HandDetector():
 
         self.allHands = []
         self.resultsData = False
+
 
     def analize_frame(self, frame, flip_type=True):
         """
@@ -224,27 +219,13 @@ def main():
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
-        detector = HandDetector(detectionCon=.8, trackCon=.8,
-                                drawFunList=[
-                                    DrawModule.drawFps,
-                                    DrawModule.drawHand,
-                                    DrawModule.drawBbox,
-                                    DrawModule.drawFingerTip,
-                                    DrawModule.drawCommands])
+        detector = HandDetector(detectionCon=.8, trackCon=.8)
 
         while True:
             success, img = cap.read()
-            detector.analizeImage(img, flip_type=True)
-            img = detector.drawHands(img,
-                                     drawFps=True, drawFpsColor=(255, 0, 0), # BGR
-                                     drawHand=False,
-                                     drawBbox=False, drawBboxColor=(0, 0, 255), # BGR
-                                     drawFingerTip=False, drawFingerTipRadius=5,
-                                     drawFingerTipColor=(0, 255, 255), # BGR
-                                     drawCommand=True, drawCommandLine=2
-                                     )
-            #lmList = detector.getHandsInfo(handNo=-1)
-            #lmList = detector.getHandsInfo(handNo="Left")
+            detector.analize_frame(img, flip_type=True)
+            command = detector.execute(img)
+            print(command)
 
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
