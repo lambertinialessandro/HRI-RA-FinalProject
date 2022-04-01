@@ -7,6 +7,7 @@ Created on Fri Apr  1 12:04:21 2022
 
 from abc import ABC, abstractmethod
 import cv2
+import time
 import schedule
 
 from modules.control.ControlModule import Command
@@ -30,6 +31,9 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         self.battery = drone.battery
         schedule.every(10).seconds.do(self.__update_battery)
 
+        self.pTime = 0
+        self.cTime = 0
+
     def __update_battery(self):
         self.battery = self.drone.battery
 
@@ -42,8 +46,15 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                 command = self.command_recognition.get_command(frame)
                 self.control_module.execute(command)
 
+                self.cTime = time.time()
+                fps = int(1/(self.cTime - self.pTime))
+                self.pTime = self.cTime
+
                 cv2.putText(frame, f"Battery: {self.battery}%", (10, 15), cv2.FONT_HERSHEY_PLAIN, fontScale=1,
                             color=(0, 0, 255), thickness=1)
+                cv2.putText(frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
+                            fontScale=1, color=(0, 0, 255), thickness=1)
+
                 cv2.imshow("Video", frame)
 
                 key = cv2.waitKey(1)
