@@ -5,9 +5,13 @@ Created on Thu Mar 31 17:09:20 2022
 @author: lambe
 """
 
+import sys
+sys.path.append('../')
+
 from abc import ABC, abstractmethod
-import cv2
-import time
+
+from modules.hand_traking import DrawModule
+from modules.hand_traking.HandTrakingModule import HandDetector
 
 class AbstractVideoCommandRecognition(ABC):
     def __init__(self):
@@ -22,17 +26,41 @@ class AbstractVideoCommandRecognition(ABC):
 class VideoCommandRecognition(AbstractVideoCommandRecognition):
     def __init__(self):
         super().__init__()
-        self.pTime = 0
-        self.cTime = 0
+        self.detector = HandDetector(detectionCon=.8, trackCon=.8)
 
     def get_command(self, frame):
-        self.cTime = time.time()
-        fps = int(1/(self.cTime - self.pTime))
-        self.pTime = self.cTime
+        self.detector.analize_frame(frame, flip_type=True)
+        command = self.detector.execute(frame)
 
-        cv2.putText(frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
-                    fontScale=1, color=(0, 0, 255), thickness=1)
+        return command
 
-        return None
+
+def main():
+    import cv2
+
+    try:
+        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        cap.set(3, 1280//2)
+        cap.set(4, 720//2)
+        vcr = VideoCommandRecognition()
+
+        while True:
+            success, frame = cap.read()
+            command = vcr.get_command(frame)
+            print(command)
+
+            cv2.imshow("Image", frame)
+            key = cv2.waitKey(1)
+            if key == 27: # ESC
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+    except:
+        cap.release()
+        cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
 
 
