@@ -20,12 +20,18 @@ class DroneFactory:
     def __init__(self):
         pass
 
-    def create(self, type_drone, CaptureAPI=None):
+    def create(self, capture_api=None):
         drone = None
-        if type_drone == self.DJITello:
+
+        print("Which Drone? \n"+
+              "    1) DJITello \n"+
+              "    2) FakeDrone \n")
+        type_drone = input('Drone: ');
+
+        if type_drone == "1": # DJITello
             drone = DJITello()
-        elif type_drone == self.FakeDrone:
-            drone = FakeDrone(CaptureAPI=cv2.CAP_DSHOW)
+        elif type_drone == "2": # FakeDrone
+            drone = FakeDrone(capture_api=capture_api)
 
         return drone
 
@@ -33,8 +39,13 @@ class DroneFactory:
 if __name__ == "__main__":
     import cv2
 
+    import platform
+    capture_api = None
+    if platform.system() == '':
+        capture_api = cv2.CAP_DSHOW
+
     df = DroneFactory()
-    drone = df.create(DroneFactory.FakeDrone, CaptureAPI=cv2.CAP_DSHOW) # cv2.CAP_DSHOW, None
+    drone = df.create(capture_api=capture_api)
     drone.streamon()
 
     try:
