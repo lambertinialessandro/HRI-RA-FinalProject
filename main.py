@@ -1,7 +1,6 @@
 #!/usr/local/bin/python3
 
 import cv2
-import schedule
 
 from modules.DroneFactory import DroneFactory
 from modules.GlobalFactory import GlobalFactory
@@ -13,21 +12,21 @@ if platform.system() == 'Windows':
     capture_api = cv2.CAP_DSHOW
 
 
+# BUILDING THE DRONE
 df = DroneFactory()
 drone = df.create(capture_api=capture_api)
 
+# BUILDING EXECUTION SEQUENCE
 gf = GlobalFactory()
 templatye_pattern = gf.create(drone=drone, capture_api=capture_api)
 
 
-battery = drone.battery
-schedule.every(10).seconds.do(lambda: globals().__setitem__("battery", drone.battery))
-
-
+# STARTING THE EXECUTION SEQUENCE
 templatye_pattern.execute()
 
 
-
-
+#
+# for debugging schedule.get_jobs()
+#
 
 
