@@ -35,23 +35,32 @@ class GlobalFactory:
               "    3) AudioPC \n")
         type_input = input('Input: ');
 
-        if type_input == "1": #☻ VideoDrone
+        if type_input == "1": # VideoDrone
             stream_module = self.sf.create(StreamFactory.VideoDrone, drone=drone)
             command_recognition = self.crf.create(CommandRecognitionFactory.Video)
             control_module = ControlModule.ControlModule(drone)
-            templatye_pattern = VideoTemplatePattern(stream_module, command_recognition, control_module)
+            templatye_pattern = VideoTemplatePattern(stream_module,
+                                                     command_recognition,
+                                                     control_module,
+                                                     drone)
 
         elif type_input == "2": # VideoPC
             stream_module = self.sf.create(StreamFactory.VideoPC, capture_api=capture_api)
             command_recognition = self.crf.create(CommandRecognitionFactory.Video)
             control_module = ControlModule.ControlModule(drone)
-            templatye_pattern = VideoTemplatePattern(stream_module, command_recognition, control_module)
+            templatye_pattern = VideoTemplatePattern(stream_module,
+                                                     command_recognition,
+                                                     control_module,
+                                                     drone)
 
         elif type_input == "3": # AudioPC
             stream_module = self.sf.create(StreamFactory.AudioPC)
             command_recognition = self.crf.create(CommandRecognitionFactory.Audio)
             control_module = ControlModule.ControlModule(drone)
-            templatye_pattern = AudioTemplatePattern(stream_module, command_recognition, control_module)
+            templatye_pattern = AudioTemplatePattern(stream_module,
+                                                     command_recognition,
+                                                     control_module,
+                                                     drone)
 
         return templatye_pattern
 
