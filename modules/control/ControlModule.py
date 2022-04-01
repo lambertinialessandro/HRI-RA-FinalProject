@@ -24,6 +24,9 @@ class Command(Enum):
 
     STOP_EXECUTION = 1000
 
+    def __str__(self):
+        return self.name
+
 
 class ControlModule(ABC):
     def __init__(self, drone: Drone):
