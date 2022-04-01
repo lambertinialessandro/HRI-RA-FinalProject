@@ -8,8 +8,6 @@ Created on Thu Mar 31 15:20:52 2022
 import sys
 sys.path.append('../')
 
-import cv2
-
 from modules.drone.DroneModule import DJITello, FakeDrone
 
 
