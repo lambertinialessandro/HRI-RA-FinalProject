@@ -20,13 +20,13 @@ class StreamFactory:
     def __init__(self):
         pass
 
-    def create(self, type_input, drone=None, CaptureAPI=None):
+    def create(self, type_input, drone=None, capture_api=None):
         stream = None
         if type_input == self.VideoDrone:
             assert drone is not None
             stream = VideoDroneStream(drone)
         elif type_input == self.VideoPC:
-            stream = WebcamStream(CaptureAPI)
+            stream = WebcamStream(capture_api=capture_api)
         elif type_input == self.AudioPC:
             stream = ComputerMicrophoneStream()
 
@@ -36,8 +36,13 @@ class StreamFactory:
 if __name__ == "__main__":
     import cv2
 
+    import platform
+    capture_api = None
+    if platform.system() == '':
+        capture_api = cv2.CAP_DSHOW
+
     sf = StreamFactory()
-    stream = sf.create(StreamFactory.VideoPC, CaptureAPI=cv2.CAP_DSHOW) # cv2.CAP_DSHOW, None
+    stream = sf.create(StreamFactory.VideoPC, capture_api=capture_api)
 
     try:
         while True:

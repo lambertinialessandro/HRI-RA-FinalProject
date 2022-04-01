@@ -43,14 +43,14 @@ class VideoDroneStream(VideoStreamModule):
 
 
 class WebcamStream(VideoStreamModule):
-    def __init__(self, CaptureAPI=None):
+    def __init__(self, capture_api=None):
         super().__init__()
 
         self.inputIdx = 0
         self.w = 1280//2
         self.h = 720//2
 
-        self.cap = cv2.VideoCapture(self.inputIdx, CaptureAPI)
+        self.cap = cv2.VideoCapture(self.inputIdx, capture_api)
 
     def get_stream_frame(self):
         _, frame = self.cap.read()

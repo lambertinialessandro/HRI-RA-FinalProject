@@ -83,10 +83,10 @@ class FakeDrone(Drone):
     _stream_on = False
     _is_flying = False
 
-    def __init__(self, CaptureAPI=None):
+    def __init__(self, capture_api=None):
         super(Drone, self).__init__()
         self.inputIdx = 0
-        self.CaptureAPI = CaptureAPI
+        self.capture_api = capture_api
         self.w = 1280//2
         self.h = 720//2
 
@@ -97,7 +97,7 @@ class FakeDrone(Drone):
 
     def streamon(self):
         self._stream_on = True
-        self.cap = cv2.VideoCapture(self.inputIdx, self.CaptureAPI)
+        self.cap = cv2.VideoCapture(self.inputIdx, self.capture_api)
         print("Stream on")
 
     def streamoff(self):
