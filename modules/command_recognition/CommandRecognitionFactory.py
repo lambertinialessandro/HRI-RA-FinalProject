@@ -6,10 +6,11 @@ Created on Thu Mar 31 16:41:12 2022
 """
 
 import sys
-sys.path.append('../../')
 
 from modules.command_recognition.VideoCommandRecognitionModule import VideoCommandRecognition
 from modules.command_recognition.AudioCommandRecognitionModule import AudioCommandRecognition
+
+sys.path.append('../../')
 
 
 class CommandRecognitionFactory:
@@ -19,11 +20,12 @@ class CommandRecognitionFactory:
     def __init__(self):
         pass
 
-    def create(self, type_input):
+    @staticmethod
+    def create(type_input):
         command_recognition = None
-        if type_input == self.Video:
+        if type_input == CommandRecognitionFactory.Video:
             command_recognition = VideoCommandRecognition()
-        elif type_input == self.Audio:
+        elif type_input == CommandRecognitionFactory.Audio:
             command_recognition = AudioCommandRecognition()
 
         return command_recognition
@@ -33,10 +35,8 @@ if __name__ == "__main__":
     import cv2
     from modules.stream.StreamFactory import StreamFactory
 
-    sf = StreamFactory()
-    stream = sf.create(StreamFactory.VideoPC, CaptureAPI=cv2.CAP_DSHOW) # cv2.CAP_DSHOW, None
-    crf = CommandRecognitionFactory()
-    command_recognition = crf.create(CommandRecognitionFactory.Video)
+    stream = StreamFactory.create(StreamFactory.VideoPC, CaptureAPI=cv2.CAP_DSHOW) # cv2.CAP_DSHOW, None
+    command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
 
     try:
         while True:

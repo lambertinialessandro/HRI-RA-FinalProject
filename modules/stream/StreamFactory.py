@@ -6,10 +6,11 @@ Created on Mon Mar 28 14:19:26 2022
 """
 
 import sys
-sys.path.append('../../')
 
 from modules.stream.VideoStreamModule import VideoDroneStream, WebcamStream
 from modules.stream.AudioStreamModule import ComputerMicrophoneStream
+
+sys.path.append('../../')
 
 
 class StreamFactory:
@@ -20,14 +21,15 @@ class StreamFactory:
     def __init__(self):
         pass
 
-    def create(self, type_input, drone=None, capture_api=None):
+    @staticmethod
+    def create(type_input, drone=None, capture_api=None):
         stream = None
-        if type_input == self.VideoDrone:
+        if type_input == StreamFactory.VideoDrone:
             assert drone is not None
             stream = VideoDroneStream(drone)
-        elif type_input == self.VideoPC:
+        elif type_input == StreamFactory.VideoPC:
             stream = WebcamStream(capture_api=capture_api)
-        elif type_input == self.AudioPC:
+        elif type_input == StreamFactory.AudioPC:
             stream = ComputerMicrophoneStream()
 
         return stream
@@ -41,8 +43,7 @@ if __name__ == "__main__":
     if platform.system() == '':
         capture_api = cv2.CAP_DSHOW
 
-    sf = StreamFactory()
-    stream = sf.create(StreamFactory.VideoPC, capture_api=capture_api)
+    stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=capture_api)
 
     try:
         while True:
