@@ -45,7 +45,7 @@ class HandDetector:
         self.all_hands = []
         self.results_data = False
 
-    def analize_frame(self, frame, flip_type=True):
+    def analyze_frame(self, frame, flip_type=True):
         """
         Parameters
         ----------
