@@ -2,9 +2,7 @@ import sys
 
 from abc import ABC, abstractmethod
 
-from modules.hand_tracking.HandTrakingModule import HandDetector
-from modules.holistic_tracking.HolisticModule import HolisticDetector
-from modules.face_tracking.FaceTrackingModule import FaceDetector
+from modules.face_tracking.FaceTrackingModule import FaceDetector, FaceTrackingModule
 
 sys.path.append('../../')
 
@@ -14,7 +12,7 @@ class AbstractVideoCommandRecognition(ABC):
         pass
 
     @abstractmethod
-    def get_command(self, frame):
+    def get_command(self, frame) -> tuple:
         pass
 
 
@@ -22,13 +20,12 @@ class VideoCommandRecognition(AbstractVideoCommandRecognition):
     def __init__(self):
         super().__init__()
         # self.detector = HandDetector(detection_con=.8, track_con=.8)
-        self.detector = HolistichDetector(detection_con=.8, track_con=.8)
+        self.detector = FaceTrackingModule()
+        # self.detector = HolistichDetector(detection_con=.8, track_con=.8)
 
-    def get_command(self, frame):
-        self.detector.analize_frame(frame, flip_type=True)
-        command = self.detector.execute(frame)
-
-        return command
+    def get_command(self, frame) -> tuple:
+        command, value = self.detector.execute(frame)
+        return command, value
 
 
 def main():

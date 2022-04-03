@@ -5,7 +5,9 @@ from threading import Thread
 from modules.drone.DroneModule import Drone
 
 
-class Command(Enum):
+class Command:
+    NONE = 0
+
     TAKE_OFF = 1
     LAND = 2
     STREAM_ON = 3
@@ -31,7 +33,7 @@ class ControlModule(ABC):
     def __init__(self, drone: Drone):
         self._drone = drone
 
-    def _execute(self, command: Command):
+    def _execute(self, command: Command, value=None):
         if command == Command.TAKE_OFF:
             self._drone.take_off()
         elif command == Command.LAND:
@@ -48,10 +50,10 @@ class ControlModule(ABC):
             self._drone
 
         elif command == Command.ROTATE_CW:
-            self._drone.rotate_cw()
+            self._drone.rotate_cw(value)
 
         elif command == Command.ROTATE_CCW:
-            self._drone.rotate_ccw()
+            self._drone.rotate_ccw(value)
 
         elif command == Command.FOLLOW_ME:
             self._drone
@@ -59,8 +61,8 @@ class ControlModule(ABC):
         elif command == Command.STOP_EXECUTION:
             self._drone
 
-    def execute(self, command: Command):
-        Thread(target=self._execute, args=[command]).start()
+    def execute(self, command: Command, value=None):
+        Thread(target=self._execute, args=[command, value]).start()
 
     def end(self):
         self._drone.end()

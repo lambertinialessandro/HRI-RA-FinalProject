@@ -3,9 +3,37 @@ import dataclasses
 import cv2
 import mediapipe as mp
 
+from simple_pid import PID
+
+from modules.control.ControlModule import Command
+
 
 class FaceTrackingModule:
-    pass
+    def __init__(self):
+        self._detector = FaceDetector()
+        self._pid = PID(1, 0, 0.05, sample_time=1)
+
+    # TODO
+    def execute(self, frame) -> tuple:
+        goal_x = frame.shape[1] // 2
+        self._pid.setpoint = goal_x
+
+        bboxes = self._detector.analyze_frame(frame)
+
+        if len(bboxes) > 0:
+            face = bboxes[0]
+            face_center = face.center
+
+            control = self._pid(face_center[0]) / goal_x
+
+            control *= 15
+
+            if control > 0:
+                return Command.ROTATE_CCW, control
+            else:
+                return Command.ROTATE_CW, control
+        else:
+            return Command.NONE, None
 
 
 class FaceDetector:

@@ -5,6 +5,7 @@ import schedule
 from threading import Lock
 
 from modules.control.ControlModule import Command
+from modules.face_tracking.FaceTrackingModule import FaceTrackingModule
 
 
 class AbstractTemplatePattern(ABC):
@@ -27,7 +28,6 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         self.battery = drone.battery
         schedule.every(10).seconds.do(self.__update_battery)
 
-        self.frame = None
         self.command = None
 
         self.pTime = 0
@@ -36,32 +36,38 @@ class VideoTemplatePattern(AbstractTemplatePattern):
     def __update_battery(self):
         self.battery = self.drone.battery
 
-    def __command(self):
-        if not self.mutex.locked():
-            if self.command == Command.LAND:
-                self.mutex.acquire()
-            self.control_module.execute(self.command)
-
     def execute(self):
-        schedule.every(1).seconds.do(self.__command)
         try:
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
 
-                self.frame = self.video_stream_module.get_stream_frame()
-                self.command = self.command_recognition.get_command(self.frame)
+                # 1. Get the frame
+                frame = self.video_stream_module.get_stream_frame()
+
+                # 2. Get the command
+                self.command, value = self.command_recognition.get_command(frame)
+
+                # 3. Execute the comand
+                if not self.mutex.locked() and self.command:
+                    if self.command == Command.LAND:
+                        self.mutex.acquire()
+
+                    print(f"Command: {self.command} Value: {value}")
+
+                    self.control_module.execute(self.command, value)
+                    self.command = None
 
                 self.cTime = time.time()
                 fps = int(1/(self.cTime - self.pTime))
                 self.pTime = self.cTime
 
-                cv2.putText(self.frame, f"Battery: {self.battery}%", (10, 15),
+                cv2.putText(frame, f"Battery: {self.battery}%", (10, 15),
                             cv2.FONT_HERSHEY_PLAIN, fontScale=1,
                             color=(0, 0, 255), thickness=1)
-                cv2.putText(self.frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
+                cv2.putText(frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
                             fontScale=1, color=(0, 0, 255), thickness=1)
 
-                cv2.imshow("Video", self.frame)
+                cv2.imshow("Video", frame)
 
                 key = cv2.waitKey(1)
                 if key == 27:  # ESC

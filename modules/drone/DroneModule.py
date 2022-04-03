@@ -46,6 +46,14 @@ class Drone(ABC):
         pass
 
     @abstractmethod
+    def rotate_cw(self, value):
+        pass
+
+    @abstractmethod
+    def rotate_ccw(self, value):
+        pass
+
+    @abstractmethod
     def end(self):
         pass
 
@@ -91,11 +99,11 @@ class DJITello(Drone):
     def end(self):
         self._tello.end()
 
-    def rotate_cw(self):
-        self._tello.rotate_clockwise(15)
+    def rotate_cw(self, value):
+        self._tello.rotate_clockwise(value)
 
-    def rotate_ccw(self):
-        self._tello.rotate_counter_clockwise(15)
+    def rotate_ccw(self, value):
+        self._tello.rotate_counter_clockwise(value)
 
 
 class FakeDrone(Drone):
@@ -149,6 +157,12 @@ class FakeDrone(Drone):
         if self._is_flying:
             self._is_flying = False
             print("Land")
+
+    def rotate_cw(self, value):
+        pass
+
+    def rotate_ccw(self, value):
+        pass
 
     def end(self):
         if self.is_streaming:
