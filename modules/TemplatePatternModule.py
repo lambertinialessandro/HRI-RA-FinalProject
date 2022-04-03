@@ -31,25 +31,30 @@ class VideoTemplatePattern(AbstractTemplatePattern):
     def __update_battery(self):
         self.battery = self.drone.battery
 
+    def __command(self):
+        command = self.command_recognition.get_command(self.frame)
+        self.control_module.execute(command)
+
     def execute(self):
+        schedule.every(1).seconds.do(self.__command)
         try:
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
 
-                frame = self.video_stream_module.get_stream_frame()
-                command = self.command_recognition.get_command(frame)
-                self.control_module.execute(command)
+                self.frame = self.video_stream_module.get_stream_frame()
+
 
                 self.cTime = time.time()
                 fps = int(1/(self.cTime - self.pTime))
                 self.pTime = self.cTime
 
-                cv2.putText(frame, f"Battery: {self.battery}%", (10, 15), cv2.FONT_HERSHEY_PLAIN, fontScale=1,
+                cv2.putText(self.frame, f"Battery: {self.battery}%", (10, 15),
+                            cv2.FONT_HERSHEY_PLAIN, fontScale=1,
                             color=(0, 0, 255), thickness=1)
-                cv2.putText(frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
+                cv2.putText(self.frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
                             fontScale=1, color=(0, 0, 255), thickness=1)
 
-                cv2.imshow("Video", frame)
+                cv2.imshow("Video", self.frame)
 
                 key = cv2.waitKey(1)
                 if key == 27:  # ESC
