@@ -35,6 +35,7 @@ class ComputerMicrophoneStream(AudioStreamModule):
                 voice = self.listener.listen(source, timeout=5, phrase_time_limit=5)
                 try:
                     command = self.listener.recognize_google(voice)
+                    print(command)
                 except speech_recognition.UnknownValueError:
                     return ""
                 command = command.lower()
