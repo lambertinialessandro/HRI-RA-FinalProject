@@ -1,31 +1,25 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 31 17:09:20 2022
-
-@author: lambe
-"""
-
 import sys
-sys.path.append('../../')
 
 from abc import ABC, abstractmethod
 
 from modules.hand_traking.HandTrakingModule import HandDetector
 
+sys.path.append('../../')
+
+
 class AbstractVideoCommandRecognition(ABC):
     def __init__(self):
         pass
 
-    @classmethod
     @abstractmethod
-    def get_command(cls):
+    def get_command(self, frame):
         pass
 
 
 class VideoCommandRecognition(AbstractVideoCommandRecognition):
     def __init__(self):
         super().__init__()
-        self.detector = HandDetector(detectionCon=.8, trackCon=.8)
+        self.detector = HandDetector(detection_con=.8, track_con=.8)
 
     def get_command(self, frame):
         self.detector.analize_frame(frame, flip_type=True)
@@ -59,7 +53,6 @@ def main():
         cap.release()
         cv2.destroyAllWindows()
 
+
 if __name__ == "__main__":
     main()
-
-

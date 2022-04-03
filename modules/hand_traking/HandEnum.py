@@ -1,11 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Mar 27 15:28:45 2022
-
-@author: lambe
-"""
-
 from enum import Enum
+
 
 class HandEnum(Enum):
     WRIST = 0

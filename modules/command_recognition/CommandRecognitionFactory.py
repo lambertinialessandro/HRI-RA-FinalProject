@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 31 16:41:12 2022
-
-@author: lambe
-"""
-
 import sys
 
 from modules.command_recognition.VideoCommandRecognitionModule import VideoCommandRecognition
@@ -35,7 +28,7 @@ if __name__ == "__main__":
     import cv2
     from modules.stream.StreamFactory import StreamFactory
 
-    stream = StreamFactory.create(StreamFactory.VideoPC, CaptureAPI=cv2.CAP_DSHOW) # cv2.CAP_DSHOW, None
+    stream = StreamFactory.create(StreamFactory.VideoPC, CaptureAPI=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
     command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
 
     try:

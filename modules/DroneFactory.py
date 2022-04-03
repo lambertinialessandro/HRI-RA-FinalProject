@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 31 15:20:52 2022
-
-@author: lambe
-"""
-
 import sys
-sys.path.append('../')
 
 from modules.drone.DroneModule import DJITello, FakeDrone
+
+sys.path.append('../')
 
 
 class DroneFactory:

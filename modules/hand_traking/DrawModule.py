@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Mar 27 16:01:48 2022
-
-@author: lambe
-"""
-
 import time
 import cv2
 import math
@@ -31,18 +24,18 @@ def drawFps(obj):
 # Draw hand connections
 def drawHand(obj):
     def f(self, img, drawHand=False):#, **kwargs):
-        if self.resultsData and drawHand:
+        if self.results_data and drawHand:
             for handLms in self.results.multi_hand_landmarks:
-                    self.mpDraw.draw_landmarks(img, handLms,
-                                               self.mpHands.HAND_CONNECTIONS)
+                    self.mp_draw.draw_landmarks(img, handLms,
+                                                self.mp_hands.HAND_CONNECTIONS)
         return img
     return f
 
 # Draw Bbox
 def drawBbox(obj):
     def f(self, img, drawBbox=False, drawBboxColor=(255, 0, 255)):#, **kwargs):
-        if self.resultsData and drawBbox:
-            for hand in self.allHands:
+        if self.results_data and drawBbox:
+            for hand in self.all_hands:
                 bbox = hand["bbox"]
                 cv2.rectangle(img, (bbox[0] - 20, bbox[1] - 20),
                               (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
@@ -56,8 +49,8 @@ def drawBbox(obj):
 def drawFingerTip(obj):
     def f(self, img, drawFingerTip=False, drawFingerTipRadius=15,
           drawFingerTipColor=(255, 0, 255)):#, **kwargs):
-        if self.resultsData and drawFingerTip:
-            for hand in self.allHands:
+        if self.results_data and drawFingerTip:
+            for hand in self.all_hands:
                 lmList = hand["lmList"]
                 for idlm in HandEnum.tips():
                     (cx, cy, cz) = lmList[idlm]
@@ -72,8 +65,8 @@ def drawFingerTip(obj):
 
 def drawCommands(obj):
     def f(self, img, drawCommand=False, drawCommandLine=3):#, **kwargs):
-        if self.resultsData and drawCommand:
-            rHand = self.getHandsInfo(handNo="Right")
+        if self.results_data and drawCommand:
+            rHand = self.get_hands_info(hand_no="Right")
             if rHand:
                 #(cx, cy) = rHand["center"]
                 (wx, wy, wz) = rHand["lmList"][HandEnum.WRIST.value]

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 17 17:58:55 2021
-
-@author: lambe
-"""
-
 import cv2
 import time
 import math

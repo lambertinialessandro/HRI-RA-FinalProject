@@ -1,12 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 17 12:11:55 2021
-
-@author: lambe
-"""
-
 import sys
-sys.path.append('../../')
 
 import cv2
 import math
@@ -15,6 +7,8 @@ import mediapipe as mp
 from modules.hand_traking.HandEnum import HandEnum
 
 from modules.control.ControlModule import Command
+
+sys.path.append('../../')
 
 """
 STATIC_IMAGE_MODE:
@@ -33,30 +27,29 @@ MIN_TRACKING_CONFIDENCE:
 Minimum confidence value ([0.0, 1.0]) from the landmark-tracking model for the hand landmarks to be considered tracked successfully, or otherwise hand detection will be invoked automatically on the next input image. Setting it to a higher value can increase robustness of the solution, at the expense of a higher latency. Ignored if static_image_mode is true, where hand detection simply runs on every image. Default to 0.5.
 """
 
-class HandDetector():
-    def __init__(self, mode=False, maxHands=2,
-                 detectionCon=.5, trackCon=.5):
-        self.mode = mode # STATIC_IMAGE_MODE
-        self.maxHands = maxHands # MAX_NUM_HANDS
-        self.detectionCon = detectionCon # MIN_DETECTION_CONFIDENCE
-        self.trackCon = trackCon # MIN_TRACKING_CONFIDENCE
 
-        self.mpDraw = mp.solutions.drawing_utils
-        self.mpHands = mp.solutions.hands
-        self.hands = self.mpHands.Hands(static_image_mode=self.mode,
-                                        max_num_hands=self.maxHands,
-                                        min_detection_confidence=self.detectionCon,
-                                        min_tracking_confidence=self.trackCon)
+class HandDetector:
+    def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5):
+        self.mode = mode  # STATIC_IMAGE_MODE
+        self.max_hands = max_hands  # MAX_NUM_HANDS
+        self.detection_con = detection_con  # MIN_DETECTION_CONFIDENCE
+        self.track_con = track_con  # MIN_TRACKING_CONFIDENCE
 
-        self.allHands = []
-        self.resultsData = False
+        self.mp_draw = mp.solutions.drawing_utils
+        self.mp_hands = mp.solutions.hands
+        self.hands = self.mp_hands.Hands(static_image_mode=self.mode,
+                                         max_num_hands=self.max_hands,
+                                         min_detection_confidence=self.detection_con,
+                                         min_tracking_confidence=self.track_con)
 
+        self.all_hands = []
+        self.results_data = False
 
     def analize_frame(self, frame, flip_type=True):
         """
         Parameters
         ----------
-        img : 3-dimensional array
+        frame : 3-dimensional array
 
         flip_type : boolean, optional
             The default is True.
@@ -69,20 +62,20 @@ class HandDetector():
         to get this data use: getHandsInfo
 
         """
-        self.allHands = []
+        self.all_hands = []
 
-        self.results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        self.resultsData = False
+        results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        self.results_data = False
 
         # collecting infos
-        if self.results.multi_hand_landmarks:
-            self.resultsData = True
+        if results.multi_hand_landmarks:
+            self.results_data = True
             h, w, c = frame.shape
-            for handType, handLms in zip(self.results.multi_handedness, self.results.multi_hand_landmarks):
-                myHand = {}
-                mylmList = []
-                xList = []
-                yList = []
+            for handType, handLms in zip(results.multi_handedness, results.multi_hand_landmarks):
+                my_hand = {}
+                mylm_list = []
+                x_list = []
+                y_list = []
 
                 # data = handType.classification[0]
                 # print("{}, {:.2f}, {}".format(data.index,
@@ -91,56 +84,56 @@ class HandDetector():
 
                 for id, lm in enumerate(handLms.landmark):
                     px, py, pz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
-                    mylmList.append([px, py, pz])
-                    xList.append(px)
-                    yList.append(py)
+                    mylm_list.append([px, py, pz])
+                    x_list.append(px)
+                    y_list.append(py)
 
-                ## bbox
-                xmin, xmax = min(xList), max(xList)
-                ymin, ymax = min(yList), max(yList)
+                # bbox
+                xmin, xmax = min(x_list), max(x_list)
+                ymin, ymax = min(y_list), max(y_list)
                 boxW = xmax - xmin
                 boxH = ymax - ymin
                 bbox = xmin, ymin, boxW, boxH
                 cx = bbox[0] + (bbox[2] // 2)
                 cy = bbox[1] + (bbox[3] // 2)
 
-                myHand["lmList"] = mylmList
-                myHand["bbox"] = bbox
-                myHand["center"] = (cx, cy)
+                my_hand["lmList"] = mylm_list
+                my_hand["bbox"] = bbox
+                my_hand["center"] = (cx, cy)
 
                 if flip_type:
                     if handType.classification[0].label == "Right":
-                        myHand["type"] = "Left"
+                        my_hand["type"] = "Left"
                     else:
-                        myHand["type"] = "Right"
+                        my_hand["type"] = "Right"
                 else:
-                    myHand["type"] = handType.classification[0].label
-                self.allHands.append(myHand)
+                    my_hand["type"] = handType.classification[0].label
+                self.all_hands.append(my_hand)
 
     def execute(self, frame):
         command = None
 
-        rHand = self.getHandsInfo(handNo="Right")
-        if rHand:
-            #(cx, cy) = rHand["center"]
-            (wx, wy, wz) = rHand["lmList"][HandEnum.WRIST.value]
-            (pmx, pmy, pmz) = rHand["lmList"][HandEnum.PINKY_MCP.value]
-            (imx, imy, imz) = rHand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
-            (itx, ity, itz) = rHand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
+        r_hand = self.get_hands_info(hand_no="Right")
+        if r_hand:
+            # (cx, cy) = r_hand["center"]
+            (wx, wy, wz) = r_hand["lmList"][HandEnum.WRIST.value]
+            (pmx, pmy, pmz) = r_hand["lmList"][HandEnum.PINKY_MCP.value]
+            (imx, imy, imz) = r_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = r_hand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
 
             minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
 
             distance = math.dist((imx, imy), (itx, ity))
             angle = math.degrees(math.atan2(ity-imy, itx-imx))
             #print(angle)
-            drawCommandColor = (0, 0, 0)
+            draw_command_color = (0, 0, 0)
             delta = 25 # max 45
             action = ""
 
-            (mtx, mty, mtz) = rHand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
-            (rtx, rty, rtz) = rHand["lmList"][HandEnum.RING_FINGER_TIP.value]
-            (ptx, pty, ptz) = rHand["lmList"][HandEnum.PINKY_TIP.value]
-            (rmx, rmy, rmz) = rHand["lmList"][HandEnum.RING_FINGER_MCP.value]
+            (mtx, mty, mtz) = r_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = r_hand["lmList"][HandEnum.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = r_hand["lmList"][HandEnum.PINKY_TIP.value]
+            (rmx, rmy, rmz) = r_hand["lmList"][HandEnum.RING_FINGER_MCP.value]
 
             otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
                                    math.dist((rtx, rty), (rmx, rmy)),
@@ -149,34 +142,33 @@ class HandDetector():
                 return None
 
             if distance > minDist:
-                if (-45+delta) < angle and angle < (45-delta):
-                    drawCommandColor = (255, 0, 0) # Blue -> left
+                if (-45 + delta) < angle < (45 - delta):
+                    draw_command_color = (255, 0, 0) # Blue -> left
                     command = Command.ROTATE_CCW
                     action = "ROTATE_CCW"
-                elif (45+delta) < angle and angle < (135-delta):
-                    drawCommandColor = (0, 255, 0) # Green -> bottom
+                elif (45 + delta) < angle < (135 - delta):
+                    draw_command_color = (0, 255, 0) # Green -> bottom
                     command = Command.MOVE_BACKWARD
                     action = "MOVE_BACKWARD"
-                elif (-135+delta) < angle and angle < (-45-delta):
-                    drawCommandColor = (0, 0, 255) # Red -> top
+                elif (-135 + delta) < angle < (-45 - delta):
+                    draw_command_color = (0, 0, 255) # Red -> top
                     command = Command.MOVE_FORWARD
                     action = "MOVE_FORWARD"
                 elif (135+delta) < angle or angle < (-135-delta):
-                    drawCommandColor = (255, 0, 255) # magenta -> right
+                    draw_command_color = (255, 0, 255) # magenta -> right
                     command = Command.ROTATE_CW
                     action = "ROTATE_CW"
 
-            cv2.line(frame, (imx, imy), (itx, ity), drawCommandColor, 2)
-            cv2.putText(frame, action, (itx, ity), cv2.FONT_HERSHEY_PLAIN, 2,
-                        drawCommandColor, 2)
+            cv2.line(frame, (imx, imy), (itx, ity), draw_command_color, 2)
+            cv2.putText(frame, action, (itx, ity), cv2.FONT_HERSHEY_PLAIN, 2, draw_command_color, 2)
 
         return command
 
-    def getHandsInfo(self, handNo=-1):
+    def get_hands_info(self, hand_no=-1):
         """
         Parameters
         ----------
-        handNo : int | str, optional
+        hand_no : int | str, optional
             The default is -1.
             int:
                 -1: return data of all hands
@@ -192,26 +184,24 @@ class HandDetector():
             DESCRIPTION.
 
         """
-        if isinstance(handNo, (int)):
-            assert handNo < self.maxHands
+        if isinstance(hand_no, int):
+            assert hand_no < self.max_hands
 
-            if handNo < 0:
-                return self.allHands
+            if hand_no < 0:
+                return self.all_hands
             else:
-                if handNo <= len(self.allHands):
-                    return self.allHands[handNo]
-        elif isinstance(handNo, (str)):
-            if handNo.lower() == "left":
-                for hand in self.allHands:
+                if hand_no <= len(self.all_hands):
+                    return self.all_hands[hand_no]
+        elif isinstance(hand_no, str):
+            if hand_no.lower() == "left":
+                for hand in self.all_hands:
                     if hand["type"].lower() == "left":
                         return hand
-            elif handNo.lower() == "right":
-                for hand in self.allHands:
+            elif hand_no.lower() == "right":
+                for hand in self.all_hands:
                     if hand["type"].lower() == "right":
                         return hand
         return []
-
-
 
 
 def main():
@@ -219,7 +209,7 @@ def main():
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
-        detector = HandDetector(detectionCon=.8, trackCon=.8)
+        detector = HandDetector(detection_con=.8, track_con=.8)
 
         while True:
             success, img = cap.read()
@@ -237,6 +227,7 @@ def main():
     except:
         cap.release()
         cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()

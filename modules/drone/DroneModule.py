@@ -1,4 +1,3 @@
-
 from abc import ABC, abstractmethod
 import cv2
 import numpy as np
@@ -89,6 +88,7 @@ class FakeDrone(Drone):
         self.capture_api = capture_api
         self.w = 1280//2
         self.h = 720//2
+        self.cap = None
 
     @property
     def frame(self):
@@ -130,5 +130,3 @@ class FakeDrone(Drone):
         if self.stream_on:
             self.cap.release()
         cv2.destroyAllWindows()
-
-

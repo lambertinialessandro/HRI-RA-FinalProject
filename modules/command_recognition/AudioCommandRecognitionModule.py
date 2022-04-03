@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 31 17:54:42 2022
-
-@author: lambe
-"""
-
 from abc import ABC, abstractmethod
 import pyttsx3
 
@@ -15,9 +8,8 @@ class AbstractAudioCommandRecognition(ABC):
     def __init__(self):
         pass
 
-    @classmethod
     @abstractmethod
-    def get_command(cls):
+    def get_command(self, text):
         pass
 
 
@@ -59,11 +51,11 @@ class AudioCommandRecognition(AbstractAudioCommandRecognition):
 
         return None
 
+
 def main():
     from modules.stream.StreamFactory import StreamFactory
 
-    sf = StreamFactory()
-    stream = sf.create(StreamFactory.AudioPC)
+    stream = StreamFactory.create(StreamFactory.AudioPC)
     acr = AudioCommandRecognition()
 
     state = True
@@ -74,6 +66,7 @@ def main():
 
         if command == Command.STOP_EXECUTION:
             state = False
+
 
 if __name__ == "__main__":
     main()

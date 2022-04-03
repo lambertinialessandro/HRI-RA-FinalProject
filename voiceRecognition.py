@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 25 13:02:58 2022
-
-@author: lambe
-"""
-
 import speech_recognition as sr
 import pyttsx3
 

@@ -1,4 +1,3 @@
-
 from abc import ABC
 from enum import Enum
 from threading import Thread
@@ -59,7 +58,6 @@ class ControlModule(ABC):
 
         elif command == Command.STOP_EXECUTION:
             self._drone
-
 
     def execute(self, command: Command):
         Thread(target=self._execute, args=[command]).start()

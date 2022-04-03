@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 28 14:19:26 2022
-
-@author: lambe
-"""
-
 import sys
 
 from modules.stream.VideoStreamModule import VideoDroneStream, WebcamStream

@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr  1 12:04:21 2022
-
-@author: lambe
-"""
-
 from abc import ABC, abstractmethod
 import cv2
 import time
 import schedule
 
 from modules.control.ControlModule import Command
+
 
 class AbstractTemplatePattern(ABC):
     def __init__(self, video_stream_module, command_recognition, control_module):

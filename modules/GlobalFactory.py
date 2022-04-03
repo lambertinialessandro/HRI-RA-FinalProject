@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 30 12:43:10 2022
-
-@author: lambe
-"""
-
 import sys
 
 from modules.stream.StreamFactory import StreamFactory
@@ -21,10 +14,33 @@ class GlobalFactory:
     AudioPC = "AudioPC"
 
     def __init__(self):
-        self.crf = CommandRecognitionFactory()
+        pass
 
     @staticmethod
-    def create(drone=None, capture_api=None):
+    def create(type_input, drone=None, capture_api=None):
+        stream = None
+        command_recognition = None
+        control = None
+        if type_input == GlobalFactory.VideoDrone:
+            stream = StreamFactory.create(StreamFactory.VideoDrone, drone)
+            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
+            control = ControlModule.ControlModule(drone)
+        elif type_input == self.VideoPC:
+            stream = self.sf.create(StreamFactory.VideoPC, capture_api)
+            command_recognition = self.crf.create(CommandRecognitionFactory.Video)
+            control = ControlModule.ControlModule(drone)
+        elif type_input == self.AudioPC:
+            stream = self.sf.create(StreamFactory.AudioPC)
+            command_recognition = self.crf.create(CommandRecognitionFactory.Audio)
+            control = ControlModule.ControlModule(drone)
+
+        return stream, command_recognition, control
+
+
+
+
+
+
         stream_module = None
         command_recognition = None
         control_module = None

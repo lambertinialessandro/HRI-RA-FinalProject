@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 28 14:28:45 2022
-
-@author: lambe
-"""
-
 from abc import ABC, abstractmethod
 import cv2
 
