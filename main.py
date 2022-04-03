@@ -14,7 +14,7 @@ if platform.system() == 'Windows':
 
 
 # BUILDING THE DRONE
-drone = DroneFactory.create(capture_api=capture_api)
+drone = DroneFactory.create(DroneFactory.DJITello, capture_api=capture_api)
 
 # BUILDING EXECUTION SEQUENCE
 template_pattern = GlobalFactory.create(drone=drone, capture_api=capture_api)

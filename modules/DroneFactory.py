@@ -13,17 +13,11 @@ class DroneFactory:
         pass
 
     @staticmethod
-    def create(capture_api=None):
+    def create(type_drone, capture_api=None):
         drone = None
-
-        print("Which Drone? \n"+
-              "    1) DJITello \n"+
-              "    2) FakeDrone \n")
-        type_drone = input('Drone: ')
-
-        if type_drone == "1":  # DJITello
+        if type_drone == DroneFactory.DJITello:
             drone = DJITello()
-        elif type_drone == "2":  # FakeDrone
+        elif type_drone == DroneFactory.FakeDrone:
             drone = FakeDrone(capture_api=capture_api)
 
         return drone
@@ -37,7 +31,7 @@ if __name__ == "__main__":
     if platform.system() == 'Windows':
         capture_api = cv2.CAP_DSHOW
 
-    drone = DroneFactory.create(capture_api=capture_api)
+    drone = DroneFactory.create(DroneFactory.DJITello, capture_api=capture_api)
     drone.streamon()
 
     try:
