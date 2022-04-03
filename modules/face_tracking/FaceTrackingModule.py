@@ -4,50 +4,40 @@ import cv2
 import mediapipe as mp
 
 
+class FaceTrackingModule:
+    pass
+
+
 class FaceDetector:
     def __init__(self, model_selection=1, min_detection_confidence=.5):
-
-        self.mp_draw = mp.solutions.drawing_utils
-        self.mp_face_detection = mp.solutions.face_detection
-
-        self.faceDetection = self.mp_face_detection.FaceDetection(
+        self.face_detection = mp.solutions.face_detection.FaceDetection(
             model_selection=model_selection,
             min_detection_confidence=min_detection_confidence)
 
-        self.all_bboxes = []
-        self.results_data = False
-        self.results = None
-
     def analyze_frame(self, frame):
-        self.results = self.faceDetection.process(frame)
+        results = self.face_detection.process(frame)
 
-        self.all_bboxes = []
-        if not self.results.detections:
-            self.results_data = False
-            return frame
-        self.results_data = True
+        all_bboxes = []
+        if not results.detections:
+            return all_bboxes
 
         # collecting infos
         h, w, c = frame.shape
-        center = w//2, h//2
-        for id, detection in enumerate(self.results.detections):
+        for id, detection in enumerate(results.detections):
             bbox_c = detection.location_data.relative_bounding_box
             bbox = FaceDetector.BBox(x=int(bbox_c.xmin * w),
                                      y=int(bbox_c.ymin * h),
                                      w=int(bbox_c.width * w),
                                      h=int(bbox_c.height * h))
-            self.all_bboxes.append(bbox)
+            all_bboxes.append(bbox)
 
             cv2.circle(frame, bbox.center, 2, (0, 255, 0), cv2.FILLED)
             cv2.rectangle(frame, bbox.to_tuple, (255, 0, 255), 2)
             cv2.putText(frame, f'{int(detection.score[0]*100)}%',
                         (bbox.x, bbox.y-20), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
-        cv2.circle(frame, center, 2, (0, 0, 255), cv2.FILLED)
-        return frame
 
-    def execute(self, frame):
-        pass
+        return all_bboxes
 
     @dataclasses.dataclass
     class BBox:
@@ -55,6 +45,10 @@ class FaceDetector:
         y: int
         w: int
         h: int
+
+        @property
+        def center(self) -> tuple:
+            return int(self.x + self.w // 2), int(self.y + self.h // 2)
 
         @property
         def to_tuple(self) -> tuple:
@@ -70,8 +64,8 @@ def main():
 
         while True:
             success, img = cap.read()
-            img = detector.analyze_frame(img)
-            print(detector.all_bboxes)
+            bboxes = detector.analyze_frame(img)
+            print(bboxes)
 
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
