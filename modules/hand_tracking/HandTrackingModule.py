@@ -4,7 +4,7 @@ import cv2
 import math
 import mediapipe as mp
 
-from modules.hand_traking.HandEnum import HandEnum
+from modules.hand_tracking.HandEnum import HandEnum
 
 from modules.control.ControlModule import Command
 

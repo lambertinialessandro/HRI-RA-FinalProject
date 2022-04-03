@@ -6,7 +6,7 @@ from djitellopy import Tello
 import cv2
 from threading import Thread
 
-import HandTrakingModule
+import HandTrackingModule
 
 name = "alexa"
 tello = Tello()
@@ -58,7 +58,7 @@ def run_alexa():
     print("Executing: "+command)
     if 'start video' in command:
         talk("Starting video!")
-        HandTrakingModule.main()
+        HandTrackingModule.main()
 
     elif 'stop video' in command:
         talk("Video stopped!")

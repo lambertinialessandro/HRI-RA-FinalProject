@@ -2,7 +2,7 @@ import sys
 
 from abc import ABC, abstractmethod
 
-from modules.hand_traking.HandTrakingModule import HandDetector
+from modules.hand_tracking.HandTrackingModule import HandDetector
 
 sys.path.append('../../')
 
