@@ -148,11 +148,11 @@ class HandDetector:
                     action = "ROTATE_CCW"
                 elif (45 + delta) < angle < (135 - delta):
                     draw_command_color = (0, 255, 0) # Green -> bottom
-                    command = Command.MOVE_BACKWARD
+                    command = Command.LAND
                     action = "MOVE_BACKWARD"
                 elif (-135 + delta) < angle < (-45 - delta):
                     draw_command_color = (0, 0, 255) # Red -> top
-                    command = Command.MOVE_FORWARD
+                    command = Command.TAKE_OFF
                     action = "MOVE_FORWARD"
                 elif (135+delta) < angle or angle < (-135-delta):
                     draw_command_color = (255, 0, 255) # magenta -> right

@@ -48,10 +48,10 @@ class ControlModule(ABC):
             self._drone
 
         elif command == Command.ROTATE_CW:
-            self._drone
+            self._drone.rotate_cw()
 
         elif command == Command.ROTATE_CCW:
-            self._drone
+            self._drone.rotate_ccw()
 
         elif command == Command.FOLLOW_ME:
             self._drone

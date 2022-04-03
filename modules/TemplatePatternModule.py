@@ -61,6 +61,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         except KeyboardInterrupt:
             pass
         finally:
+            print("Done!")
             cv2.destroyAllWindows()
             self.video_stream_module.release_stream()
             self.control_module.end()

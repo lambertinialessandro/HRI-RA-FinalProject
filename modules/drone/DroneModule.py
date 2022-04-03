@@ -51,10 +51,12 @@ class DJITello(Drone):
         return self._tello.get_frame_read().frame
 
     def streamon(self):
-        self._tello.streamon()
+        if not self.is_streaming:
+            self._tello.streamon()
 
     def streamoff(self):
-        self._tello.streamoff()
+        if self.is_streaming:
+            self._tello.streamoff()
 
     @property
     def battery(self):
@@ -65,17 +67,25 @@ class DJITello(Drone):
         return self._tello.is_flying
 
     @property
-    def stream_on(self):
+    def is_streaming(self):
         return self._tello.stream_on
 
     def take_off(self):
-        self._tello.takeoff()
+        if not self.is_flying:
+            self._tello.takeoff()
 
     def land(self):
-        self._tello.land()
+        if self.is_flying:
+            self._tello.land()
 
     def end(self):
         self._tello.end()
+
+    def rotate_cw(self):
+        self._tello.rotate_clockwise(5)
+
+    def rotate_ccw(self):
+        self._tello.rotate_counter_clockwise(5)
 
 
 class FakeDrone(Drone):
@@ -96,22 +106,24 @@ class FakeDrone(Drone):
         return frame
 
     def streamon(self):
-        self._stream_on = True
-        self.cap = cv2.VideoCapture(self.inputIdx, self.capture_api)
-        print("Stream on")
+        if not self._stream_on:
+            self._stream_on = True
+            self.cap = cv2.VideoCapture(self.inputIdx, self.capture_api)
+            print("Stream on")
 
     def streamoff(self):
-        self._stream_on = False
-        self.cap.release()
-        cv2.destroyAllWindows()
-        print("Stream off")
+        if self._stream_on:
+            self._stream_on = False
+            self.cap.release()
+            cv2.destroyAllWindows()
+            print("Stream off")
 
     @property
     def battery(self):
         return str(np.random.randint(low=1, high=101))
 
     @property
-    def stream_on(self):
+    def is_streaming(self):
         return self._stream_on
 
     @property
@@ -119,12 +131,14 @@ class FakeDrone(Drone):
         return self._is_flying
 
     def take_off(self):
-        self._is_flying = True
-        print("Take off")
+        if not self._is_flying:
+            self._is_flying = True
+            print("Take off")
 
     def land(self):
-        self._is_flying = False
-        print("Land")
+        if self._is_flying:
+            self._is_flying = False
+            print("Land")
 
     def end(self):
         if self.stream_on:
