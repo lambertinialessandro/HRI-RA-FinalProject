@@ -38,11 +38,23 @@ class Drone(ABC):
 
     # Controls
     @abstractmethod
+    def set_rc_controls(self, lr, fb, up, j):
+        pass
+
+    @abstractmethod
     def take_off(self):
         pass
 
     @abstractmethod
     def land(self):
+        pass
+
+    @abstractmethod
+    def move_up(self, value):
+        pass
+
+    @abstractmethod
+    def move_down(self, value):
         pass
 
     @abstractmethod
@@ -88,22 +100,31 @@ class DJITello(Drone):
     def is_streaming(self):
         return self._tello.stream_on
 
+    def set_rc_controls(self, lr, fb, up, j):
+        return self._tello.send_rc_control(lr, fb, up, j)
+
     def take_off(self):
         if not self.is_flying:
             self._tello.takeoff()
 
     def land(self):
-        if self.is_flying:
-            self._tello.land()
+        # if self.is_flying:
+        self._tello.land()
 
-    def end(self):
-        self._tello.end()
+    def move_up(self, value):
+        self._tello.move_up(value)
+
+    def move_down(self, value):
+        self._tello.move_down(value)
 
     def rotate_cw(self, value):
         self._tello.rotate_clockwise(value)
 
     def rotate_ccw(self, value):
         self._tello.rotate_counter_clockwise(value)
+
+    def end(self):
+        self._tello.end()
 
 
 class FakeDrone(Drone):
@@ -147,6 +168,9 @@ class FakeDrone(Drone):
     @property
     def is_flying(self):
         return self._is_flying
+
+    def set_rc_controls(self, lr, fb, up, j):
+        pass
 
     def take_off(self):
         if not self._is_flying:

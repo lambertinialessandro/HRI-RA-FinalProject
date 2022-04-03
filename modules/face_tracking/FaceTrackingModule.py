@@ -10,8 +10,10 @@ from modules.control.ControlModule import Command
 
 class FaceTrackingModule:
     def __init__(self):
-        self._detector = FaceDetector()
-        self._pid = PID(1, 0, 0.05, sample_time=1)
+        self._detector = FaceDetector(min_detection_confidence=0.8)
+        self._pid = PID(1, 0, 0.05, sample_time=0.05)
+
+        self.old_control = None
 
     # TODO
     def execute(self, frame) -> tuple:
@@ -24,14 +26,18 @@ class FaceTrackingModule:
             face = bboxes[0]
             face_center = face.center
 
-            control = self._pid(face_center[0]) / goal_x
+            control = self._pid(face_center[0])
 
-            control *= 15
-
-            if control > 0:
-                return Command.ROTATE_CCW, control
+            if control == self.old_control:
+                return Command.NONE, 0
             else:
-                return Command.ROTATE_CW, control
+                self.old_control = control
+
+            control /= goal_x
+            control *= -100
+            control = int(control)
+
+            return Command.SET_JAW, control
         else:
             return Command.NONE, None
 

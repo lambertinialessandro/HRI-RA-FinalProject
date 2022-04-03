@@ -48,7 +48,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                 self.command, value = self.command_recognition.get_command(frame)
 
                 # 3. Execute the comand
-                if not self.mutex.locked() and self.command:
+                if not self.mutex.locked() and self.command != Command.NONE:
                     if self.command == Command.LAND:
                         self.mutex.acquire()
 
@@ -76,6 +76,10 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                     self.control_module.execute(Command.TAKE_OFF)
                 elif key == ord('l'):
                     self.control_module.execute(Command.LAND)
+                elif key == ord('r'):
+                    self.control_module.execute(Command.MOVE_UP, 10)
+                elif key == ord('f'):
+                    self.control_module.execute(Command.MOVE_DOWN, 10)
         except KeyboardInterrupt:
             pass
         finally:
