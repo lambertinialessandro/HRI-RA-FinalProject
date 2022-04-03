@@ -2,7 +2,7 @@ import sys
 
 from modules.drone.DroneModule import DJITello, FakeDrone
 
-sys.path.append('../')
+sys.path.append('../../')
 
 
 class DroneFactory:

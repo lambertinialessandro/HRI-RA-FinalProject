@@ -2,7 +2,7 @@
 
 import cv2
 
-from modules.DroneFactory import DroneFactory
+from modules.drone.DroneFactory import DroneFactory
 from modules.GlobalFactory import GlobalFactory
 
 
@@ -17,7 +17,7 @@ if platform.system() == 'Windows':
 drone = DroneFactory.create(DroneFactory.DJITello, capture_api=capture_api)
 
 # BUILDING EXECUTION SEQUENCE
-template_pattern = GlobalFactory.create(drone=drone, capture_api=capture_api)
+template_pattern = GlobalFactory.create(GlobalFactory.VideoDrone, drone=drone, capture_api=capture_api)
 
 
 # STARTING THE EXECUTION SEQUENCE
