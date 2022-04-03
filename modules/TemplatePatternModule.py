@@ -81,8 +81,8 @@ class VideoTemplatePattern(AbstractTemplatePattern):
 
 
 class AudioTemplatePattern(AbstractTemplatePattern):
-    def __init__(self, video_stream_module, command_recognition, control_module, drone):
-        super().__init__(video_stream_module, command_recognition, control_module)
+    def __init__(self, audio_stream_module, command_recognition, control_module, drone):
+        super().__init__(audio_stream_module, command_recognition, control_module)
         self.drone = drone
         self.battery = drone.battery
         schedule.every(10).seconds.do(self.__update_battery)
@@ -96,7 +96,7 @@ class AudioTemplatePattern(AbstractTemplatePattern):
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
 
-                word = self.video_stream_module.get_stream_word()
+                word = self.audio_stream_module.get_stream_word()
                 command = self.command_recognition.get_command(word)
                 self.control_module.execute(command)
 
@@ -107,6 +107,6 @@ class AudioTemplatePattern(AbstractTemplatePattern):
             pass
         finally:
             cv2.destroyAllWindows()
-            self.video_stream_module.release_stream()
+            self.audio_stream_module.release_stream()
             self.control_module.end()
             schedule.clear()
