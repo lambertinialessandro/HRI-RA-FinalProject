@@ -1,7 +1,7 @@
 import cv2
 import time
 import math
-from HandTrakingModule import HandDetector
+from HandTrackingModule import HandDetector
 
 cap = cv2.VideoCapture(1)
 detector = HandDetector(maxHands=2, detectionCon=.75, trackCon=.75)
