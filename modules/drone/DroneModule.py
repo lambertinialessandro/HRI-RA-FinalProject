@@ -26,6 +26,16 @@ class Drone(ABC):
     def battery(self):
         pass
 
+    @property
+    @abstractmethod
+    def is_flying(self):
+        pass
+
+    @property
+    @abstractmethod
+    def is_streaming(self):
+        pass
+
     # Controls
     @abstractmethod
     def take_off(self):
@@ -141,6 +151,6 @@ class FakeDrone(Drone):
             print("Land")
 
     def end(self):
-        if self.stream_on:
+        if self.is_streaming:
             self.cap.release()
         cv2.destroyAllWindows()
