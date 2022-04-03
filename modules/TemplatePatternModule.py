@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import cv2
 import time
 import schedule
+from threading import Lock
 
 from modules.control.ControlModule import Command
 
@@ -11,6 +12,7 @@ class AbstractTemplatePattern(ABC):
         self.video_stream_module = video_stream_module
         self.command_recognition = command_recognition
         self.control_module = control_module
+        self.mutex = Lock()
 
     @classmethod
     @abstractmethod
@@ -25,6 +27,9 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         self.battery = drone.battery
         schedule.every(10).seconds.do(self.__update_battery)
 
+        self.frame = None
+        self.command = None
+
         self.pTime = 0
         self.cTime = 0
 
@@ -32,8 +37,10 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         self.battery = self.drone.battery
 
     def __command(self):
-        command = self.command_recognition.get_command(self.frame)
-        self.control_module.execute(command)
+        if not self.mutex.locked():
+            if self.command == Command.LAND:
+                self.mutex.acquire()
+            self.control_module.execute(self.command)
 
     def execute(self):
         schedule.every(1).seconds.do(self.__command)
@@ -42,7 +49,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                 schedule.run_pending()  # update the battery if 10 seconds have passed
 
                 self.frame = self.video_stream_module.get_stream_frame()
-
+                self.command = self.command_recognition.get_command(self.frame)
 
                 self.cTime = time.time()
                 fps = int(1/(self.cTime - self.pTime))

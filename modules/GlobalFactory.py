@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     import platform
     capture_api = None
-    if platform.system() == '':
+    if platform.system() == 'Windows':
         capture_api = cv2.CAP_DSHOW
 
     templatye_pattern = GlobalFactory.create(GlobalFactory.VideoDrone, capture_api=capture_api)

@@ -127,7 +127,7 @@ class HandDetector:
             angle = math.degrees(math.atan2(ity-imy, itx-imx))
             #print(angle)
             draw_command_color = (0, 0, 0)
-            delta = 25 # max 45
+            delta = 25  # max 45
             action = ""
 
             (mtx, mty, mtz) = r_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
@@ -144,20 +144,20 @@ class HandDetector:
             if distance > minDist:
                 if (-45 + delta) < angle < (45 - delta):
                     draw_command_color = (255, 0, 0) # Blue -> left
-                    command = Command.ROTATE_CCW
-                    action = "ROTATE_CCW"
+                    command = Command.ROTATE_CW
+                    action = "ROTATE_CW"
                 elif (45 + delta) < angle < (135 - delta):
                     draw_command_color = (0, 255, 0) # Green -> bottom
                     command = Command.LAND
-                    action = "MOVE_BACKWARD"
+                    action = "LAND"
                 elif (-135 + delta) < angle < (-45 - delta):
                     draw_command_color = (0, 0, 255) # Red -> top
                     command = Command.TAKE_OFF
                     action = "MOVE_FORWARD"
                 elif (135+delta) < angle or angle < (-135-delta):
                     draw_command_color = (255, 0, 255) # magenta -> right
-                    command = Command.ROTATE_CW
-                    action = "ROTATE_CW"
+                    command = Command.ROTATE_CCW
+                    action = "ROTATE_CCW"
 
             cv2.line(frame, (imx, imy), (itx, ity), draw_command_color, 2)
             cv2.putText(frame, action, (itx, ity), cv2.FONT_HERSHEY_PLAIN, 2, draw_command_color, 2)

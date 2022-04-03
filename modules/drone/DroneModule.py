@@ -92,10 +92,10 @@ class DJITello(Drone):
         self._tello.end()
 
     def rotate_cw(self):
-        self._tello.rotate_clockwise(5)
+        self._tello.rotate_clockwise(15)
 
     def rotate_ccw(self):
-        self._tello.rotate_counter_clockwise(5)
+        self._tello.rotate_counter_clockwise(15)
 
 
 class FakeDrone(Drone):
