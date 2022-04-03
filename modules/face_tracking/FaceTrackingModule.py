@@ -40,6 +40,14 @@ class FaceDetector:
                         2, (255, 0, 255), 2)
         return frame
 
+    def get_faces_info(self, face_no=-1):
+        if isinstance(face_no, int):
+            if face_no < 0:
+                return self.all_bboxes
+            elif face_no < len(self.all_bboxes):
+                    return self.all_bboxes[face_no]
+        return []
+
     @dataclasses.dataclass
     class BBox:
         top_left_corner: tuple
