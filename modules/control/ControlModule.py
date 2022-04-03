@@ -18,7 +18,7 @@ class Command:
     MOVE_UP = 11
     MOVE_DOWN = 12
 
-    SET_JAW = 29
+    SET_RC = 29
 
     ROTATE_CW = 30
     ROTATE_CCW = 40
@@ -54,8 +54,8 @@ class ControlModule(ABC):
             self._drone.move_up(value)
         elif command == Command.MOVE_DOWN:
             self._drone.move_down(value)
-        elif command == Command.SET_JAW:
-            self._drone.set_rc_controls(0, 0, 0, value)
+        elif command == Command.SET_RC:
+            self._drone.set_rc_controls(*value)
         elif command == Command.ROTATE_CW:
             self._drone.rotate_cw(value)
 

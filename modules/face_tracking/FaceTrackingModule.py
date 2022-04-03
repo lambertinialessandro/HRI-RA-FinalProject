@@ -10,15 +10,20 @@ from modules.control.ControlModule import Command
 
 class FaceTrackingModule:
     def __init__(self):
-        self._detector = FaceDetector(min_detection_confidence=0.8)
-        self._pid = PID(1, 0, 0.05, sample_time=0.05)
+        self._detector = FaceDetector(min_detection_confidence=0.6)
+        self._pid_x = PID(0.7, 0.01, 0.05, sample_time=0.01)
+        self._pid_y = PID(0.7, 0.01, 0.05, sample_time=0.01)
 
-        self.old_control = None
+        self.old_control_x = None
+        self.old_control_y = None
 
     # TODO
     def execute(self, frame) -> tuple:
+        goal_y = frame.shape[0] // 2
         goal_x = frame.shape[1] // 2
-        self._pid.setpoint = goal_x
+
+        self._pid_x.setpoint = goal_x
+        self._pid_y.setpoint = goal_y
 
         bboxes = self._detector.analyze_frame(frame)
 
@@ -26,20 +31,28 @@ class FaceTrackingModule:
             face = bboxes[0]
             face_center = face.center
 
-            control = self._pid(face_center[0])
+            control_x = self._pid_x(face_center[0])
+            control_y = self._pid_y(face_center[1])
 
-            if control == self.old_control:
-                return Command.NONE, 0
-            else:
-                self.old_control = control
+            if control_x == self.old_control_x and control_y == self.old_control_y:
+                return Command.NONE, None
 
-            control /= goal_x
-            control *= -100
-            control = int(control)
+            if control_x != self.old_control_x:
+                self.old_control_x = control_x
+            if control_y != self.old_control_y:
+                self.old_control_y = control_y
 
-            return Command.SET_JAW, control
+            control_x /= goal_x
+            control_x *= -100
+
+            control_y /= goal_y
+            control_y *= 100
+
+            control = (0, 0, int(control_y), int(control_x))
+
+            return Command.SET_RC, control
         else:
-            return Command.NONE, None
+            return Command.SET_RC, (0, 0, 0, 0)
 
 
 class FaceDetector:

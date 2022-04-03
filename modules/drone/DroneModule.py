@@ -182,6 +182,12 @@ class FakeDrone(Drone):
             self._is_flying = False
             print("Land")
 
+    def move_up(self, value):
+        pass
+
+    def move_down(self, value):
+        pass
+
     def rotate_cw(self, value):
         pass
 
