@@ -1,5 +1,6 @@
 djitellopy
 mediapipe
+numpy
 opencv-python
 SpeechRecognition
 schedule

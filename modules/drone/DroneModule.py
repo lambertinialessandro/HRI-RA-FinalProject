@@ -26,6 +26,16 @@ class Drone(ABC):
     def battery(self):
         pass
 
+    @property
+    @abstractmethod
+    def is_flying(self):
+        pass
+
+    @property
+    @abstractmethod
+    def is_streaming(self):
+        pass
+
     # Controls
     @abstractmethod
     def take_off(self):
@@ -65,7 +75,7 @@ class DJITello(Drone):
         return self._tello.is_flying
 
     @property
-    def stream_on(self):
+    def is_streaming(self):
         return self._tello.stream_on
 
     def take_off(self):
@@ -111,7 +121,7 @@ class FakeDrone(Drone):
         return str(np.random.randint(low=1, high=101))
 
     @property
-    def stream_on(self):
+    def is_streaming(self):
         return self._stream_on
 
     @property
@@ -127,6 +137,6 @@ class FakeDrone(Drone):
         print("Land")
 
     def end(self):
-        if self.stream_on:
+        if self.is_streaming:
             self.cap.release()
         cv2.destroyAllWindows()
