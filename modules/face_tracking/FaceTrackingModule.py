@@ -10,8 +10,9 @@ class FaceDetector:
         self.mp_draw = mp.solutions.drawing_utils
         self.mp_face_detection = mp.solutions.face_detection
 
-        self.faceDetection = self.mp_face_detection.FaceDetection(model_selection=model_selection,
-                                         min_detection_confidence=min_detection_confidence)
+        self.faceDetection = self.mp_face_detection.FaceDetection(
+            model_selection=model_selection,
+            min_detection_confidence=min_detection_confidence)
 
         self.all_bboxes = []
         self.results_data = False
@@ -30,32 +31,31 @@ class FaceDetector:
         h, w, c = frame.shape
         for id, detection in enumerate(self.results.detections):
             bbox_c = detection.location_data.relative_bounding_box
-            bbox = FaceDetector.BBox(top_left_corner=(int(bbox_c.xmin * w), int(bbox_c.ymin * h)),
-                                     size=(int(bbox_c.width * w), int(bbox_c.height * h)))
+            bbox = FaceDetector.BBox(x=int(bbox_c.xmin * w),
+                                     y=int(bbox_c.ymin * h),
+                                     w=int(bbox_c.width * w),
+                                     h=int(bbox_c.height * h))
             self.all_bboxes.append(bbox)
 
             cv2.rectangle(frame, bbox.to_tuple, (255, 0, 255), 2)
             cv2.putText(frame, f'{int(detection.score[0]*100)}%',
-                        (bbox.top_left_corner[0], bbox.top_left_corner[1]-20), cv2.FONT_HERSHEY_PLAIN,
+                        (bbox.x, bbox.y-20), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
         return frame
-
-    def get_faces_info(self, face_no=-1):
-        if isinstance(face_no, int):
-            if face_no < 0:
-                return self.all_bboxes
-            elif face_no < len(self.all_bboxes):
-                    return self.all_bboxes[face_no]
-        return []
+    
+    def execute(self, frame):
+        pass
 
     @dataclasses.dataclass
     class BBox:
-        top_left_corner: tuple
-        size: tuple
+        x: int
+        y: int
+        w: int
+        h: int
 
         @property
         def to_tuple(self) -> tuple:
-            return self.top_left_corner[0], self.top_left_corner[1], self.size[0], self.size[1]
+            return self.x, self.y, self.w, self.h
 
 
 def main():
