@@ -29,6 +29,7 @@ class FaceDetector:
 
         # collecting infos
         h, w, c = frame.shape
+        center = w//2, h//2
         for id, detection in enumerate(self.results.detections):
             bbox_c = detection.location_data.relative_bounding_box
             bbox = FaceDetector.BBox(x=int(bbox_c.xmin * w),
@@ -37,12 +38,14 @@ class FaceDetector:
                                      h=int(bbox_c.height * h))
             self.all_bboxes.append(bbox)
 
+            cv2.circle(frame, bbox.center, 2, (0, 255, 0), cv2.FILLED)
             cv2.rectangle(frame, bbox.to_tuple, (255, 0, 255), 2)
             cv2.putText(frame, f'{int(detection.score[0]*100)}%',
                         (bbox.x, bbox.y-20), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
+        cv2.circle(frame, center, 2, (0, 0, 255), cv2.FILLED)
         return frame
-    
+
     def execute(self, frame):
         pass
 
