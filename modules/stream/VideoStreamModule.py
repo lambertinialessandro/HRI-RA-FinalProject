@@ -4,22 +4,22 @@ import cv2
 from modules.drone.DroneModule import Drone
 
 
-class VideoStreamModule(ABC):
+class AbstractVideoStream(ABC):
     def __init__(self):
         pass
 
     @classmethod
     @abstractmethod
-    def get_stream_frame(cls):
+    def get_stream_frame(self):
         pass
 
     @classmethod
     @abstractmethod
-    def release_stream(cls):
+    def release_stream(self):
         pass
 
 
-class VideoDroneStream(VideoStreamModule):
+class VideoDroneStream(AbstractVideoStream):
     def __init__(self, drone: Drone):
         super().__init__()
         self.drone = drone
@@ -35,7 +35,7 @@ class VideoDroneStream(VideoStreamModule):
         self.drone.streamoff()
 
 
-class WebcamStream(VideoStreamModule):
+class WebcamStream(AbstractVideoStream):
     def __init__(self, capture_api=None):
         super().__init__()
 

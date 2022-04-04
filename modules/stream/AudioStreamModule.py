@@ -5,22 +5,22 @@ import speech_recognition as sr
 # import pyttsx3
 
 
-class AudioStreamModule(ABC):
+class AbstractAudioStream(ABC):
     def __init__(self):
         pass
 
     @classmethod
     @abstractmethod
-    def get_stream_word(cls):
+    def get_stream_word(self):
         pass
 
     @classmethod
     @abstractmethod
-    def release_stream(cls):
+    def release_stream(self):
         pass
 
 
-class ComputerMicrophoneStream(AudioStreamModule):
+class ComputerMicrophoneStream(AbstractAudioStream):
     def __init__(self, name = "mario"):
         super().__init__()
         self.name = name

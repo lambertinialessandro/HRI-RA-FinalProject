@@ -5,7 +5,6 @@ import schedule
 from threading import Lock
 
 from modules.control.ControlModule import Command
-from modules.face_tracking.FaceTrackingModule import FaceTrackingModule
 
 
 class AbstractTemplatePattern(ABC):
@@ -17,7 +16,7 @@ class AbstractTemplatePattern(ABC):
 
     @classmethod
     @abstractmethod
-    def execute(cls):
+    def execute(self):
         pass
 
 

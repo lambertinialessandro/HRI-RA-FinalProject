@@ -1,4 +1,4 @@
-from abc import ABC
+
 from enum import Enum
 from threading import Thread
 
@@ -31,11 +31,11 @@ class Command:
         return self.name
 
 
-class ControlModule(ABC):
+class ControlModule:
     def __init__(self, drone: Drone):
         self._drone = drone
 
-    def _execute(self, command: Command, value=None):
+    def __execute(self, command: Command, value=None):
         if command == Command.TAKE_OFF:
             self._drone.take_off()
         elif command == Command.LAND:
@@ -69,7 +69,7 @@ class ControlModule(ABC):
             self._drone
 
     def execute(self, command: Command, value=None):
-        Thread(target=self._execute, args=[command, value]).start()
+        Thread(target=self.__execute, args=[command, value]).start()
 
     def end(self):
         self._drone.end()

@@ -5,21 +5,13 @@ import numpy as np
 from djitellopy import Tello
 
 
-class Drone(ABC):
+class AbstractDrone(ABC):
     # Camera
     @property
     @abstractmethod
     def frame(self):
         pass
-
-    @abstractmethod
-    def streamon(self):
-        pass
-
-    @abstractmethod
-    def streamoff(self):
-        pass
-
+    
     # State
     @property
     @abstractmethod
@@ -37,6 +29,14 @@ class Drone(ABC):
         pass
 
     # Controls
+    @abstractmethod
+    def streamon(self):
+        pass
+
+    @abstractmethod
+    def streamoff(self):
+        pass
+
     @abstractmethod
     def set_rc_controls(self, lr, fb, up, j):
         pass
@@ -70,7 +70,7 @@ class Drone(ABC):
         pass
 
 
-class DJITello(Drone):
+class DJITello(AbstractDrone):
     def __init__(self):
         super(DJITello, self).__init__()
         self._tello = Tello()
@@ -79,15 +79,7 @@ class DJITello(Drone):
     @property
     def frame(self):
         return self._tello.get_frame_read().frame
-
-    def streamon(self):
-        if not self.is_streaming:
-            self._tello.streamon()
-
-    def streamoff(self):
-        if self.is_streaming:
-            self._tello.streamoff()
-
+    
     @property
     def battery(self):
         return self._tello.get_battery()
@@ -99,6 +91,14 @@ class DJITello(Drone):
     @property
     def is_streaming(self):
         return self._tello.stream_on
+
+    def streamon(self):
+        if not self.is_streaming:
+            self._tello.streamon()
+
+    def streamoff(self):
+        if self.is_streaming:
+            self._tello.streamoff()
 
     def set_rc_controls(self, lr, fb, up, j):
         return self._tello.send_rc_control(lr, fb, up, j)
@@ -127,7 +127,7 @@ class DJITello(Drone):
         self._tello.end()
 
 
-class FakeDrone(Drone):
+class FakeDrone(AbstractDrone):
     _stream_on = False
     _is_flying = False
 
@@ -143,6 +143,18 @@ class FakeDrone(Drone):
     def frame(self):
         _, frame = self.cap.read()
         return frame
+    
+    @property
+    def battery(self):
+        return str(np.random.randint(low=1, high=101))
+
+    @property
+    def is_streaming(self):
+        return self._stream_on
+
+    @property
+    def is_flying(self):
+        return self._is_flying
 
     def streamon(self):
         if not self._stream_on:
@@ -156,18 +168,6 @@ class FakeDrone(Drone):
             self.cap.release()
             cv2.destroyAllWindows()
             print("Stream off")
-
-    @property
-    def battery(self):
-        return str(np.random.randint(low=1, high=101))
-
-    @property
-    def is_streaming(self):
-        return self._stream_on
-
-    @property
-    def is_flying(self):
-        return self._is_flying
 
     def set_rc_controls(self, lr, fb, up, j):
         pass

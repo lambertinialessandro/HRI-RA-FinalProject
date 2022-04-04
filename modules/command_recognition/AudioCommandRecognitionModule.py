@@ -9,7 +9,7 @@ class AbstractAudioCommandRecognition(ABC):
         pass
 
     @abstractmethod
-    def get_command(self, text):
+    def get_command(self, text) -> tuple:
         pass
 
 
@@ -21,35 +21,35 @@ class AudioCommandRecognition(AbstractAudioCommandRecognition):
         voices = self.engine.getProperty('voices')
         self.engine.setProperty('voice', voices[1].id)
 
-    def talk(self, text):
+    def __talk(self, text):
         self.engine.say(text)
         self.engine.runAndWait()
 
-    def get_command(self, text):
+    def get_command(self, text) -> tuple:
         print("Executing: "+text)
         # if 'start video' in command:
-        #     self.talk("Video started!")
+        #     self.__talk("Video started!")
         #     return Command.STREAM_ON
         # elif 'stop video' in command:
-        #     self.talk("Video stopped!")
+        #     self.__talk("Video stopped!")
         #     return Command.STREAM_OFF
         # el
         if 'take off' in text:
-            self.talk("Starting drone! wrwrwr")
-            return Command.TAKE_OFF
+            self.__talk("Starting drone! wrwrwr")
+            return Command.TAKE_OFF, None
         elif 'land' in text:
-            self.talk("Stopping drone! wrwrwr")
-            return Command.LAND
+            self.__talk("Stopping drone! wrwrwr")
+            return Command.LAND, None
         elif 'follow me' in text:
-            self.talk("i'm following")
-            return Command.FOLLOW_ME
+            self.__talk("i'm following")
+            return Command.FOLLOW_ME, None
         elif 'turn off' in text:
-            self.talk("Stop execution")
-            return Command.STOP_EXECUTION
+            self.__talk("Stop execution")
+            return Command.STOP_EXECUTION, None
         else:
-            self.talk('Please say the command again.')
+            self.__talk('Please say the command again.')
 
-        return None
+        return None, None
 
 
 def main():
@@ -61,7 +61,7 @@ def main():
     state = True
     while state:
         text = stream.get_stream_word()
-        command = acr.get_command(text)
+        command, value = acr.get_command(text)
         print(f"Command: {command}")
 
         if command == Command.STOP_EXECUTION:
