@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import cv2
 
-from modules.drone.DroneModule import Drone
+from modules.drone.DroneModule import AbstractDrone as Drone
 
 
 class AbstractVideoStream(ABC):

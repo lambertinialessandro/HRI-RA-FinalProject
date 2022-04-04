@@ -2,10 +2,13 @@
 from enum import Enum
 from threading import Thread
 
-from modules.drone.DroneModule import Drone
+import sys
+sys.path.append('../../')
+
+from modules.drone.DroneModule import AbstractDrone as Drone
 
 
-class Command:
+class Command(Enum):
     NONE = 0
 
     TAKE_OFF = 1

@@ -11,7 +11,7 @@ class AbstractDrone(ABC):
     @abstractmethod
     def frame(self):
         pass
-    
+
     # State
     @property
     @abstractmethod
@@ -79,7 +79,7 @@ class DJITello(AbstractDrone):
     @property
     def frame(self):
         return self._tello.get_frame_read().frame
-    
+
     @property
     def battery(self):
         return self._tello.get_battery()
@@ -132,7 +132,7 @@ class FakeDrone(AbstractDrone):
     _is_flying = False
 
     def __init__(self, capture_api=None):
-        super(Drone, self).__init__()
+        super(AbstractDrone, self).__init__()
         self.inputIdx = 0
         self.capture_api = capture_api
         self.w = 1280//2
@@ -143,7 +143,7 @@ class FakeDrone(AbstractDrone):
     def frame(self):
         _, frame = self.cap.read()
         return frame
-    
+
     @property
     def battery(self):
         return str(np.random.randint(low=1, high=101))

@@ -1,11 +1,14 @@
 import dataclasses
+from abc import ABC, abstractmethod
 
 import cv2
 import mediapipe as mp
 from simple_pid import PID
 
-from modules.control.ControlModule import Command
+import sys
+sys.path.append('../../')
 
+from modules.control.ControlModule import Command
 
 class FaceTracking:
     def __init__(self, min_detection_confidence=0.5,
@@ -104,7 +107,7 @@ class FaceTracking:
 
 def main():
     try:
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
         detector = FaceTracking(min_detection_confidence=.8)
