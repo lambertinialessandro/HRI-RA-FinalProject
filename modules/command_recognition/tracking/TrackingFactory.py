@@ -4,9 +4,9 @@
 import sys
 sys.path.append('../../')
 
-from modules.command_recognition.AbstractModuleTracking import AbstractModuleTracking
-from modules.command_recognition.face_tracking.FaceTrackingModule import FaceTracking
-from modules.command_recognition.hand_tracking.HandTrackingModule import HandTracking
+from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.tracking.face_tracking.FaceTrackingModule import FaceTracking
+from modules.command_recognition.tracking.hand_tracking.HandTrackingModule import HandTracking
 #from modules.command_recognition.holistic_tracking.HolisticModule import HolisticTracking
 
 
@@ -27,15 +27,17 @@ class TrackingFactory:
 
     @staticmethod
     def create(type_input):
-        command_recognition =  EmptyTracking()
+        detector = None
         if type_input == TrackingFactory.Face:
-            command_recognition = FaceTracking(min_detection_confidence=0.6)
-        # elif type_input == TrackingFactory.Hand:
-        #     command_recognition = HandTracking()
+            detector = FaceTracking(min_detection_confidence=0.6)
+        elif type_input == TrackingFactory.Hand:
+            detector = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
         # elif type_input == TrackingFactory.Holistic:
-        #     command_recognition = HolisticTracking()
+        #     detector = HolisticTracking()
+        else:
+            detector = EmptyTracking()
 
-        return command_recognition
+        return detector
 
 
 # TODO
@@ -43,15 +45,17 @@ class TrackingFactory:
 if __name__ == "__main__":
     import cv2
     from modules.stream.StreamFactory import StreamFactory
-    from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
 
     stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
-    command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
+
+    detector = TrackingFactory.create(TrackingFactory.Hand)
 
     try:
         while True:
             frame = stream.get_stream_frame()
-            command = command_recognition.get_command(frame)
+
+            detector._analyze_frame(frame)
+            command = detector.execute(frame)
 
             cv2.imshow("Image", frame)
             key = cv2.waitKey(1)

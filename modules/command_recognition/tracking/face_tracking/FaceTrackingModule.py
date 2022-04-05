@@ -1,6 +1,6 @@
 
 import dataclasses
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import cv2
 import mediapipe as mp
 from simple_pid import PID
@@ -10,7 +10,7 @@ from simple_pid import PID
 import sys
 sys.path.append('../../../')
 
-from modules.command_recognition.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command

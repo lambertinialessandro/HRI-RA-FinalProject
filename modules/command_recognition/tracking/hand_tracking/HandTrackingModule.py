@@ -9,7 +9,7 @@ import mediapipe as mp
 import sys
 sys.path.append('../../../')
 
-from modules.command_recognition.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
 
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
@@ -45,36 +45,11 @@ class HandEnum(Enum):
                 self.PINKY_TIP.value]
 
 
-class HandDetector:
-    def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5):
-        self.mode = mode  # STATIC_IMAGE_MODE
-        self.max_hands = max_hands  # MAX_NUM_HANDS
-        self.detection_con = detection_con  # MIN_DETECTION_CONFIDENCE
-        self.track_con = track_con  # MIN_TRACKING_CONFIDENCE
+class AbstractHandTracking(AbstractModuleTracking):
+    def __init__(self, flip_type=True):
+        self.flip_type = flip_type
 
-        self.mp_draw = mp.solutions.drawing_utils
-        self.mp_hands = mp.solutions.hands
-        self.hands = self.mp_hands.Hands(static_image_mode=self.mode,
-                                         max_num_hands=self.max_hands,
-                                         min_detection_confidence=self.detection_con,
-                                         min_tracking_confidence=self.track_con)
-
-        self.all_hands = []
-        self.results_data = False
-
-    def analyze_frame(self, frame, flip_type=True):
-        """
-        Parameters
-        ----------
-        frame : 3-dimensional array
-
-        flip_type : boolean, optional
-            The default is True.
-            flip hands lable between left and right
-        Returns
-        -------
-        None.
-
+    def _analyze_frame(self, frame):
         self.all_hands = []
 
         results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -114,7 +89,7 @@ class HandDetector:
                 my_hand["bbox"] = bbox
                 my_hand["center"] = (cx, cy)
 
-                if flip_type:
+                if self.flip_type:
                     if handType.classification[0].label == "Right":
                         my_hand["type"] = "Left"
                     else:
@@ -123,8 +98,37 @@ class HandDetector:
                     my_hand["type"] = handType.classification[0].label
                 self.all_hands.append(my_hand)
 
+
+class HandTracking(AbstractHandTracking):
+    def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
+        super().__init__(flip_type=flip_type)
+        self.mode = mode  # STATIC_IMAGE_MODE
+        self.max_hands = max_hands  # MAX_NUM_HANDS
+        self.detection_con = detection_con  # MIN_DETECTION_CONFIDENCE
+        self.track_con = track_con  # MIN_TRACKING_CONFIDENCE
+
+        self.mp_draw = mp.solutions.drawing_utils
+        self.mp_hands = mp.solutions.hands
+        self.hands = self.mp_hands.Hands(static_image_mode=self.mode,
+                                         max_num_hands=self.max_hands,
+                                         min_detection_confidence=self.detection_con,
+                                         min_tracking_confidence=self.track_con)
+
+        self.all_hands = []
+        self.results_data = False
+
     def execute(self, frame):
-        command = None
+        command = Command.NONE, None
+
+        self._analyze_frame(frame)
+
+        for hand in self.all_hands:
+            bbox = hand["bbox"]
+            cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
+                          (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
+                          (255, 0, 255), 2)
+            cv2.putText(frame, hand["type"], (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
+                        2, (0, 0, 255), 2)
 
         r_hand = self.get_hands_info(hand_no="Right")
         if r_hand:
@@ -216,10 +220,7 @@ def main():
             key = cv2.waitKey(1)
             if key == 27: # ESC
                 break
-
-        cap.release()
-        cv2.destroyAllWindows()
-    except:
+    finally:
         cap.release()
         cv2.destroyAllWindows()
 
