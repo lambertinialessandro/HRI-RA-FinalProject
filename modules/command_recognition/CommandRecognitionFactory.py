@@ -1,9 +1,11 @@
+
+# TODO
+# only for debug, to be deleted
 import sys
+sys.path.append('../../')
 
 from modules.command_recognition.VideoCommandRecognitionModule import VideoCommandRecognition
 from modules.command_recognition.AudioCommandRecognitionModule import AudioCommandRecognition
-
-sys.path.append('../../')
 
 
 class CommandRecognitionFactory:
@@ -24,11 +26,13 @@ class CommandRecognitionFactory:
         return command_recognition
 
 
+# TODO
+# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
     from modules.stream.StreamFactory import StreamFactory
 
-    stream = StreamFactory.create(StreamFactory.VideoPC, CaptureAPI=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
+    stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
     command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
 
     try:
@@ -43,3 +47,5 @@ if __name__ == "__main__":
     finally:
         stream.release_stream()
         cv2.destroyAllWindows()
+
+

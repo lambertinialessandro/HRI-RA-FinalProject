@@ -1,5 +1,12 @@
+
 from abc import ABC, abstractmethod
 import pyttsx3
+import keyboard
+
+# TODO
+# only for debug, to be deleted
+import sys
+sys.path.append('../../')
 
 from modules.control.ControlModule import Command
 
@@ -52,6 +59,8 @@ class AudioCommandRecognition(AbstractAudioCommandRecognition):
         return None, None
 
 
+# TODO
+# only for debug, to be deleted
 def main():
     from modules.stream.StreamFactory import StreamFactory
 

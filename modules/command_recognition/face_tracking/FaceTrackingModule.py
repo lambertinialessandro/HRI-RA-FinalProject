@@ -1,13 +1,18 @@
+
 import dataclasses
 from abc import ABC, abstractmethod
-
 import cv2
 import mediapipe as mp
 from simple_pid import PID
 
+# TODO
+# only for debug, to be deleted
 import sys
-sys.path.append('../../')
+sys.path.append('../../../')
 
+from modules.command_recognition.AbstractModuleTracking import AbstractModuleTracking
+# TODO
+# link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 class AbstractFaceTracking(ABC):
@@ -130,6 +135,8 @@ class FaceTracking(AbstractFaceTracking):
         else:
             return Command.SET_RC, (0, 0, 0, 0)
 
+# TODO
+# only for debug, to be deleted
 def main():
     try:
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)

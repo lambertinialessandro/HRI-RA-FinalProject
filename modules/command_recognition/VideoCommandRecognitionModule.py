@@ -1,10 +1,12 @@
+
+# TODO
+# only for debug, to be deleted
 import sys
+sys.path.append('../../')
 
 from abc import ABC, abstractmethod
 
-from modules.face_tracking.FaceTrackingModule import FaceTracking
-
-sys.path.append('../../')
+from modules.command_recognition.TrackingFactory import TrackingFactory
 
 
 class AbstractVideoCommandRecognition(ABC):
@@ -28,6 +30,8 @@ class VideoCommandRecognition(AbstractVideoCommandRecognition):
         return command, value
 
 
+# TODO
+# only for debug, to be deleted
 def main():
     import cv2
 
@@ -56,3 +60,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

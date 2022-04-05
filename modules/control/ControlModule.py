@@ -2,9 +2,8 @@
 from enum import Enum
 from threading import Thread
 
-import sys
-sys.path.append('../../')
-
+# TODO
+# link between 2 files from different hierarchy maybe to be fixed
 from modules.drone.DroneModule import AbstractDrone as Drone
 
 

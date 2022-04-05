@@ -1,11 +1,13 @@
+
+# TODO
+# only for debug, to be deleted
 import sys
+sys.path.append('../')
 
 from modules.stream.StreamFactory import StreamFactory
 from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
 from modules.control import ControlModule
 from modules.TemplatePatternModule import VideoTemplatePattern, AudioTemplatePattern
-
-sys.path.append('../')
 
 
 class GlobalFactory:
@@ -47,6 +49,8 @@ class GlobalFactory:
         return template_pattern
 
 
+# TODO
+# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
 

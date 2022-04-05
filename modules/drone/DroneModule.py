@@ -1,3 +1,4 @@
+
 from abc import ABC, abstractmethod
 import cv2
 import numpy as np
@@ -198,3 +199,5 @@ class FakeDrone(AbstractDrone):
         if self.is_streaming:
             self.cap.release()
         cv2.destroyAllWindows()
+
+

@@ -1,9 +1,12 @@
+
 from abc import ABC, abstractmethod
 import cv2
 import time
 import schedule
 from threading import Lock
 
+# TODO
+# link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
@@ -12,6 +15,8 @@ class AbstractTemplatePattern(ABC):
         self.video_stream_module = video_stream_module
         self.command_recognition = command_recognition
         self.control_module = control_module
+        # TODO
+        # fix command block
         self.mutex = Lock()
 
     @classmethod
@@ -110,12 +115,14 @@ class AudioTemplatePattern(AbstractTemplatePattern):
                 self.control_module.execute(command)
 
                 if command == Command.STOP_EXECUTION:
-                    print("Done!")
                     break
         except KeyboardInterrupt:
             pass
         finally:
+            print("Done!")
             cv2.destroyAllWindows()
-            self.audio_stream_module.release_stream()
+            self.stream_module.release_stream()
             self.control_module.end()
             schedule.clear()
+
+

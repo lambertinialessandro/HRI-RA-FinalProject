@@ -8,7 +8,6 @@ from modules.GlobalFactory import GlobalFactory
 
 import platform
 capture_api = None
-
 if platform.system() == 'Windows':
     capture_api = cv2.CAP_DSHOW
 
@@ -25,7 +24,9 @@ template_pattern.execute()
 
 
 #
-# for debugging schedule.get_jobs()
+# for debugging:
+#   import schedule
+#   schedule.get_jobs()
 #
 
 

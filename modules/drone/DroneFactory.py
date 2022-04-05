@@ -1,8 +1,10 @@
+
+# TODO
+# only for debug, to be deleted
 import sys
+sys.path.append('../../')
 
 from modules.drone.DroneModule import DJITello, FakeDrone
-
-sys.path.append('../../')
 
 
 class DroneFactory:
@@ -23,6 +25,8 @@ class DroneFactory:
         return drone
 
 
+# TODO
+# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
 
@@ -44,3 +48,5 @@ if __name__ == "__main__":
     finally:
         drone.streamoff()
         drone.end()
+
+

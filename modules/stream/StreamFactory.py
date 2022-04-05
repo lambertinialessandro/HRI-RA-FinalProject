@@ -1,9 +1,11 @@
+
+# TODO
+# only for debug, to be deleted
 import sys
+sys.path.append('../../')
 
 from modules.stream.VideoStreamModule import VideoDroneStream, WebcamStream
 from modules.stream.AudioStreamModule import ComputerMicrophoneStream
-
-sys.path.append('../../')
 
 
 class StreamFactory:
@@ -28,6 +30,8 @@ class StreamFactory:
         return stream
 
 
+# TODO
+# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
 
@@ -48,3 +52,5 @@ if __name__ == "__main__":
     finally:
         stream.release_stream()
         cv2.destroyAllWindows()
+
+

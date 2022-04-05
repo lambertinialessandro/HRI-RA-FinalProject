@@ -1,31 +1,16 @@
-import sys
 
 import cv2
 import math
 import mediapipe as mp
 
-from modules.hand_tracking.HandEnum import HandEnum
+# TODO
+# only for debug, to be deleted
+import sys
+sys.path.append('../../../')
 
 from modules.control.ControlModule import Command
 
-sys.path.append('../../')
 
-"""
-STATIC_IMAGE_MODE:
-If set to false, the solution treats the input images as a video stream. It will try to detect hands in the first input images, and upon a successful detection further localizes the hand landmarks. In subsequent images, once all max_num_hands hands are detected and the corresponding hand landmarks are localized, it simply tracks those landmarks without invoking another detection until it loses track of any of the hands. This reduces latency and is ideal for processing video frames. If set to true, hand detection runs on every input image, ideal for processing a batch of static, possibly unrelated, images. Default to false.
-
-MAX_NUM_HANDS:
-Maximum number of hands to detect. Default to 2.
-
-MODEL_COMPLEXITY:
-Complexity of the hand landmark model: 0 or 1. Landmark accuracy as well as inference latency generally go up with the model complexity. Default to 1.
-
-MIN_DETECTION_CONFIDENCE:
-Minimum confidence value ([0.0, 1.0]) from the hand detection model for the detection to be considered successful. Default to 0.5.
-
-MIN_TRACKING_CONFIDENCE:
-Minimum confidence value ([0.0, 1.0]) from the landmark-tracking model for the hand landmarks to be considered tracked successfully, or otherwise hand detection will be invoked automatically on the next input image. Setting it to a higher value can increase robustness of the solution, at the expense of a higher latency. Ignored if static_image_mode is true, where hand detection simply runs on every image. Default to 0.5.
-"""
 
 
 class HandDetector:
@@ -139,24 +124,24 @@ class HandDetector:
                                    math.dist((rtx, rty), (rmx, rmy)),
                                    math.dist((ptx, pty), (rmx, rmy)))
             if otherFingersDist > minDist:
-                return None
+                return Command.NONE, None
 
             if distance > minDist:
                 if (-45 + delta) < angle < (45 - delta):
                     draw_command_color = (255, 0, 0) # Blue -> left
-                    command = Command.ROTATE_CW
+                    command = Command.ROTATE_CW, 15
                     action = "ROTATE_CW"
                 elif (45 + delta) < angle < (135 - delta):
                     draw_command_color = (0, 255, 0) # Green -> bottom
-                    command = Command.LAND
+                    command = Command.LAND, None
                     action = "LAND"
                 elif (-135 + delta) < angle < (-45 - delta):
                     draw_command_color = (0, 0, 255) # Red -> top
-                    command = Command.TAKE_OFF
+                    command = Command.TAKE_OFF, None
                     action = "MOVE_FORWARD"
                 elif (135+delta) < angle or angle < (-135-delta):
                     draw_command_color = (255, 0, 255) # magenta -> right
-                    command = Command.ROTATE_CCW
+                    command = Command.ROTATE_CCW, 15
                     action = "ROTATE_CCW"
 
             cv2.line(frame, (imx, imy), (itx, ity), draw_command_color, 2)
@@ -204,6 +189,8 @@ class HandDetector:
         return []
 
 
+# TODO
+# only for debug, to be deleted
 def main():
     try:
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -213,7 +200,7 @@ def main():
 
         while True:
             success, img = cap.read()
-            detector.analize_frame(img, flip_type=True)
+            detector.analyze_frame(img, flip_type=True)
             command = detector.execute(img)
             print(command)
 

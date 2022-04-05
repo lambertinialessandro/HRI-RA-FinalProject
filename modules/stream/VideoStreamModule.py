@@ -1,6 +1,10 @@
+
 from abc import ABC, abstractmethod
 import cv2
 
+
+# TODO
+# link between 2 files from different hierarchy maybe to be fixed
 from modules.drone.DroneModule import AbstractDrone as Drone
 
 
@@ -51,3 +55,5 @@ class WebcamStream(AbstractVideoStream):
 
     def release_stream(self):
         self.cap.release()
+
+
