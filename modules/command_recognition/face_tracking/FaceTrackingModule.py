@@ -15,7 +15,7 @@ from modules.command_recognition.AbstractModuleTracking import AbstractModuleTra
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
-class AbstractFaceTracking(ABC):
+class AbstractFaceTracking(AbstractModuleTracking):
 
     @dataclasses.dataclass
     class __BBox:
