@@ -21,9 +21,18 @@ class AbstractVideoCommandRecognition(ABC):
 class VideoCommandRecognition(AbstractVideoCommandRecognition):
     def __init__(self):
         super().__init__()
-        # self.detector = HandDetector(detection_con=.8, track_con=.8)
-        self.detector = FaceTracking(min_detection_confidence=0.6)
-        # self.detector = HolistichDetector(detection_con=.8, track_con=.8)
+
+        self.current_tracking_type = TrackingFactory.Face
+        self.detector = TrackingFactory.create(None)
+
+        self._build_detector()
+
+    def _build_detector(self):
+        self.detector = TrackingFactory.create(self.current_tracking_type)
+
+    def update_detector(self, tracking_type):
+        self.current_tracking_type = tracking_type
+        self._build_detector()
 
     def get_command(self, frame) -> tuple:
         command, value = self.detector.execute(frame)
