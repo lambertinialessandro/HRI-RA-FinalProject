@@ -11,8 +11,8 @@ from modules.control.ControlModule import Command
 
 
 class AbstractTemplatePattern(ABC):
-    def __init__(self, video_stream_module, command_recognition, control_module):
-        self.video_stream_module = video_stream_module
+    def __init__(self, stream_module, command_recognition, control_module):
+        self.stream_module = stream_module
         self.command_recognition = command_recognition
         self.control_module = control_module
         # TODO
@@ -46,7 +46,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                 schedule.run_pending()  # update the battery if 10 seconds have passed
 
                 # 1. Get the frame
-                frame = self.video_stream_module.get_stream_frame()
+                frame = self.stream_module.get_stream_frame()
 
                 # 2. Get the command
                 self.command, value = self.command_recognition.get_command(frame)
@@ -89,7 +89,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         finally:
             print("Done!")
             cv2.destroyAllWindows()
-            self.video_stream_module.release_stream()
+            self.stream_module.release_stream()
             self.control_module.end()
             schedule.clear()
 
@@ -110,9 +110,9 @@ class AudioTemplatePattern(AbstractTemplatePattern):
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
 
-                word = self.audio_stream_module.get_stream_word()
-                command = self.command_recognition.get_command(word)
-                self.control_module.execute(command)
+                word = self.stream_module.get_stream_word()
+                command, value = self.command_recognition.get_command(word)
+                self.control_module.execute(command, value)
 
                 if command == Command.STOP_EXECUTION:
                     break
