@@ -19,7 +19,7 @@ class AbstractVideoStream(ABC):
 
     @classmethod
     @abstractmethod
-    def release_stream(self):
+    def end(self):
         pass
 
 
@@ -35,7 +35,7 @@ class VideoDroneStream(AbstractVideoStream):
     def get_stream_frame(self):
         return cv2.resize(self.drone.frame, (self.w, self.h))
 
-    def release_stream(self):
+    def end(self):
         self.drone.streamoff()
 
 
@@ -53,7 +53,7 @@ class WebcamStream(AbstractVideoStream):
         _, frame = self.cap.read()
         return frame
 
-    def release_stream(self):
+    def end(self):
         self.cap.release()
 
 

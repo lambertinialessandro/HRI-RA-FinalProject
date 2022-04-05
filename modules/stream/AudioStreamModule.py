@@ -16,7 +16,7 @@ class AbstractAudioStream(ABC):
 
     @classmethod
     @abstractmethod
-    def release_stream(self):
+    def end(self):
         pass
 
 
@@ -47,7 +47,7 @@ class ComputerMicrophoneStream(AbstractAudioStream):
             pass
         return command
 
-    def release_stream(self):
+    def end(self):
         pass
 
 
