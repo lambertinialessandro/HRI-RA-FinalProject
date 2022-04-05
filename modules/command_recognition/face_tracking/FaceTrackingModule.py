@@ -23,6 +23,8 @@ class AbstractFaceTracking(ABC):
         def center(self) -> tuple:
             return int(self.x + self.w // 2), int(self.y + self.h // 2)
 
+        # TODO
+        # change to_tuple from property to classmethod for a logical pov
         @property
         def to_tuple(self) -> tuple:
             return self.x, self.y, self.w, self.h
