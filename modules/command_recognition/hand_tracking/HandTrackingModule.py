@@ -9,6 +9,10 @@ import mediapipe as mp
 import sys
 sys.path.append('../../../')
 
+from modules.command_recognition.AbstractModuleTracking import AbstractModuleTracking
+
+# TODO
+# link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
@@ -71,10 +75,6 @@ class HandDetector:
         -------
         None.
 
-        save data in allHands.
-        to get this data use: getHandsInfo
-
-        """
         self.all_hands = []
 
         results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -178,25 +178,6 @@ class HandDetector:
         return command
 
     def get_hands_info(self, hand_no=-1):
-        """
-        Parameters
-        ----------
-        hand_no : int | str, optional
-            The default is -1.
-            int:
-                -1: return data of all hands
-
-                N: return data of N-th hand
-                    N belongs to [0, maxHands]
-
-            str:
-                "left" or "right"
-        Returns
-        -------
-        lmList : TYPE
-            DESCRIPTION.
-
-        """
         if isinstance(hand_no, int):
             assert hand_no < self.max_hands
 
@@ -224,11 +205,10 @@ def main():
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
-        detector = HandDetector(detection_con=.8, track_con=.8)
+        detector = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
 
         while True:
             success, img = cap.read()
-            detector.analyze_frame(img, flip_type=True)
             command = detector.execute(img)
             print(command)
 

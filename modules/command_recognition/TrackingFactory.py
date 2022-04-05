@@ -6,7 +6,7 @@ sys.path.append('../../')
 
 from modules.command_recognition.AbstractModuleTracking import AbstractModuleTracking
 from modules.command_recognition.face_tracking.FaceTrackingModule import FaceTracking
-#from modules.command_recognition.hand_tracking.HandTrackingModule import HandTracking
+from modules.command_recognition.hand_tracking.HandTrackingModule import HandTracking
 #from modules.command_recognition.holistic_tracking.HolisticModule import HolisticTracking
 
 
