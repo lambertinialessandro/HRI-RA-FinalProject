@@ -4,8 +4,8 @@
 import sys
 sys.path.append('../../')
 
-from modules.command_recognition.VideoCommandRecognitionModule import VideoCommandRecognition
-from modules.command_recognition.AudioCommandRecognitionModule import AudioCommandRecognition
+from modules.command_recognition.CommandRecognitionModule \
+    import VideoCommandRecognition, AudioCommandRecognition
 
 
 class CommandRecognitionFactory:
