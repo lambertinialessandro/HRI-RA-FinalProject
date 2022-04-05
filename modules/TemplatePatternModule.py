@@ -24,6 +24,11 @@ class AbstractTemplatePattern(ABC):
     def execute(self):
         pass
 
+    @classmethod
+    @abstractmethod
+    def end(self):
+        pass
+
 
 class VideoTemplatePattern(AbstractTemplatePattern):
     def __init__(self, video_stream_module, command_recognition, control_module, drone):
@@ -87,11 +92,17 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         except KeyboardInterrupt:
             pass
         finally:
-            print("Done!")
-            cv2.destroyAllWindows()
-            self.stream_module.release_stream()
-            self.control_module.end()
-            schedule.clear()
+            self.end()
+
+    def end(self):
+        print("Done!")
+        cv2.destroyAllWindows()
+
+        self.stream_module.end()
+        self.command_recognition.end()
+        self.control_module.end()
+
+        schedule.clear()
 
 
 class AudioTemplatePattern(AbstractTemplatePattern):
@@ -119,10 +130,16 @@ class AudioTemplatePattern(AbstractTemplatePattern):
         except KeyboardInterrupt:
             pass
         finally:
-            print("Done!")
-            cv2.destroyAllWindows()
-            self.stream_module.release_stream()
-            self.control_module.end()
-            schedule.clear()
+            self.end()
+
+    def end(self):
+        print("Done!")
+        cv2.destroyAllWindows()
+
+        self.stream_module.end()
+        self.command_recognition.end()
+        self.control_module.end()
+
+        schedule.clear()
 
 
