@@ -14,3 +14,11 @@ class AbstractModuleTracking(ABC):
     @abstractmethod
     def execute(self, frame) -> tuple:
         pass
+
+
+class EmptyTracking(AbstractModuleTracking):
+    def _analyze_frame(self, frame):
+        return
+
+    def execute(self, frame) -> tuple:
+        return None, None

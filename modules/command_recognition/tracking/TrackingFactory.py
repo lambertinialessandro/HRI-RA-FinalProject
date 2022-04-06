@@ -4,20 +4,13 @@
 import sys
 sys.path.append('../../')
 
-from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.tracking.AbstractModuleTracking import EmptyTracking
 from modules.command_recognition.tracking.face_tracking.FaceTrackingModule import FaceTracking
 from modules.command_recognition.tracking.hand_tracking.HandTrackingModule import HandTracking
 #from modules.command_recognition.holistic_tracking.HolisticModule import HolisticTracking
 
 
-class EmptyTracking(AbstractModuleTracking):
-    def _analyze_frame(self, frame):
-        return
-
-    def execute(self, frame) -> tuple:
-        return None, None
-
-class TrackingFactory:
+class VideoTrackingFactory:
     Face = "Face"
     Hand = "Hand"
     Holistic = "Holistic"
