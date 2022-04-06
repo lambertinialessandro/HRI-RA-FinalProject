@@ -8,7 +8,7 @@ import keyboard
 import sys
 sys.path.append('../../')
 
-from modules.command_recognition.tracking.TrackingFactory import TrackingFactory
+from modules.command_recognition.tracking.TrackingFactory import VideoTrackingFactory
 
 from modules.control.ControlModule import Command
 
@@ -26,7 +26,7 @@ class VideoCommandRecognition(AbstractVideoCommandRecognition):
     def __init__(self):
         super().__init__()
 
-        self.current_tracking_type = TrackingFactory.Hand
+        self.current_tracking_type = VideoTrackingFactory.Face
         self.detector = None
 
         self._build_detector()
@@ -38,19 +38,19 @@ class VideoCommandRecognition(AbstractVideoCommandRecognition):
 
             if keyboard_event.scan_code == 2: # 1
                 print("Face!")
-                self.update_detector(TrackingFactory.Face)
+                self.update_detector(VideoTrackingFactory.Face)
             elif keyboard_event.scan_code == 3: # 2
                 print("Hand!")
-                self.update_detector(TrackingFactory.Hand)
+                self.update_detector(VideoTrackingFactory.Hand)
             elif keyboard_event.scan_code == 4: # 3
                 print("Holistic!")
-                self.update_detector(TrackingFactory.Holistic)
+                self.update_detector(VideoTrackingFactory.Holistic)
 
 
         keyboard.hook(my_keyboard_hook)
 
     def _build_detector(self):
-        self.detector = TrackingFactory.create(self.current_tracking_type)
+        self.detector = VideoTrackingFactory.create(self.current_tracking_type)
 
     def update_detector(self, tracking_type):
         self.current_tracking_type = tracking_type
@@ -64,7 +64,7 @@ class VideoCommandRecognition(AbstractVideoCommandRecognition):
         keyboard.unhook_all()
 
 
-class AudioCommandRecognition(AbstractVideoCommandRecognition):
+class AudioCommandRecognition(AbstractCommandRecognition):
     def __init__(self):
         super().__init__()
 

@@ -21,9 +21,9 @@ class VideoTrackingFactory:
     @staticmethod
     def create(type_input):
         detector = None
-        if type_input == TrackingFactory.Face:
+        if type_input == VideoTrackingFactory.Face:
             detector = FaceTracking(min_detection_confidence=0.6)
-        elif type_input == TrackingFactory.Hand:
+        elif type_input == VideoTrackingFactory.Hand:
             detector = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
         # elif type_input == TrackingFactory.Holistic:
         #     detector = HolisticTracking()
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
 
-    detector = TrackingFactory.create(TrackingFactory.Hand)
+    detector = VideoTrackingFactory.create(VideoTrackingFactory.Hand)
 
     try:
         while True:
