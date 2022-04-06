@@ -10,10 +10,12 @@ sys.path.append('../../')
 
 from modules.command_recognition.tracking.TrackingFactory import VideoTrackingFactory
 
+# TODO
+# link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
-class AbstractVideoCommandRecognition(ABC):
+class AbstractCommandRecognition(ABC):
     def __init__(self):
         pass
 
@@ -22,7 +24,7 @@ class AbstractVideoCommandRecognition(ABC):
         pass
 
 
-class VideoCommandRecognition(AbstractVideoCommandRecognition):
+class VideoCommandRecognition(AbstractCommandRecognition):
     def __init__(self):
         super().__init__()
 
