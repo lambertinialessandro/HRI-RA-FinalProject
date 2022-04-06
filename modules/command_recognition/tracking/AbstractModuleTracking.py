@@ -1,5 +1,5 @@
-
 from abc import ABC, abstractmethod
+
 
 class AbstractModuleTracking(ABC):
     def __init__(self):
@@ -7,12 +7,12 @@ class AbstractModuleTracking(ABC):
 
     @classmethod
     @abstractmethod
-    def _analyze_frame(self, frame):
+    def _analyze_frame(cls, frame):
         pass
 
     @classmethod
     @abstractmethod
-    def execute(self, frame) -> tuple:
+    def execute(cls, frame) -> tuple:
         pass
 
 

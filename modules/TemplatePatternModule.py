@@ -21,18 +21,19 @@ class AbstractTemplatePattern(ABC):
 
     @classmethod
     @abstractmethod
-    def execute(self):
+    def execute(cls):
         pass
 
     @classmethod
     @abstractmethod
-    def end(self):
+    def end(cls):
         pass
 
 
 class VideoTemplatePattern(AbstractTemplatePattern):
     def __init__(self, video_stream_module, command_recognition, control_module, drone):
         super().__init__(video_stream_module, command_recognition, control_module)
+
         self.drone = drone
         self.battery = drone.battery
         schedule.every(10).seconds.do(self.__update_battery)

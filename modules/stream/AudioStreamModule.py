@@ -1,4 +1,3 @@
-
 from abc import ABC, abstractmethod
 
 import speech_recognition as sr
@@ -10,12 +9,12 @@ class AbstractAudioStream(ABC):
 
     @classmethod
     @abstractmethod
-    def get_stream_word(self):
+    def get_stream_word(cls):
         pass
 
     @classmethod
     @abstractmethod
-    def end(self):
+    def end(cls):
         pass
 
 

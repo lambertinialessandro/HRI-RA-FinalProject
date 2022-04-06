@@ -1,19 +1,20 @@
-
 import dataclasses
 from abc import abstractmethod
 import cv2
 import mediapipe as mp
 from simple_pid import PID
 
+from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
+
 # TODO
 # only for debug, to be deleted
 import sys
 sys.path.append('../../../')
 
-from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
+
 
 class AbstractFaceTracking(AbstractModuleTracking):
 
@@ -34,8 +35,8 @@ class AbstractFaceTracking(AbstractModuleTracking):
         def to_tuple(self) -> tuple:
             return self.x, self.y, self.w, self.h
 
-    def __init__(self, model_selection=1,
-                 min_detection_confidence=0.5):
+    def __init__(self, model_selection=1, min_detection_confidence=0.5):
+        super().__init__()
 
         self.face_detection = mp.solutions.face_detection.FaceDetection(
                 model_selection=model_selection,
@@ -70,14 +71,13 @@ class AbstractFaceTracking(AbstractModuleTracking):
 
     @classmethod
     @abstractmethod
-    def execute(self, frame) -> tuple:
+    def execute(cls, frame) -> tuple:
         pass
 
+
 class FaceTracking(AbstractFaceTracking):
-    def __init__(self, model_selection=1, min_detection_confidence=0.5,
-                sample_time=0.01, box_width=100):
-        super().__init__(model_selection=model_selection,
-                         min_detection_confidence=min_detection_confidence)
+    def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01, box_width=100):
+        super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
         self._pid_x = PID(0.7, 0.01, 0.05, sample_time=sample_time)
         self._pid_y = PID(0.7, 0.01, 0.05, sample_time=sample_time)
@@ -89,7 +89,7 @@ class FaceTracking(AbstractFaceTracking):
         self.old_control_y = None
         self.old_control_z = None
 
-    #TODO
+    # TODO
     def execute(self, frame) -> tuple:
         goal_y = frame.shape[0] // 2
         goal_x = frame.shape[1] // 2
@@ -134,6 +134,7 @@ class FaceTracking(AbstractFaceTracking):
             return Command.SET_RC, control
         else:
             return Command.SET_RC, (0, 0, 0, 0)
+
 
 # TODO
 # only for debug, to be deleted

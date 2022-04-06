@@ -1,4 +1,5 @@
 djitellopy
+keyboard
 mediapipe
 numpy
 opencv-python

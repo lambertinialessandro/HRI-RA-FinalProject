@@ -1,4 +1,3 @@
-
 from abc import ABC, abstractmethod
 import cv2
 
@@ -14,12 +13,12 @@ class AbstractVideoStream(ABC):
 
     @classmethod
     @abstractmethod
-    def get_stream_frame(self):
+    def get_stream_frame(cls):
         pass
 
     @classmethod
     @abstractmethod
-    def end(self):
+    def end(cls):
         pass
 
 
