@@ -62,7 +62,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                     if self.command == Command.LAND:
                         self.mutex.acquire()
 
-                    print(f"Command: {self.command} Value: {value}")
+                    print(f"Command: {self.command} Value: {value}") # TODO : delete
 
                     self.control_module.execute(self.command, value)
                     self.command = None

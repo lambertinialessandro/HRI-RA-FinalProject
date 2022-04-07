@@ -38,13 +38,13 @@ class VideoCommandRecognition(AbstractCommandRecognition):
             # print("Scan code:", keyboard_event.scan_code)
             # print("Time:", keyboard_event.time)
 
-            if keyboard_event.scan_code == 2: # 1
+            if keyboard_event.name == "1":
                 print("Face!")
                 self.update_detector(VideoTrackingFactory.Face)
-            elif keyboard_event.scan_code == 3: # 2
+            elif keyboard_event.name == "2":
                 print("Hand!")
                 self.update_detector(VideoTrackingFactory.Hand)
-            elif keyboard_event.scan_code == 4: # 3
+            elif keyboard_event.name == "3":
                 print("Holistic!")
                 self.update_detector(VideoTrackingFactory.Holistic)
 
