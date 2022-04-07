@@ -12,21 +12,17 @@ if platform.system() == 'Windows':
     capture_api = cv2.CAP_DSHOW
 
 
-# BUILDING THE DRONE
-drone = DroneFactory.create(DroneFactory.DJITello, capture_api=capture_api) # capture_api to be deleted
+# 1. Drone is created
+drone = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
 
-# BUILDING EXECUTION SEQUENCE
-template_pattern = GlobalFactory.create(GlobalFactory.VideoDrone, drone=drone, capture_api=capture_api)
+# 2. Creating the sequence
+template_pattern = GlobalFactory.create(GlobalFactory.VideoPC, drone=drone, capture_api=capture_api)
 
-
-# STARTING THE EXECUTION SEQUENCE
+# 3. Starting sequence
 template_pattern.execute()
-
 
 #
 # for debugging:
 #   import schedule
 #   schedule.get_jobs()
 #
-
-

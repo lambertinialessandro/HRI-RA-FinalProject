@@ -1,6 +1,5 @@
-
-import cv2
 import math
+from abc import abstractmethod
 from enum import Enum
 import mediapipe as mp
 
@@ -47,6 +46,7 @@ class HandEnum(Enum):
 
 class AbstractHandTracking(AbstractModuleTracking):
     def __init__(self, flip_type=True):
+        super().__init__()
         self.flip_type = flip_type
 
     def _analyze_frame(self, frame):
@@ -97,6 +97,11 @@ class AbstractHandTracking(AbstractModuleTracking):
                 else:
                     my_hand["type"] = handType.classification[0].label
                 self.all_hands.append(my_hand)
+
+    @classmethod
+    @abstractmethod
+    def execute(cls, frame) -> tuple:
+        pass
 
 
 class HandTracking(AbstractHandTracking):
@@ -205,6 +210,8 @@ class HandTracking(AbstractHandTracking):
 # TODO
 # only for debug, to be deleted
 def main():
+    import cv2
+
     try:
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)

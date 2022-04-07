@@ -5,7 +5,7 @@ import sys
 sys.path.append('../../')
 
 from modules.command_recognition.tracking.AbstractModuleTracking import EmptyTracking
-from modules.command_recognition.tracking.face_tracking.FaceTrackingModule import FaceTracking
+from modules.command_recognition.tracking.face_tracking.FaceTrackingModule import PIDFaceTracking
 from modules.command_recognition.tracking.hand_tracking.HandTrackingModule import HandTracking
 #from modules.command_recognition.holistic_tracking.HolisticModule import HolisticTracking
 
@@ -20,21 +20,19 @@ class VideoTrackingFactory:
 
     @staticmethod
     def create(type_input):
-        detector = None
+        tracking = None
         if type_input == VideoTrackingFactory.Face:
-            detector = FaceTracking(min_detection_confidence=0.6)
+            tracking = PIDFaceTracking(min_detection_confidence=0.6)
         elif type_input == VideoTrackingFactory.Hand:
-            detector = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
+            tracking = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
         # elif type_input == TrackingFactory.Holistic:
         #     detector = HolisticTracking()
         else:
-            detector = EmptyTracking()
+            tracking = EmptyTracking()
 
-        return detector
+        return tracking
 
 
-# TODO
-# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
     from modules.stream.StreamFactory import StreamFactory

@@ -7,7 +7,7 @@ from threading import Lock
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
-from modules.Window import Window
+from modules.window.Window import Window
 
 
 class AbstractTemplatePattern(ABC):
@@ -79,7 +79,6 @@ class VideoTemplatePattern(AbstractTemplatePattern):
 
     def end(self):
         print("Done!")
-        self.window.destroy()
 
         self.stream_module.end()
         self.command_recognition.end()

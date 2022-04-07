@@ -1,40 +1,19 @@
 import dataclasses
 from abc import abstractmethod
-import cv2
 import mediapipe as mp
 from simple_pid import PID
 
-# TODO
-# only for debug, to be deleted
+# TODO: only for debug, to be deleted
 import sys
 sys.path.append('../../../')
 
 from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
 
-# TODO
-# link between 2 files from different hierarchy maybe to be fixed
+# TODO: link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
 class AbstractFaceTracking(AbstractModuleTracking):
-
-    @dataclasses.dataclass
-    class __BBox:
-        x: int
-        y: int
-        w: int
-        h: int
-
-        @property
-        def center(self) -> tuple:
-            return int(self.x + self.w // 2), int(self.y + self.h // 2)
-
-        # TODO
-        # change to_tuple from property to classmethod for a logical pov
-        @property
-        def to_tuple(self) -> tuple:
-            return self.x, self.y, self.w, self.h
-
     def __init__(self, model_selection=1, min_detection_confidence=0.5):
         super().__init__()
 
@@ -54,33 +33,60 @@ class AbstractFaceTracking(AbstractModuleTracking):
         # collecting infos
         for id, detection in enumerate(results.detections):
             bbox_c = detection.location_data.relative_bounding_box
-            bbox = self.__BBox(x=int(bbox_c.xmin * w),
-                                     y=int(bbox_c.ymin * h),
-                                     w=int(bbox_c.width * w),
-                                     h=int(bbox_c.height * h))
+            bbox = self._FaceBBox(x=int(bbox_c.xmin * w),
+                                  y=int(bbox_c.ymin * h),
+                                  w=int(bbox_c.width * w),
+                                  h=int(bbox_c.height * h))
+
+            Window.instance.draw_circle(bbox.center, 2, (0, 255, 0))
+            Window.instance.draw_rectangle(*bbox.to_tuple(), color=(255, 0, 255), thickness=2)
+            Window.instance.write(f"{int(detection.score[0]*100)}%", position=(bbox.x, bbox.y-20), font_scale=2,
+                                  color=(255, 0, 255), thickness=2)
+
+            bbox.normalize(frame.shape[0], frame.shape[1])
             all_bboxes.append(bbox)
 
-            cv2.circle(frame, bbox.center, 2, (0, 255, 0), cv2.FILLED)
-            cv2.rectangle(frame, bbox.to_tuple, (255, 0, 255), 2)
-            cv2.putText(frame, f'{int(detection.score[0]*100)}%',
-                        (bbox.x, bbox.y-20), cv2.FONT_HERSHEY_PLAIN,
-                        2, (255, 0, 255), 2)
-
-        cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
+        Window.instance.draw_circle(center, 5, (0, 0, 255))
         return all_bboxes
 
-    @classmethod
     @abstractmethod
-    def execute(cls, frame) -> tuple:
+    def _execute(self, frame) -> tuple:
         pass
 
+    @dataclasses.dataclass
+    class _FaceBBox:
+        x: float
+        y: float
+        w: float
+        h: float
 
-class FaceTracking(AbstractFaceTracking):
+        @property
+        def center(self) -> tuple:
+            center_x = self.x + self.w // 2
+            center_y = self.y + self.h // 2
+            if center_x < 0:
+                center_x = int(center_x)
+            if center_y < 0:
+                center_y = int(center_y)
+            return center_x, center_y
+
+        def to_tuple(self) -> tuple:
+            return self.x, self.y, self.w, self.h
+
+        def normalize(self, width, height):
+            self.x /= width
+            self.w /= width
+
+            self.y /= height
+            self.h /= height
+
+
+class PIDFaceTracking(AbstractFaceTracking):
     def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01, box_width=100):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
-        self._pid_x = PID(0.7, 0.01, 0.05, sample_time=sample_time)
-        self._pid_y = PID(0.7, 0.01, 0.05, sample_time=sample_time)
+        self._pid_x = PID(0.7, 0.01, 0.05, sample_time=sample_time, setpoint=0.5)
+        self._pid_y = PID(0.7, 0.01, 0.05, sample_time=sample_time, setpoint=0.5)
 
         self.box_width = box_width
         self._pid_z = PID(0.7, 0.01, 0.05, sample_time=sample_time)
@@ -89,20 +95,13 @@ class FaceTracking(AbstractFaceTracking):
         self.old_control_y = None
         self.old_control_z = None
 
-    # TODO
-    def execute(self, frame) -> tuple:
-        goal_y = frame.shape[0] // 2
-        goal_x = frame.shape[1] // 2
-        goal_z = self.box_width
-
-        self._pid_x.setpoint = goal_x
-        self._pid_y.setpoint = goal_y
-
-        bboxes = self._analyze_frame(frame)
+    def _execute(self, bboxes) -> tuple:
+        goal_z = self.box_width  # TODO
 
         if len(bboxes) > 0:
             face = bboxes[0]
             face_center = face.center
+            print(face_center)
 
             control_x = self._pid_x(face_center[0])
             control_y = self._pid_y(face_center[1])
@@ -120,13 +119,11 @@ class FaceTracking(AbstractFaceTracking):
             if control_z != self.old_control_z:
                 self.old_control_z = control_z
 
-            control_x /= goal_x
             control_x *= -100
 
-            control_y /= goal_y
             control_y *= 100
 
-            control_z /= goal_z
+            # control_z /= goal_z
             control_z *= 100
 
             control = (0, int(control_z), int(control_y), int(control_x))
@@ -136,14 +133,14 @@ class FaceTracking(AbstractFaceTracking):
             return Command.SET_RC, (0, 0, 0, 0)
 
 
-# TODO
-# only for debug, to be deleted
 def main():
+    import cv2
+
     try:
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
-        detector = FaceTracking(min_detection_confidence=.8)
+        detector = PIDFaceTracking(min_detection_confidence=.8)
 
         while True:
             success, img = cap.read()

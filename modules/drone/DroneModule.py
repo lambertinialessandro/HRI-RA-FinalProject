@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import cv2
+import cv2  # TODO: remove this and FakeDrone
 import numpy as np
 
 from djitellopy import Tello
