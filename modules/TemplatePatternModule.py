@@ -1,6 +1,5 @@
 
 from abc import ABC, abstractmethod
-import cv2
 import time
 import schedule
 from threading import Lock
@@ -8,6 +7,7 @@ from threading import Lock
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
+from modules.Window import Window
 
 
 class AbstractTemplatePattern(ABC):
@@ -35,18 +35,16 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         super().__init__(video_stream_module, command_recognition, control_module)
 
         self.drone = drone
-        self.battery = drone.battery
-        schedule.every(10).seconds.do(self.__update_battery)
 
         self.command = None
+
+        self.window = None
 
         self.pTime = 0
         self.cTime = 0
 
-    def __update_battery(self):
-        self.battery = self.drone.battery
-
     def execute(self):
+        self.window = Window(get_battery=lambda: self.drone.battery, get_fps=lambda: 30, on_closed=self.end)
         try:
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
@@ -71,25 +69,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
                 fps = int(1/(self.cTime - self.pTime))
                 self.pTime = self.cTime
 
-                cv2.putText(frame, f"Battery: {self.battery}%", (10, 15),
-                            cv2.FONT_HERSHEY_PLAIN, fontScale=1,
-                            color=(0, 0, 255), thickness=1)
-                cv2.putText(frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=1, color=(0, 0, 255), thickness=1)
-
-                cv2.imshow("Video", frame)
-
-                key = cv2.waitKey(1)
-                if key == 27:  # ESC
-                    break
-                elif key == ord('t'):
-                    self.control_module.execute(Command.TAKE_OFF)
-                elif key == ord('l'):
-                    self.control_module.execute(Command.LAND)
-                elif key == ord('r'):
-                    self.control_module.execute(Command.MOVE_UP, 10)
-                elif key == ord('f'):
-                    self.control_module.execute(Command.MOVE_DOWN, 10)
+                self.window.show(frame)
         except KeyboardInterrupt:
             pass
         finally:
@@ -97,7 +77,7 @@ class VideoTemplatePattern(AbstractTemplatePattern):
 
     def end(self):
         print("Done!")
-        cv2.destroyAllWindows()
+        self.window.destroy()
 
         self.stream_module.end()
         self.command_recognition.end()
