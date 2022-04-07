@@ -28,6 +28,10 @@ class Window:
                 drone.take_off()
             elif keyboard_event.name == "l":
                 drone.land()
+            elif keyboard_event.name == "u":
+                drone.move_up(10)
+            elif keyboard_event.name == "d":
+                drone.move_down(10)
 
             # if keyboard_event.name == "1":
             #     print("Face!")
