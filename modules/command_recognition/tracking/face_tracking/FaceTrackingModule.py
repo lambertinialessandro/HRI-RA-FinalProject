@@ -64,13 +64,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
 
         @property
         def center(self) -> tuple:
-            center_x = self.x + self.w / 2
-            center_y = self.y + self.h / 2
-            if center_x > 1:
-                center_x = int(center_x)
-            if center_y > 1:
-                center_y = int(center_y)
-            return center_x, center_y
+            return self.x + self.w / 2, self.y + self.h / 2
 
         def to_tuple(self) -> tuple:
             return self.x, self.y, self.w, self.h
