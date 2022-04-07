@@ -15,17 +15,27 @@ class AbstractDrone(ABC):
     # State
     @property
     @abstractmethod
-    def battery(self):
+    def battery(self) -> int:
         pass
 
     @property
     @abstractmethod
-    def is_flying(self):
+    def temperature(self) -> float:
         pass
 
     @property
     @abstractmethod
-    def is_streaming(self):
+    def height(self) -> int:
+        pass
+
+    @property
+    @abstractmethod
+    def is_flying(self) -> bool:
+        pass
+
+    @property
+    @abstractmethod
+    def is_streaming(self) -> bool:
         pass
 
     # Controls
@@ -81,15 +91,23 @@ class DJITello(AbstractDrone):
         return self._tello.get_frame_read().frame
 
     @property
-    def battery(self):
+    def battery(self) -> int:
         return self._tello.get_battery()
 
     @property
-    def is_flying(self):
+    def temperature(self) -> float:
+        return self._tello.get_temperature()
+
+    @property
+    def height(self) -> int:
+        return self._tello.get_height()
+
+    @property
+    def is_flying(self) -> bool:
         return self._tello.is_flying
 
     @property
-    def is_streaming(self):
+    def is_streaming(self) -> bool:
         return self._tello.stream_on
 
     def streamon(self):
@@ -145,15 +163,23 @@ class FakeDrone(AbstractDrone):
         return frame
 
     @property
-    def battery(self):
-        return str(np.random.randint(low=1, high=101))
+    def battery(self) -> int:
+        return np.random.randint(low=1, high=101)
 
     @property
-    def is_streaming(self):
+    def temperature(self) -> float:
+        return np.random.randint(low=-40, high=40)
+
+    @property
+    def height(self) -> int:
+        return np.random.randint(low=1, high=10)
+
+    @property
+    def is_streaming(self) -> bool:
         return self._stream_on
 
     @property
-    def is_flying(self):
+    def is_flying(self) -> bool:
         return self._is_flying
 
     def streamon(self):
