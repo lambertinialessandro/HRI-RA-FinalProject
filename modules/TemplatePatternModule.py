@@ -44,7 +44,9 @@ class VideoTemplatePattern(AbstractTemplatePattern):
         self.cTime = 0
 
     def execute(self):
-        self.window = Window(get_battery=lambda: self.drone.battery, get_fps=lambda: 30, on_closed=self.end)
+        self.window = Window(self.drone, on_closed=self.end)
+
+
         try:
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
