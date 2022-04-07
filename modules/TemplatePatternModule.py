@@ -46,7 +46,6 @@ class VideoTemplatePattern(AbstractTemplatePattern):
     def execute(self):
         self.window = Window(self.drone, on_closed=self.end)
 
-
         try:
             while True:
                 schedule.run_pending()  # update the battery if 10 seconds have passed
@@ -116,7 +115,6 @@ class AudioTemplatePattern(AbstractTemplatePattern):
 
     def end(self):
         print("Done!")
-        cv2.destroyAllWindows()
 
         self.stream_module.end()
         self.command_recognition.end()
