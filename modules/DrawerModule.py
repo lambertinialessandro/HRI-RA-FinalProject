@@ -4,7 +4,7 @@ import time
 from abc import ABC, abstractmethod
 
 
-class abstractDrawer(ABC):
+class AbstractDrawer(ABC):
     def __init__(self, drone, position, font_scale, color, thickness):
         self.drone = drone
         self.position = position
@@ -16,7 +16,8 @@ class abstractDrawer(ABC):
     def draw(self, frame):
         pass
 
-class DrawerFPS(abstractDrawer):
+
+class DrawerFPS(AbstractDrawer):
     def __init__(self, drone, position, font_scale, color, thickness):
         super().__init__(drone, position, font_scale, color, thickness)
 
@@ -29,10 +30,10 @@ class DrawerFPS(abstractDrawer):
         self.pTime = self.cTime
 
         cv2.putText(frame, f"FPS: {fps}", self.position, cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=self.font_scale, color=self.color,
-                            thickness=self.thickness)
+                    fontScale=self.font_scale, color=self.color, thickness=self.thickness)
 
-class DrawerDroneBattery(abstractDrawer):
+
+class DrawerDroneBattery(AbstractDrawer):
     def __init__(self, drone, position, font_scale, color, thickness):
         super().__init__(drone, position, font_scale, color, thickness)
 
@@ -45,10 +46,10 @@ class DrawerDroneBattery(abstractDrawer):
 
     def draw(self, frame):
         cv2.putText(frame, f"Battery: {self.battery}%", self.position, cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=self.font_scale, color=self.color,
-                            thickness=self.thickness)
+                    fontScale=self.font_scale, color=self.color, thickness=self.thickness)
 
-class DrawerDroneTemperature(abstractDrawer):
+
+class DrawerDroneTemperature(AbstractDrawer):
     def __init__(self, drone, position, font_scale, color, thickness):
         super().__init__(drone, position, font_scale, color, thickness)
 
@@ -61,10 +62,10 @@ class DrawerDroneTemperature(abstractDrawer):
 
     def draw(self, frame):
         cv2.putText(frame, f"temperature: {self.temperature} 'C", self.position, cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=self.font_scale, color=self.color,
-                            thickness=self.thickness)
+                    fontScale=self.font_scale, color=self.color, thickness=self.thickness)
 
-class DrawerDroneHeight(abstractDrawer):
+
+class DrawerDroneHeight(AbstractDrawer):
     def __init__(self, drone, position, font_scale, color, thickness):
         super().__init__(drone, position, font_scale, color, thickness)
 
@@ -77,8 +78,8 @@ class DrawerDroneHeight(abstractDrawer):
 
     def draw(self, frame):
         cv2.putText(frame, f"Height: {self.height}", self.position, cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=self.font_scale, color=self.color,
-                            thickness=self.thickness)
+                    fontScale=self.font_scale, color=self.color, thickness=self.thickness)
+
 
 class PipelineDrawer:
     def __init__(self):
@@ -99,6 +100,7 @@ class PipelineDrawer:
     def draw(self, frame):
         for drawer in self.pipeline:
             drawer.draw(frame)
+
 
 class PipelineDrawerBuilder:
     DRAWER_FPS = "FPS"

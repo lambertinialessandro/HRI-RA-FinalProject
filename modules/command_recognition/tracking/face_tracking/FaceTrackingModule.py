@@ -38,15 +38,15 @@ class AbstractFaceTracking(AbstractModuleTracking):
                                   w=int(bbox_c.width * w),
                                   h=int(bbox_c.height * h))
 
-            Window.instance.draw_circle(bbox.center, 2, (0, 255, 0))
-            Window.instance.draw_rectangle(*bbox.to_tuple(), color=(255, 0, 255), thickness=2)
-            Window.instance.write(f"{int(detection.score[0]*100)}%", position=(bbox.x, bbox.y-20), font_scale=2,
-                                  color=(255, 0, 255), thickness=2)
+            # Window.instance.draw_circle(bbox.center, 2, (0, 255, 0))
+            # Window.instance.draw_rectangle(*bbox.to_tuple(), color=(255, 0, 255), thickness=2)
+            # Window.instance.write(f"{int(detection.score[0]*100)}%", position=(bbox.x, bbox.y-20), font_scale=2,
+            #                       color=(255, 0, 255), thickness=2)
 
             bbox.normalize(frame.shape[0], frame.shape[1])
             all_bboxes.append(bbox)
 
-        Window.instance.draw_circle(center, 5, (0, 0, 255))
+        # Window.instance.draw_circle(center, 5, (0, 0, 255))
         return all_bboxes
 
     @abstractmethod
