@@ -1,4 +1,5 @@
 import cv2
+import keyboard
 
 from modules.DrawerModule import PipelineDrawerBuilder
 
@@ -18,6 +19,28 @@ class Window:
 
         cv2.namedWindow(self.name)
 
+        def my_keyboard_hook(keyboard_event):
+            print("Name:", keyboard_event.name)
+            print("Scan code:", keyboard_event.scan_code)
+            print("Time:", keyboard_event.time)
+
+            if keyboard_event.name == "t":
+                drone.take_off()
+            elif keyboard_event.name == "l":
+                drone.land()
+
+            # if keyboard_event.name == "1":
+            #     print("Face!")
+            #     self.update_detector(VideoTrackingFactory.Face)
+            # elif keyboard_event.name == "2":
+            #     print("Hand!")
+            #     self.update_detector(VideoTrackingFactory.Hand)
+            # elif keyboard_event.name == "3":
+            #     print("Holistic!")
+            #     self.update_detector(VideoTrackingFactory.Holistic)
+
+        keyboard.hook(my_keyboard_hook)
+
         Window.instance = self
 
     def show(self, frame):
@@ -31,4 +54,6 @@ class Window:
 
     def destroy(self):
         Window.instance = None
+
+        keyboard.unhook_all()
         cv2.destroyAllWindows()
