@@ -21,6 +21,10 @@ class AbstractCommandRecognition(ABC):
     def get_command(self, frame) -> tuple:
         pass
 
+    @abstractmethod
+    def end(self):
+        pass
+
 
 class VideoCommandRecognition(AbstractCommandRecognition):
     def __init__(self):
@@ -41,6 +45,9 @@ class VideoCommandRecognition(AbstractCommandRecognition):
     def get_command(self, frame) -> tuple:
         command, value = self.detector.execute(frame)
         return command, value
+
+    def end(self):
+        pass
 
 
 class AudioCommandRecognition(AbstractCommandRecognition):
@@ -82,6 +89,9 @@ class AudioCommandRecognition(AbstractCommandRecognition):
             self._talk('Please say the command again.')
 
         return Command.NONE, None
+
+    def end(self):
+        pass
 
 
 # TODO
