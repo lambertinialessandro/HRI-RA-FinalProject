@@ -10,7 +10,7 @@ class AbstractModuleTracking(ABC):
         pass
 
     @abstractmethod
-    def _execute(self, frame):
+    def _execute(self, results):
         pass
 
     def execute(self, frame) -> tuple:

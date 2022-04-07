@@ -22,8 +22,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
                 min_detection_confidence=min_detection_confidence)
 
     def _analyze_frame(self, frame):
-        h, w, c = frame.shape
-        center = w//2, h//2
+        h, w, _ = frame.shape
         results = self.face_detection.process(frame)
 
         all_bboxes = []
@@ -33,17 +32,20 @@ class AbstractFaceTracking(AbstractModuleTracking):
         # collecting infos
         for id, detection in enumerate(results.detections):
             bbox_c = detection.location_data.relative_bounding_box
-            bbox = self._FaceBBox(x=int(bbox_c.xmin * w),
-                                  y=int(bbox_c.ymin * h),
-                                  w=int(bbox_c.width * w),
-                                  h=int(bbox_c.height * h))
+            bbox = self._FaceBBox(x=bbox_c.xmin,
+                                  y=bbox_c.ymin,
+                                  w=bbox_c.width,
+                                  h=bbox_c.height)
+            center = bbox.center
 
-            # Window.instance.draw_circle(bbox.center, 2, (0, 255, 0))
+            print(bbox.to_tuple())
+
+            # Window.instance.draw_circle((center[0] * w, center[1] * h), 2, (0, 255, 0))
             # Window.instance.draw_rectangle(*bbox.to_tuple(), color=(255, 0, 255), thickness=2)
             # Window.instance.write(f"{int(detection.score[0]*100)}%", position=(bbox.x, bbox.y-20), font_scale=2,
             #                       color=(255, 0, 255), thickness=2)
 
-            bbox.normalize(frame.shape[0], frame.shape[1])
+            # bbox.normalize(w, h)
             all_bboxes.append(bbox)
 
         # Window.instance.draw_circle(center, 5, (0, 0, 255))
@@ -62,11 +64,11 @@ class AbstractFaceTracking(AbstractModuleTracking):
 
         @property
         def center(self) -> tuple:
-            center_x = self.x + self.w // 2
-            center_y = self.y + self.h // 2
-            if center_x < 0:
+            center_x = self.x + self.w / 2
+            center_y = self.y + self.h / 2
+            if center_x > 1:
                 center_x = int(center_x)
-            if center_y < 0:
+            if center_y > 1:
                 center_y = int(center_y)
             return center_x, center_y
 
