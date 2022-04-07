@@ -38,6 +38,9 @@ class ControlModule:
         self._drone = drone
 
     def __execute(self, command: Command, value=None):
+        if not self._drone.is_flying and command != Command.TAKE_OFF:
+            return
+
         if command == Command.TAKE_OFF:
             self._drone.take_off()
         elif command == Command.LAND:

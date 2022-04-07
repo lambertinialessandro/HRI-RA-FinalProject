@@ -1,7 +1,5 @@
-
 from abc import ABC, abstractmethod
 import pyttsx3
-import keyboard
 
 # TODO
 # only for debug, to be deleted
@@ -33,24 +31,6 @@ class VideoCommandRecognition(AbstractCommandRecognition):
 
         self._build_detector()
 
-        def my_keyboard_hook(keyboard_event):
-            # print("Name:", keyboard_event.name)
-            # print("Scan code:", keyboard_event.scan_code)
-            # print("Time:", keyboard_event.time)
-
-            if keyboard_event.name == "1":
-                print("Face!")
-                self.update_detector(VideoTrackingFactory.Face)
-            elif keyboard_event.name == "2":
-                print("Hand!")
-                self.update_detector(VideoTrackingFactory.Hand)
-            elif keyboard_event.name == "3":
-                print("Holistic!")
-                self.update_detector(VideoTrackingFactory.Holistic)
-
-
-        keyboard.hook(my_keyboard_hook)
-
     def _build_detector(self):
         self.detector = VideoTrackingFactory.create(self.current_tracking_type)
 
@@ -62,9 +42,6 @@ class VideoCommandRecognition(AbstractCommandRecognition):
         command, value = self.detector.execute(frame)
         return command, value
 
-    def end(self):
-        keyboard.unhook_all()
-
 
 class AudioCommandRecognition(AbstractCommandRecognition):
     def __init__(self):
@@ -75,16 +52,6 @@ class AudioCommandRecognition(AbstractCommandRecognition):
         self.engine.setProperty('voice', voices[1].id)
 
         self.done = False
-        def my_keyboard_hook(keyboard_event):
-            #print("Name:", keyboard_event.name)
-            #print("Scan code:", keyboard_event.scan_code)
-            #print("Time:", keyboard_event.time)
-
-            if keyboard_event.scan_code == 1: # Esc
-                print("Esc pressed!")
-                self.done = True
-
-        keyboard.hook(my_keyboard_hook)
 
     def _talk(self, text):
         self.engine.say(text)
@@ -115,9 +82,6 @@ class AudioCommandRecognition(AbstractCommandRecognition):
             self._talk('Please say the command again.')
 
         return Command.NONE, None
-
-    def end(self):
-        keyboard.unhook_all()
 
 
 # TODO
