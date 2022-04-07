@@ -4,12 +4,12 @@ import cv2
 import mediapipe as mp
 from simple_pid import PID
 
-from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
-
 # TODO
 # only for debug, to be deleted
 import sys
 sys.path.append('../../../')
+
+from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
 
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
