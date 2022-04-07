@@ -4,6 +4,8 @@ from modules.DrawerModule import PipelineDrawerBuilder
 
 
 class Window:
+    instance = None
+
     def __init__(self, drone, on_closed, name="Video"):
         self.on_closed = on_closed
         self.name = name
@@ -16,6 +18,8 @@ class Window:
 
         cv2.namedWindow(self.name)
 
+        Window.instance = self
+
     def show(self, frame):
         self.pd.draw(frame)
 
@@ -26,4 +30,5 @@ class Window:
             self.on_closed()
 
     def destroy(self):
+        Window.instance = None
         cv2.destroyAllWindows()

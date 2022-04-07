@@ -81,9 +81,9 @@ class AbstractDrone(ABC):
 
 
 class DJITello(AbstractDrone):
-    def __init__(self):
+    def __init__(self, host=None):
         super(DJITello, self).__init__()
-        self._tello = Tello()
+        self._tello = Tello(host=host)
         self._tello.connect()
 
     @property
