@@ -224,7 +224,7 @@ class FakeDrone(AbstractDrone):
         pass
 
     def end(self):
-        if self.is_streaming:
+        if self._stream_on:
             self.cap.release()
         cv2.destroyAllWindows()
 
