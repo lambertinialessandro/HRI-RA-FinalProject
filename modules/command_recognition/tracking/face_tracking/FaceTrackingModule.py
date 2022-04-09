@@ -21,7 +21,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
                 model_selection=model_selection,
                 min_detection_confidence=min_detection_confidence)
 
-    def _analyze_frame(self, frame):
+    def analyze_frame(self, frame):
         h, w, _ = frame.shape
         results = self.face_detection.process(frame)
 
@@ -50,7 +50,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
         return all_bboxes
 
     @abstractmethod
-    def _execute(self, frame) -> tuple:
+    def execute(self, frame) -> tuple:
         pass
 
     @dataclasses.dataclass
@@ -85,6 +85,8 @@ class AbstractFaceTracking(AbstractModuleTracking):
             self.h /= height
 
 
+import cv2
+
 class PIDFaceTracking(AbstractFaceTracking):
     def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01, box_width=100):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
@@ -99,7 +101,7 @@ class PIDFaceTracking(AbstractFaceTracking):
         self.old_control_y = None
         self.old_control_z = None
 
-    def _execute(self, bboxes) -> tuple:
+    def execute(self, bboxes) -> tuple:
         goal_z = self.box_width  # TODO
 
         if len(bboxes) > 0:
@@ -136,6 +138,23 @@ class PIDFaceTracking(AbstractFaceTracking):
         else:
             return Command.SET_RC, (0, 0, 0, 0)
 
+    def edit(self, frame, bboxes):
+        h, w, _ = frame.shape
+        shape = (w, h)
+        center = w//2, h//2
+
+        for bbox in bboxes:
+            cv2.circle(frame, bbox.unnormalized_center(shape), 2, (0, 255, 0), cv2.FILLED)
+            cv2.rectangle(frame, bbox.to_unnormalized_tuple(shape), (255, 0, 255), 2)
+            cv2.putText(frame, f'{int(bbox.detection*100)}%',
+                        (int(bbox.x*w), int(bbox.y*h-20)), cv2.FONT_HERSHEY_PLAIN,
+                        2, (255, 0, 255), 2)
+
+        cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
+        return frame
+
+    def end(self):
+        pass
 
 def main():
     import cv2
