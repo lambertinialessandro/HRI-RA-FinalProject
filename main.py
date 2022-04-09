@@ -2,7 +2,7 @@
 
 import cv2
 
-from modules.drone.DroneFactory import DroneFactory
+#from modules.drone.DroneFactory import DroneFactory
 from modules.GlobalFactory import GlobalFactory
 
 
@@ -13,10 +13,11 @@ if platform.system() == 'Windows':
 
 
 # 1. Drone is created
-drone = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
+#drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
 
 # 2. Creating the sequence
-template_pattern = GlobalFactory.create(GlobalFactory.VideoPC, drone=drone, capture_api=capture_api)
+template_pattern = GlobalFactory.create(GlobalFactory.FakeDrone, GlobalFactory.VideoPC,
+                                        capture_api=capture_api)
 
 # 3. Starting sequence
 template_pattern.execute()
