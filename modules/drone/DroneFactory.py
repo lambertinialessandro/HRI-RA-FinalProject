@@ -5,7 +5,23 @@ import sys
 sys.path.append('../../')
 
 from modules.drone.DroneModule import DJITello, FakeDrone
+from modules.DrawerModule import PipelineDrawerBuilder
 
+class DroneEditFrame():
+    def __init__(self, drone):
+        self.pd = PipelineDrawerBuilder.build(drone,
+                                              [PipelineDrawerBuilder.DRAWER_FPS,
+                                               PipelineDrawerBuilder.DRONE_BATTERY,
+                                               PipelineDrawerBuilder.DRONE_TEMPERATURE,
+                                               PipelineDrawerBuilder.DRONE_HEIGHT])
+
+    def edit(self, frame):
+        self.pd.draw(frame)
+
+        return frame
+
+    def end(self):
+        pass
 
 class DroneFactory:
     DJITello = "DJITello"
@@ -19,10 +35,12 @@ class DroneFactory:
         drone = None
         if type_drone == DroneFactory.DJITello:
             drone = DJITello()
+            drone_edit_frame = DroneEditFrame(drone)
         elif type_drone == DroneFactory.FakeDrone:
             drone = FakeDrone(capture_api=capture_api)
+            drone_edit_frame = DroneEditFrame(drone)
 
-        return drone
+        return drone, drone_edit_frame
 
 
 # TODO
