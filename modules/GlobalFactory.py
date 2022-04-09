@@ -9,7 +9,7 @@ from modules.drone.DroneFactory import DroneFactory
 from modules.stream.StreamFactory import StreamFactory
 from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
 from modules.control import ControlModule
-from modules.TemplatePatternModule import VideoTemplatePattern, AudioTemplatePattern
+from modules.TemplatePatternModule import TemplatePattern, VideoTemplatePattern, AudioTemplatePattern
 
 import cv2
 
@@ -54,25 +54,40 @@ class GlobalFactory:
 
         if type_input == GlobalFactory.VideoDrone:
             stream_module = StreamFactory.create(StreamFactory.VideoDrone, drone)
-            command_recognition_module = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
-            template_pattern = VideoTemplatePattern(stream_module,
-                                                    command_recognition_module,
+            frame_tracker,\
+            command_recognition,\
+            tracking_edit_frame = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
+            template_pattern = TemplatePattern(stream_module,
+                                                    frame_tracker,
+                                                    command_recognition,
                                                     control_module,
-                                                    drone)
+                                                    tracking_edit_frame,
+                                                    drone_edit_frame,
+                                                    displayer)
         elif type_input == GlobalFactory.VideoPC:
             stream_module = StreamFactory.create(StreamFactory.VideoPC, capture_api)
-            command_recognition_module = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
-            template_pattern = VideoTemplatePattern(stream_module,
-                                                    command_recognition_module,
+            frame_tracker,\
+            command_recognition,\
+            tracking_edit_frame = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
+            template_pattern = TemplatePattern(stream_module,
+                                                    frame_tracker,
+                                                    command_recognition,
                                                     control_module,
-                                                    drone)
+                                                    tracking_edit_frame,
+                                                    drone_edit_frame,
+                                                    displayer)
         elif type_input == GlobalFactory.AudioPC:
             stream_module = StreamFactory.create(StreamFactory.AudioPC)
-            command_recognition_module = CommandRecognitionFactory.create(CommandRecognitionFactory.Audio)
+            frame_tracker,\
+            command_recognition,\
+            tracking_edit_frame = CommandRecognitionFactory.create(CommandRecognitionFactory.Audio)
             template_pattern = AudioTemplatePattern(stream_module,
-                                                    command_recognition_module,
+                                                    frame_tracker,
+                                                    command_recognition,
                                                     control_module,
-                                                    drone)
+                                                    tracking_edit_frame,
+                                                    drone_edit_frame,
+                                                    displayer)
         else:
             raise ValueError(f"Type input '{type_input}' not accepted")
 
