@@ -35,7 +35,8 @@ class AbstractFaceTracking(AbstractModuleTracking):
             bbox = self._FaceBBox(x=bbox_c.xmin,
                                   y=bbox_c.ymin,
                                   w=bbox_c.width,
-                                  h=bbox_c.height)
+                                  h=bbox_c.height,
+                                  detection=detection.score[0])
             center = bbox.center
 
             # Window.instance.draw_circle((center[0] * w, center[1] * h), 2, (0, 255, 0))
@@ -58,6 +59,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
         y: float
         w: float
         h: float
+        detection: float
 
         @property
         def center(self) -> tuple:
@@ -69,6 +71,11 @@ class AbstractFaceTracking(AbstractModuleTracking):
 
         def to_tuple(self) -> tuple:
             return self.x, self.y, self.w, self.h
+
+        def to_unnormalized_tuple(self, shape) -> tuple:
+            normalized_center = self.center
+            return int(self.x * shape[0]), int(self.y * shape[1]), \
+                int(self.w * shape[0]), int(self.h * shape[1]),
 
         def normalize(self, width, height):
             self.x /= width
