@@ -6,6 +6,7 @@ sys.path.append('../../')
 from modules.command_recognition.CommandRecognitionModule \
     import VideoCommandRecognition, AudioCommandRecognition
 
+from modules.command_recognition.tracking.TrackingFactory import VideoTrackingFactory
 
 class CommandRecognitionFactory:
     Video = "Video"
@@ -18,11 +19,15 @@ class CommandRecognitionFactory:
     def create(type_input):
         command_recognition = None
         if type_input == CommandRecognitionFactory.Video:
-            command_recognition = VideoCommandRecognition()
+            frame_tracker = VideoTrackingFactory.create(VideoTrackingFactory.Face)
+            command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Face)
+            tracking_edit_frame = VideoTrackingFactory.create(VideoTrackingFactory.Face)
         elif type_input == CommandRecognitionFactory.Audio:
-            command_recognition = AudioCommandRecognition()
+            frame_tracker,\
+            command_recognition,\
+            tracking_edit_frame = AudioCommandRecognition()
 
-        return command_recognition
+        return frame_tracker, command_recognition, tracking_edit_frame
 
 
 # TODO
