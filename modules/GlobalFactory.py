@@ -11,6 +11,22 @@ from modules.command_recognition.CommandRecognitionFactory import CommandRecogni
 from modules.control import ControlModule
 from modules.TemplatePatternModule import VideoTemplatePattern, AudioTemplatePattern
 
+import cv2
+
+class Displayer:
+    def __init__(self, name="frame"):
+        self.name = name
+
+    def show(self, frame):
+        cv2.imshow(self.name, frame)
+
+        key = cv2.waitKey(1)
+        if key == 27:  # ESC
+            return False
+        return True
+
+    def end(self):
+        cv2.destroyAllWindows()
 
 class GlobalFactory:
     DJITello = "DJITello"
@@ -34,6 +50,7 @@ class GlobalFactory:
 
 
         control_module = ControlModule.ControlModule(drone)
+        displayer = Displayer()
 
         if type_input == GlobalFactory.VideoDrone:
             stream_module = StreamFactory.create(StreamFactory.VideoDrone, drone)
