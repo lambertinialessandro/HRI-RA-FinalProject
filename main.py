@@ -16,7 +16,7 @@ if platform.system() == 'Windows':
 #drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
 
 # 2. Creating the sequence
-template_pattern = GlobalFactory.create(GlobalFactory.FakeDrone, GlobalFactory.VideoPC,
+template_pattern = GlobalFactory.create(GlobalFactory.FakeDrone, GlobalFactory.VideoDrone,
                                         capture_api=capture_api)
 
 # 3. Starting sequence
