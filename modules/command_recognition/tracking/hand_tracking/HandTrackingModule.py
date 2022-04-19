@@ -15,6 +15,9 @@ from modules.command_recognition.tracking.AbstractModuleTracking import Abstract
 from modules.control.ControlModule import Command
 
 
+import cv2
+
+
 class HandEnum(Enum):
     WRIST = 0
     THUMB_CMC = 1
@@ -45,19 +48,23 @@ class HandEnum(Enum):
 
 
 class AbstractHandTracking(AbstractModuleTracking):
-    def __init__(self, flip_type=True):
+    def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
         super().__init__()
         self.flip_type = flip_type
+
+        self.all_hands = []
+        self.hand_detection =  mp.solutions.hands.Hands(static_image_mode=mode,
+                                         max_num_hands=max_hands,
+                                         min_detection_confidence=detection_con,
+                                         min_tracking_confidence=track_con)
 
     def _analyze_frame(self, frame):
         self.all_hands = []
 
-        results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        self.results_data = False
+        results = self.hand_detection.process(frame)
 
         # collecting infos
         if results.multi_hand_landmarks:
-            self.results_data = True
             h, w, c = frame.shape
             for handType, handLms in zip(results.multi_handedness, results.multi_hand_landmarks):
                 my_hand = {}
@@ -98,35 +105,64 @@ class AbstractHandTracking(AbstractModuleTracking):
                     my_hand["type"] = handType.classification[0].label
                 self.all_hands.append(my_hand)
 
-    @classmethod
     @abstractmethod
-    def execute(cls, frame) -> tuple:
+    def _execute(self) -> tuple:
+        pass
+
+    @abstractmethod
+    def edit_frame(self, frame):
+        pass
+
+    def end(self):
         pass
 
 
 class HandTracking(AbstractHandTracking):
     def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
-        super().__init__(flip_type=flip_type)
-        self.mode = mode  # STATIC_IMAGE_MODE
-        self.max_hands = max_hands  # MAX_NUM_HANDS
-        self.detection_con = detection_con  # MIN_DETECTION_CONFIDENCE
-        self.track_con = track_con  # MIN_TRACKING_CONFIDENCE
+        super().__init__(mode=mode, max_hands=max_hands, detection_con=detection_con, track_con=track_con, flip_type=flip_type)
 
-        self.mp_draw = mp.solutions.drawing_utils
-        self.mp_hands = mp.solutions.hands
-        self.hands = self.mp_hands.Hands(static_image_mode=self.mode,
-                                         max_num_hands=self.max_hands,
-                                         min_detection_confidence=self.detection_con,
-                                         min_tracking_confidence=self.track_con)
-
-        self.all_hands = []
-        self.results_data = False
-
-    def execute(self, frame):
+    def _execute(self) -> tuple:
         command = Command.NONE, None
 
-        self._analyze_frame(frame)
+        r_hand = self._get_hands_info(hand_no="Right")
+        if r_hand:
+            # (cx, cy) = r_hand["center"]
+            (wx, wy, wz) = r_hand["lmList"][HandEnum.WRIST.value]
+            (pmx, pmy, pmz) = r_hand["lmList"][HandEnum.PINKY_MCP.value]
+            (imx, imy, imz) = r_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = r_hand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
 
+            minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
+
+            distance = math.dist((imx, imy), (itx, ity))
+            angle = math.degrees(math.atan2(ity-imy, itx-imx))
+            #print(angle)
+            delta = 25  # max 45
+
+            (mtx, mty, mtz) = r_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = r_hand["lmList"][HandEnum.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = r_hand["lmList"][HandEnum.PINKY_TIP.value]
+            (rmx, rmy, rmz) = r_hand["lmList"][HandEnum.RING_FINGER_MCP.value]
+
+            otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
+                                   math.dist((rtx, rty), (rmx, rmy)),
+                                   math.dist((ptx, pty), (rmx, rmy)))
+            if otherFingersDist > minDist:
+                return Command.NONE, None
+
+            if distance > minDist:
+                if (-45 + delta) < angle < (45 - delta):
+                    command = Command.ROTATE_CW, 15 # Blue -> left
+                elif (45 + delta) < angle < (135 - delta):
+                    command = Command.LAND, None # Green -> bottom
+                elif (-135 + delta) < angle < (-45 - delta):
+                    command = Command.TAKE_OFF, None # Red -> top
+                elif (135+delta) < angle or angle < (-135-delta):
+                    command = Command.ROTATE_CCW, 15 # magenta -> right
+
+        return command
+
+    def edit_frame(self, frame):
         for hand in self.all_hands:
             bbox = hand["bbox"]
             cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
@@ -135,9 +171,8 @@ class HandTracking(AbstractHandTracking):
             cv2.putText(frame, hand["type"], (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
                         2, (0, 0, 255), 2)
 
-        r_hand = self.get_hands_info(hand_no="Right")
+        r_hand = self._get_hands_info(hand_no="Right")
         if r_hand:
-            # (cx, cy) = r_hand["center"]
             (wx, wy, wz) = r_hand["lmList"][HandEnum.WRIST.value]
             (pmx, pmy, pmz) = r_hand["lmList"][HandEnum.PINKY_MCP.value]
             (imx, imy, imz) = r_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
@@ -161,32 +196,28 @@ class HandTracking(AbstractHandTracking):
                                    math.dist((rtx, rty), (rmx, rmy)),
                                    math.dist((ptx, pty), (rmx, rmy)))
             if otherFingersDist > minDist:
-                return Command.NONE, None
+                return frame
 
             if distance > minDist:
                 if (-45 + delta) < angle < (45 - delta):
                     draw_command_color = (255, 0, 0) # Blue -> left
-                    command = Command.ROTATE_CW, 15
                     action = "ROTATE_CW"
                 elif (45 + delta) < angle < (135 - delta):
                     draw_command_color = (0, 255, 0) # Green -> bottom
-                    command = Command.LAND, None
                     action = "LAND"
                 elif (-135 + delta) < angle < (-45 - delta):
                     draw_command_color = (0, 0, 255) # Red -> top
-                    command = Command.TAKE_OFF, None
                     action = "MOVE_FORWARD"
                 elif (135+delta) < angle or angle < (-135-delta):
                     draw_command_color = (255, 0, 255) # magenta -> right
-                    command = Command.ROTATE_CCW, 15
                     action = "ROTATE_CCW"
 
             cv2.line(frame, (imx, imy), (itx, ity), draw_command_color, 2)
             cv2.putText(frame, action, (itx, ity), cv2.FONT_HERSHEY_PLAIN, 2, draw_command_color, 2)
 
-        return command
+        return frame
 
-    def get_hands_info(self, hand_no=-1):
+    def _get_hands_info(self, hand_no=-1):
         if isinstance(hand_no, int):
             assert hand_no < self.max_hands
 
