@@ -29,7 +29,9 @@ class VideoDroneStream(AbstractVideoStream):
         drone.streamon()
 
     def get_stream_frame(self):
-        return cv2.resize(self.drone.frame, (self.w, self.h))
+        frame = cv2.resize(self.drone.frame, (self.w, self.h))
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # TODO
+        return frame
 
     def end(self):
         self.drone.streamoff()
