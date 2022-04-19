@@ -11,23 +11,6 @@ from modules.command_recognition.CommandRecognitionFactory import CommandRecogni
 from modules.control import ControlModule
 from modules.TemplatePatternModule import TemplatePattern, VideoTemplatePattern, AudioTemplatePattern
 
-import cv2
-
-class Displayer:
-    def __init__(self, name="frame"):
-        self.name = name
-
-    def show(self, frame):
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        cv2.imshow(self.name, frame)
-
-        key = cv2.waitKey(1)
-        if key == 27:  # ESC
-            return False
-        return True
-
-    def end(self):
-        cv2.destroyAllWindows()
 
 class GlobalFactory:
     DJITello = "DJITello"
@@ -51,32 +34,30 @@ class GlobalFactory:
 
 
         control_module = ControlModule.ControlModule(drone)
-        displayer = Displayer()
 
         if type_input == GlobalFactory.VideoDrone:
             stream_module = StreamFactory.create(StreamFactory.VideoDrone, drone)
             command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
-            template_pattern = TemplatePattern(drone, stream_module,
+            template_pattern = TemplatePattern(drone,
+                                                    stream_module,
                                                     command_recognition,
                                                     control_module,
-                                                    drone_edit_frame,
-                                                    displayer)
+                                                    drone_edit_frame)
         elif type_input == GlobalFactory.VideoPC:
             stream_module = StreamFactory.create(StreamFactory.VideoPC, capture_api)
-            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace) # VideoFace
-            template_pattern = TemplatePattern(stream_module,
+            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
+            template_pattern = TemplatePattern(drone,
+                                                    stream_module,
                                                     command_recognition,
                                                     control_module,
-                                                    drone_edit_frame,
-                                                    displayer)
+                                                    drone_edit_frame)
         elif type_input == GlobalFactory.AudioPC:
             stream_module = StreamFactory.create(StreamFactory.AudioPC)
             command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Audio)
             template_pattern = AudioTemplatePattern(stream_module,
                                                     command_recognition,
                                                     control_module,
-                                                    drone_edit_frame,
-                                                    displayer)
+                                                    drone_edit_frame)
         else:
             raise ValueError(f"Type input '{type_input}' not accepted")
 
