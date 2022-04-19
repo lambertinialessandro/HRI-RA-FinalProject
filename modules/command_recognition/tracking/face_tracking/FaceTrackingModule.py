@@ -89,9 +89,12 @@ class PIDFaceTracking(AbstractFaceTracking):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
         # 0.7, 0.01, 0.05
-        self._pid_x = PID(0.7, 0.1, 0.05, sample_time=sample_time, setpoint=0.5)
-        self._pid_y = PID(0.7, 0.1, 0.05, sample_time=sample_time, setpoint=0.5)
-        self._pid_z = PID(0.7, 0.1, 0.05, sample_time=sample_time, setpoint=0.2)
+        p = 0.7
+        i = 0. # 0.01
+        d = 0. # 0.05
+        self._pid_x = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
+        self._pid_y = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
+        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2)
 
         self.old_control_x = None
         self.old_control_y = None
