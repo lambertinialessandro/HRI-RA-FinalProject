@@ -2,38 +2,40 @@ from abc import ABC, abstractmethod
 
 
 class AbstractModuleTracking(ABC):
-    def __init__(self):
+    def __init__(cls):
         pass
 
     @abstractmethod
-    def analyze_frame(self, frame):
+    def _analyze_frame(cls, frame):
         pass
 
     @abstractmethod
-    def execute(self, results) -> tuple:
+    def _execute(cls) -> tuple:
         pass
 
-    # def execute(self, frame) -> tuple:
-    #     results = self.analyze_frame(frame)
-    #     return self._execute(results)
+    def execute(cls, frame) -> tuple:
+        cls._analyze_frame(frame)
+        return cls._execute()
 
     @abstractmethod
-    def edit(frame):
+    def edit_frame(cls, frame):
+        pass
+
+    @abstractmethod
+    def end(cls):
         pass
 
 
 class EmptyTracking(AbstractModuleTracking):
-    @classmethod
-    def analyze_frame(cls, frame):
+
+    def _analyze_frame(self, frame):
         return []
 
-    @classmethod
-    def execute(cls, frame) -> tuple:
+    def _execute(self) -> tuple:
         return None, None
 
-    # def execute(self, frame) -> tuple:
-    #     return None, None
-
-    @abstractmethod
-    def edit(frame):
+    def edit_frame(self, frame):
         return frame
+
+    def end(self):
+        pass

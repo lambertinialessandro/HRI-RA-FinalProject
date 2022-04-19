@@ -45,8 +45,8 @@ if __name__ == "__main__":
         while True:
             frame = stream.get_stream_frame()
 
-            detector._analyze_frame(frame)
             command = detector.execute(frame)
+            frame = detector.edit_frame(frame)
 
             cv2.imshow("Image", frame)
             key = cv2.waitKey(1)
