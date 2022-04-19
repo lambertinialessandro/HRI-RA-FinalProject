@@ -3,6 +3,9 @@ from abc import abstractmethod
 import mediapipe as mp
 from simple_pid import PID
 
+import time
+import numpy as np
+
 # TODO: only for debug, to be deleted
 import sys
 sys.path.append('../../../')
@@ -29,6 +32,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
         w: float
         h: float
         detection: float
+        keypoints: list
 
         @property
         def center(self) -> tuple:
@@ -52,6 +56,15 @@ class AbstractFaceTracking(AbstractModuleTracking):
             self.y /= height
             self.h /= height
 
+        def get_ratio(self):
+            # right_eye, left_eye, nose, mouth, right_ear, left_ear
+            eyes = np.diff([self.keypoints[0], self.keypoints[1]])
+            ears = np.diff([self.keypoints[4], self.keypoints[5]])
+            return np.mean(eyes/ears)
+
+        def unnormalized_keypoints(self, shape):
+            return [[int(lm[0] * shape[0]), int(lm[1] * shape[1])] for lm in self.keypoints]
+
     def _analyze_frame(self, frame):
         h, w, _ = frame.shape
         results = self.face_detection.process(frame)
@@ -63,11 +76,15 @@ class AbstractFaceTracking(AbstractModuleTracking):
         # collecting infos
         for id, detection in enumerate(results.detections):
             bbox_c = detection.location_data.relative_bounding_box
+
+            keypoints = [[lm.x, lm.y]for lm in detection.location_data.relative_keypoints]
             bbox = self._FaceBBox(x=bbox_c.xmin,
                                   y=bbox_c.ymin,
                                   w=bbox_c.width,
                                   h=bbox_c.height,
-                                  detection=detection.score[0])
+                                  detection=detection.score[0],
+                                  keypoints=keypoints)
+
             self.bboxes.append(bbox)
 
     @abstractmethod
@@ -99,6 +116,11 @@ class PIDFaceTracking(AbstractFaceTracking):
         self.old_control_x = None
         self.old_control_y = None
         self.old_control_z = None
+
+        self.face_state = "None"
+        self.face_last_T = 0
+        self.face_old = None
+        self.face_old_ratio = 0
 
     def _execute(self) -> tuple:
         control = (0, 0, 0, 0)
@@ -133,14 +155,47 @@ class PIDFaceTracking(AbstractFaceTracking):
 
         return Command.SET_RC, control
 
+    def _is_last_user(self, pos):
+        ratio = self.bboxes[pos].get_ratio()
+        print(f"{self.face_state}  ratio: {np.abs(ratio-self.face_old_ratio)}")
+
+        if self.face_state == "None" :
+            return True
+
+        ratio = self.bboxes[pos].get_ratio()
+        if np.abs(ratio-self.face_old_ratio) < 20:
+            return True
+        return False
+
+    def _get_face_min_dist(self):
+        pos = -1
+        len_bboxes = len(self.bboxes)
+        if len_bboxes > 0:
+            if self.face_state == "None":
+                pos = 0
+            # elif len_bboxes == 1:
+            #     if < 0.005
+            #     #if self._is_last_user(0):
+            #         pos = 0
+            else:
+                base_x, base_y, _, _ = self.face_old.to_tuple()
+
+                # print((base_x, base_y), (self.bboxes[0].x, self.bboxes[0].y))
+                # print([np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])) for bbox in self.bboxes])
+                print([np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])**2) for bbox in self.bboxes])
+                mse = [np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])**2) for bbox in self.bboxes]
+                pos_mse = np.argmin(mse)
+                if mse[pos] < 0.5:
+                    pos = pos_mse
+
+        return pos
+
     def edit_frame(self, frame):
         h, w, _ = frame.shape
         shape = (w, h)
         center = w//2, h//2
 
         for bbox in self.bboxes:
-            cv2.circle(frame, bbox.unnormalized_center(shape),
-                       2, (0, 255, 0), cv2.FILLED)
             cv2.rectangle(frame, bbox.to_unnormalized_tuple(shape), (255, 0, 255), 2)
             cv2.putText(frame, f'{int(bbox.detection*100)}%',
                         (int(bbox.x*w), int(bbox.y*h-20)), cv2.FONT_HERSHEY_PLAIN,
@@ -149,13 +204,63 @@ class PIDFaceTracking(AbstractFaceTracking):
                         (int(bbox.x*w), int(bbox.y*h-35)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
 
-        if len(self.bboxes) > 0:
-            cv2.line(frame, center, self.bboxes[0].unnormalized_center(shape),
-                     (0, 0, 0), thickness=1)
-            cv2.line(frame, center,(
-                            int(center[0] - self.old_control_x*360),
-                            int(center[1] - self.old_control_y*360)
-                        ), (255, 0, 0), thickness=2)
+            for lm in bbox.unnormalized_keypoints(shape):
+                cv2.circle(frame, (lm[0], lm[1]),
+                           2, (0, 255, 255), cv2.FILLED)
+
+
+        pos = self._get_face_min_dist()
+        if pos != -1:
+            face = self.bboxes[pos]
+            self.face_old = face
+            self.face_old_ratio = face.get_ratio()
+
+            cv2.putText(frame, f"{self.face_state}",
+                        (int(face.x*w), int(face.y*h-50)), cv2.FONT_HERSHEY_PLAIN,
+                        2, (255, 0, 0), 2)
+
+            if self.face_state == "None":
+                self.face_state = "Detected"
+                self.face_last_T = time.time()
+
+            elif self.face_state == "Detected":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 2:
+                    self.face_state = "Locked"
+                    self.face_last_T = time.time()
+            elif self.face_state == "Lost":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 1:
+                    self.face_state = "Locked"
+
+            elif self.face_state == "Locked":
+                self.face_last_T = time.time()
+
+                cv2.circle(frame, face.unnormalized_center(shape),
+                           2, (0, 255, 0), cv2.FILLED)
+
+                cv2.line(frame, center, face.unnormalized_center(shape),
+                         (0, 0, 0), thickness=1)
+                cv2.line(frame, center,(
+                                int(center[0] - self.old_control_x*360),
+                                int(center[1] - self.old_control_y*360)
+                            ), (255, 0, 0), thickness=2)
+
+            cv2.circle(frame, self.face_old.unnormalized_center(shape),
+                       2, (255, 0, 255), cv2.FILLED)
+        else:
+            if self.face_state == "Detected":
+                self.face_state = "None"
+
+            elif self.face_state == "Locked":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 0.5:
+                    self.face_state = "Lost"
+
+            elif self.face_state == "Lost":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 2:
+                    self.face_state = "None"
 
         cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
         return frame
@@ -172,6 +277,7 @@ def main():
         while True:
             success, img = cap.read()
             _ = detector.execute(img)
+            img = detector.edit_frame(img)
 
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
