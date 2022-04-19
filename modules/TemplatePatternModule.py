@@ -11,13 +11,11 @@ from modules.window.Window import Window
 
 
 class AbstractTemplatePattern(ABC):
-    def __init__(self, stream_module, frame_tracker, command_recognition, control_module,
-                 tracking_edit_frame, drone_edit_frame, displayer):
+    def __init__(self, stream_module, command_recognition, control_module,
+                 drone_edit_frame, displayer):
         self.stream_module = stream_module
-        self.frame_tracker = frame_tracker
         self.command_recognition = command_recognition
         self.control_module = control_module
-        self.tracking_edit_frame = tracking_edit_frame
         self.drone_edit_frame = drone_edit_frame
         self.displayer = displayer
 
@@ -37,10 +35,14 @@ class AbstractTemplatePattern(ABC):
 
 
 class TemplatePattern(AbstractTemplatePattern):
-    def __init__(self, *args):
+    def __init__(self, drone, *args):
         super().__init__(*args)
 
+        self.drone = drone
+
         self.command = None
+
+        self.window = Window(self)
 
     def execute(self):
         state = True
@@ -51,38 +53,49 @@ class TemplatePattern(AbstractTemplatePattern):
                 # 1. Get the frame
                 frame = self.stream_module.get_stream_frame()
 
-                # 2. Get the data from the image
-                tracking_data = self.frame_tracker.analyze_frame(frame)
-
-                # 3. Get the command
-                self.command, value = self.command_recognition.execute(tracking_data)
+                # 3. Get the data from the image and compute the command as output
+                self.command, value = self.command_recognition.execute(frame)
 
                 # 4. Execute the comand
                 self.control_module.execute(self.command, value)
                 self.command = None
 
                 # 5. Edit frame
-                frame = self.tracking_edit_frame.edit(frame, tracking_data)
+                frame = self.command_recognition.edit_frame(frame)
                 frame = self.drone_edit_frame.edit(frame)
 
                 # 6. Display frame
                 state = self.displayer.show(frame)
-        # except KeyboardInterrupt:
-        #     pass
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            print(e)
+            #self.execute()
         finally:
             self.end()
 
     def end(self):
         print("Done!")
 
+        print("[1/9] Turn off Window")
+        self.window.end()
+
+        print("[2/9] Turn off stream_module")
         self.stream_module.end()
-        self.frame_tracker.end()
+        # print("[3/9] Turn off frame_tracker")
+        # self.frame_tracker.end()
+        print("[4/9] Turn off command_recognition")
         self.command_recognition.end()
+        print("[5/9] Turn off control_module")
         self.control_module.end()
-        self.tracking_edit_frame.end()
+        # print("[6/9] Turn off tracking_edit_frame")
+        # self.tracking_edit_frame.end()
+        print("[7/9] Turn off drone_edit_frame")
         self.drone_edit_frame.end()
+        print("[8/9] Turn off displayer")
         self.displayer.end()
 
+        print("[9/9] Turn off schedule")
         schedule.clear()
 
 class VideoTemplatePattern(AbstractTemplatePattern):
