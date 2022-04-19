@@ -1,33 +1,37 @@
 import cv2
 import keyboard
 
-from modules.DrawerModule import PipelineDrawerBuilder
 from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
 
 
 class Window:
     instance = None
 
-    def __init__(self, cls, name="Video"):
+    def bind(self, cls):
         self.cls = cls
 
-        self.pd = PipelineDrawerBuilder.build(cls.drone,
-                                              [PipelineDrawerBuilder.DRAWER_FPS,
-                                               PipelineDrawerBuilder.DRONE_BATTERY,
-                                               PipelineDrawerBuilder.DRONE_TEMPERATURE,
-                                               PipelineDrawerBuilder.DRONE_HEIGHT])
+    def __new__(self, *args, **kwargs):
+         if Window.instance == None:
+             Window.instance = super(Window, self).__new__(self)
+         return Window.instance
 
-        #cv2.namedWindow(name)
+    def __init__(self, cls=None, name="Video"):
+        self.bind(cls)
+        self.name = name
+        cv2.namedWindow(name)
 
         def my_keyboard_hook(keyboard_event):
             # print("Name:", keyboard_event.name)
             # print("Scan code:", keyboard_event.scan_code)
             # print("Time:", keyboard_event.time)
 
-            if keyboard_event.name == "t":
-                cls.drone.take_off()
-            elif keyboard_event.name == "l":
+            #if keyboard_event.name == "esc":
+            #    cls.end()
+            #el
+            if keyboard_event.name == "l":
                 cls.drone.land()
+            elif keyboard_event.name == "t":
+                cls.drone.take_off()
             elif keyboard_event.name == "u":
                 cls.drone.move_up(10)
             elif keyboard_event.name == "d":
@@ -45,16 +49,14 @@ class Window:
 
         keyboard.on_press(my_keyboard_hook)
 
-        Window.instance = self
-
     def show(self, frame):
-        self.pd.draw(frame)
-
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         cv2.imshow(self.name, frame)
 
         key = cv2.waitKey(1)
         if key == 27:  # ESC
-            self.on_closed()
+            return False
+        return True
 
     def end(self):
         Window.instance = None
