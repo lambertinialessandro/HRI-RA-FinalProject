@@ -201,7 +201,7 @@ class PIDFaceTracking(AbstractFaceTracking):
                         (int(bbox.x*w), int(bbox.y*h-20)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
             cv2.putText(frame, f'{bbox.w}',
-                        (int(bbox.x*w), int(bbox.y*h-35)), cv2.FONT_HERSHEY_PLAIN,
+                        (int(bbox.x*w), int(bbox.y*h-40)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
 
             for lm in bbox.unnormalized_keypoints(shape):
@@ -216,7 +216,7 @@ class PIDFaceTracking(AbstractFaceTracking):
             self.face_old_ratio = face.get_ratio()
 
             cv2.putText(frame, f"{self.face_state}",
-                        (int(face.x*w), int(face.y*h-50)), cv2.FONT_HERSHEY_PLAIN,
+                        (int(face.x*w), int(face.y*h-60)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 0), 2)
 
             if self.face_state == "None":
