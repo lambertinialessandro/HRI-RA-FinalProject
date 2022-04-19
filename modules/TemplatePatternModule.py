@@ -12,12 +12,12 @@ from modules.window.Window import Window
 
 class AbstractTemplatePattern(ABC):
     def __init__(self, stream_module, command_recognition, control_module,
-                 drone_edit_frame, displayer):
+                 drone_edit_frame):
         self.stream_module = stream_module
         self.command_recognition = command_recognition
         self.control_module = control_module
         self.drone_edit_frame = drone_edit_frame
-        self.displayer = displayer
+        self.displayer = Window(cls=self)
 
         # TODO
         # fix command block
@@ -37,18 +37,14 @@ class AbstractTemplatePattern(ABC):
 class TemplatePattern(AbstractTemplatePattern):
     def __init__(self, drone, *args):
         super().__init__(*args)
-
         self.drone = drone
-
         self.command = None
 
-        self.window = Window(self)
-
     def execute(self):
-        state = True
+        self.state = True
 
         try:
-            while state:
+            while self.state:
 
                 # 1. Get the frame
                 frame = self.stream_module.get_stream_frame()
@@ -58,14 +54,13 @@ class TemplatePattern(AbstractTemplatePattern):
 
                 # 4. Execute the comand
                 self.control_module.execute(self.command, value)
-                self.command = None
 
                 # 5. Edit frame
                 frame = self.command_recognition.edit_frame(frame)
                 frame = self.drone_edit_frame.edit(frame)
 
                 # 6. Display frame
-                state = self.displayer.show(frame)
+                self.state = self.displayer.show(frame)
         except KeyboardInterrupt:
             pass
         except Exception as e:
@@ -76,9 +71,10 @@ class TemplatePattern(AbstractTemplatePattern):
 
     def end(self):
         print("Done!")
+        self.state = False
 
-        print("[1/9] Turn off Window")
-        self.window.end()
+        # print("[1/9] Turn off Window")
+        # self.window.end()
 
         print("[2/9] Turn off stream_module")
         self.stream_module.end()
@@ -97,6 +93,9 @@ class TemplatePattern(AbstractTemplatePattern):
 
         print("[9/9] Turn off schedule")
         schedule.clear()
+
+
+from modules.window.Window import Window
 
 class VideoTemplatePattern(AbstractTemplatePattern):
     def __init__(self, video_stream_module, command_recognition, control_module, drone):
