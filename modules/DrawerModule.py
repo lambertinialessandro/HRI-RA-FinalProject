@@ -31,6 +31,7 @@ class DrawerFPS(AbstractDrawer):
 
         cv2.putText(frame, f"FPS: {fps}", self.position, cv2.FONT_HERSHEY_PLAIN,
                     fontScale=self.font_scale, color=self.color, thickness=self.thickness)
+        return frame
 
 
 class DrawerDroneBattery(AbstractDrawer):
@@ -47,6 +48,7 @@ class DrawerDroneBattery(AbstractDrawer):
     def draw(self, frame):
         cv2.putText(frame, f"Battery: {self.battery}%", self.position, cv2.FONT_HERSHEY_PLAIN,
                     fontScale=self.font_scale, color=self.color, thickness=self.thickness)
+        return frame
 
 
 class DrawerDroneTemperature(AbstractDrawer):
@@ -63,6 +65,7 @@ class DrawerDroneTemperature(AbstractDrawer):
     def draw(self, frame):
         cv2.putText(frame, f"temperature: {self.temperature} 'C", self.position, cv2.FONT_HERSHEY_PLAIN,
                     fontScale=self.font_scale, color=self.color, thickness=self.thickness)
+        return frame
 
 
 class DrawerDroneHeight(AbstractDrawer):
@@ -79,6 +82,7 @@ class DrawerDroneHeight(AbstractDrawer):
     def draw(self, frame):
         cv2.putText(frame, f"Height: {self.height}", self.position, cv2.FONT_HERSHEY_PLAIN,
                     fontScale=self.font_scale, color=self.color, thickness=self.thickness)
+        return frame
 
 
 class PipelineDrawer:
@@ -99,7 +103,11 @@ class PipelineDrawer:
 
     def draw(self, frame):
         for drawer in self.pipeline:
-            drawer.draw(frame)
+            frame = drawer.draw(frame)
+        return frame
+
+    def end(self):
+        schedule.clear()
 
 
 class PipelineDrawerBuilder:

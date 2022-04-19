@@ -107,7 +107,6 @@ class PIDFaceTracking(AbstractFaceTracking):
             face_center = face.center
 
             control_x = self._pid_x(face_center[0])
-            print(face_center[1])
             control_y = self._pid_y(face_center[1])
             control_z = self._pid_z(face.w)
 

@@ -76,23 +76,26 @@ class TemplatePattern(AbstractTemplatePattern):
         # print("[1/9] Turn off Window")
         # self.window.end()
 
-        print("[2/9] Turn off stream_module")
+        print("[1/6] Turn off stream_module")
         self.stream_module.end()
         # print("[3/9] Turn off frame_tracker")
         # self.frame_tracker.end()
-        print("[4/9] Turn off command_recognition")
+        print("[2/6] Turn off command_recognition")
         self.command_recognition.end()
-        print("[5/9] Turn off control_module")
+        print("[3/6] Turn off control_module")
         self.control_module.end()
         # print("[6/9] Turn off tracking_edit_frame")
         # self.tracking_edit_frame.end()
-        print("[7/9] Turn off drone_edit_frame")
+        print("[4/6] Turn off drone_edit_frame")
         self.drone_edit_frame.end()
-        print("[8/9] Turn off displayer")
+        print("[5/6] Turn off displayer")
         self.displayer.end()
 
-        print("[9/9] Turn off schedule")
-        schedule.clear()
+        #print("[9/9] Turn off schedule")
+        #schedule.clear()
+
+        print("[6/6] Turn off drone")
+        self.drone.end()
 
 
 from modules.window.Window import Window

@@ -77,5 +77,6 @@ class ControlModule:
         Thread(target=self.__execute, args=[command, value]).start()
 
     def end(self):
-        self._drone.end()
+        #self._drone.end()
+        pass
 

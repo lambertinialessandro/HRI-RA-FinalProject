@@ -16,12 +16,11 @@ class DroneEditFrame():
                                                PipelineDrawerBuilder.DRONE_HEIGHT])
 
     def edit(self, frame):
-        self.pd.draw(frame)
-
+        frame = self.pd.draw(frame)
         return frame
 
     def end(self):
-        pass
+        self.pd.end()
 
 class DroneFactory:
     DJITello = "DJITello"

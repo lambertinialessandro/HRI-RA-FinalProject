@@ -189,14 +189,14 @@ class FakeDrone(AbstractDrone):
         if not self._stream_on:
             self._stream_on = True
             self.cap = cv2.VideoCapture(self.inputIdx, self.capture_api)
-            print("Stream on")
+            print("DRONE: Stream on")
 
     def streamoff(self):
         if self._stream_on:
             self._stream_on = False
             self.cap.release()
             cv2.destroyAllWindows()
-            print("Stream off")
+            print("DRONE: Stream off")
 
     def set_rc_controls(self, lr, fb, up, j):
         pass
@@ -204,12 +204,12 @@ class FakeDrone(AbstractDrone):
     def take_off(self):
         if not self._is_flying:
             self._is_flying = True
-            print("Take off")
+            print("DRONE: Take off")
 
     def land(self):
         if self._is_flying:
             self._is_flying = False
-            print("Land")
+            print("DRONE: Land")
 
     def move_up(self, value):
         pass
@@ -226,6 +226,5 @@ class FakeDrone(AbstractDrone):
     def end(self):
         if self._stream_on:
             self.cap.release()
-        cv2.destroyAllWindows()
 
 
