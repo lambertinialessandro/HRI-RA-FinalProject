@@ -113,9 +113,9 @@ class PIDFaceTracking(AbstractFaceTracking):
         self._pid_y = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
         self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2)
 
-        self.old_control_x = None
-        self.old_control_y = None
-        self.old_control_z = None
+        self.old_control_x = 0
+        self.old_control_y = 0
+        self.old_control_z = 0
 
         self.face_state = "None"
         self.face_last_T = 0
@@ -124,35 +124,71 @@ class PIDFaceTracking(AbstractFaceTracking):
 
     def _execute(self) -> tuple:
         control = (0, 0, 0, 0)
-        if len(self.bboxes) > 0:
-            face = self.bboxes[0]
+        pos = self._get_face_min_dist()
+        if pos != -1:
+            face = self.bboxes[pos]
+            self.face_old = face
+            self.face_old_ratio = face.get_ratio()
             face_center = face.center
 
-            control_x = self._pid_x(face_center[0])
-            control_y = self._pid_y(face_center[1])
-            control_z = self._pid_z(face.w)
+            if self.face_state == "None":
+                self.face_state = "Detected"
+                self.face_last_T = time.time()
 
-            if control_x == self.old_control_x and \
-                    control_y == self.old_control_y and\
-                    control_z == self.old_control_z:
-                return Command.NONE, None
+            elif self.face_state == "Detected":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 2:
+                    self.face_state = "Locked"
+                    self.face_last_T = time.time()
+            elif self.face_state == "Lost":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 1:
+                    self.face_state = "Locked"
 
-            if control_x != self.old_control_x:
-                self.old_control_x = control_x
-            if control_y != self.old_control_y:
-                self.old_control_y = control_y
-            if control_z != self.old_control_z:
-                self.old_control_z = control_z
+            elif self.face_state == "Locked":
+                self.face_last_T = time.time()
 
-            control_x *= -100
-            control_y *= 100
-            control_z *= -100
+                control_x = self._pid_x(face_center[0])
+                control_y = self._pid_y(face_center[1])
+                control_z = self._pid_z(face.w)
 
-            control_z = control_z if 0.1 < face.w and face.w < 0.3 else 0
+                if control_x == self.old_control_x and \
+                        control_y == self.old_control_y and\
+                        control_z == self.old_control_z:
+                    return Command.NONE, None
 
-            control = (0, int(control_z), int(control_y), int(control_x))
-            print(control)
+                if control_x != self.old_control_x:
+                    self.old_control_x = control_x
+                if control_y != self.old_control_y:
+                    self.old_control_y = control_y
+                if control_z != self.old_control_z:
+                    self.old_control_z = control_z
 
+                control_x *= -100
+                control_y *= 100
+                control_z *= -100
+
+                control_z = control_z if 0.1 < face.w and face.w < 0.3 else 0
+
+                control = (0, int(control_z), int(control_y), int(control_x))
+                print(control)
+
+        else:
+            if self.face_state == "Detected":
+                self.face_state = "None"
+
+            elif self.face_state == "Locked":
+                face_elapsed_T = time.time() - self.face_last_T
+                control = (0, int(self.old_control_x),
+                           int(self.old_control_y),
+                           int(self.old_control_z))
+                if face_elapsed_T > 0.5:
+                    self.face_state = "Lost"
+
+            elif self.face_state == "Lost":
+                face_elapsed_T = time.time() - self.face_last_T
+                if face_elapsed_T > 2:
+                    self.face_state = "None"
         return Command.SET_RC, control
 
     def _is_last_user(self, pos):
@@ -180,9 +216,6 @@ class PIDFaceTracking(AbstractFaceTracking):
             else:
                 base_x, base_y, _, _ = self.face_old.to_tuple()
 
-                # print((base_x, base_y), (self.bboxes[0].x, self.bboxes[0].y))
-                # print([np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])) for bbox in self.bboxes])
-                print([np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])**2) for bbox in self.bboxes])
                 mse = [np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])**2) for bbox in self.bboxes]
                 pos_mse = np.argmin(mse)
                 if mse[pos] < 0.5:
@@ -212,30 +245,12 @@ class PIDFaceTracking(AbstractFaceTracking):
         pos = self._get_face_min_dist()
         if pos != -1:
             face = self.bboxes[pos]
-            self.face_old = face
-            self.face_old_ratio = face.get_ratio()
 
             cv2.putText(frame, f"{self.face_state}",
                         (int(face.x*w), int(face.y*h-60)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 0), 2)
 
-            if self.face_state == "None":
-                self.face_state = "Detected"
-                self.face_last_T = time.time()
-
-            elif self.face_state == "Detected":
-                face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 2:
-                    self.face_state = "Locked"
-                    self.face_last_T = time.time()
-            elif self.face_state == "Lost":
-                face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 1:
-                    self.face_state = "Locked"
-
-            elif self.face_state == "Locked":
-                self.face_last_T = time.time()
-
+            if self.face_state == "Locked" or self.face_state == "Lost":
                 cv2.circle(frame, face.unnormalized_center(shape),
                            2, (0, 255, 0), cv2.FILLED)
 
@@ -246,21 +261,9 @@ class PIDFaceTracking(AbstractFaceTracking):
                                 int(center[1] - self.old_control_y*360)
                             ), (255, 0, 0), thickness=2)
 
+
             cv2.circle(frame, self.face_old.unnormalized_center(shape),
                        2, (255, 0, 255), cv2.FILLED)
-        else:
-            if self.face_state == "Detected":
-                self.face_state = "None"
-
-            elif self.face_state == "Locked":
-                face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 0.5:
-                    self.face_state = "Lost"
-
-            elif self.face_state == "Lost":
-                face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 2:
-                    self.face_state = "None"
 
         cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
         return frame
