@@ -7,7 +7,8 @@ sys.path.append('../../')
 from modules.drone.DroneModule import DJITello, FakeDrone
 from modules.DrawerModule import PipelineDrawerBuilder
 
-class DroneEditFrame():
+
+class DroneEditFrame:
     def __init__(self, drone):
         self.pd = PipelineDrawerBuilder.build(drone,
                                               [PipelineDrawerBuilder.DRAWER_FPS,
@@ -22,6 +23,7 @@ class DroneEditFrame():
     def end(self):
         self.pd.end()
 
+
 class DroneFactory:
     DJITello = "DJITello"
     FakeDrone = "FakeDrone"
@@ -32,6 +34,7 @@ class DroneFactory:
     @staticmethod
     def create(type_drone, capture_api=None):
         drone = None
+        drone_edit_frame = None
         if type_drone == DroneFactory.DJITello:
             drone = DJITello()
             drone_edit_frame = DroneEditFrame(drone)
@@ -42,8 +45,6 @@ class DroneFactory:
         return drone, drone_edit_frame
 
 
-# TODO
-# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
 
@@ -65,5 +66,3 @@ if __name__ == "__main__":
     finally:
         drone.streamoff()
         drone.end()
-
-

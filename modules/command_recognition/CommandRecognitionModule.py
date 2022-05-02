@@ -94,8 +94,6 @@ class AudioCommandRecognition(AbstractCommandRecognition):
         pass
 
 
-# TODO
-# only for debug, to be deleted
 def main():
     import cv2
 
@@ -121,6 +119,7 @@ def main():
         vcr.end()
         cap.release()
         cv2.destroyAllWindows()
+
 
 def main2():
     from modules.stream.StreamFactory import StreamFactory

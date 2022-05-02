@@ -96,7 +96,7 @@ class PipelineDrawer:
         self.color = (0, 0, 255)
         self.thickness = 1
 
-    def addDrawer(self, drone, drawer):
+    def add_drawer(self, drone, drawer):
         self.len_pipeline = self.len_pipeline + 1
         position = (self.w, int(self.h * self.len_pipeline))
         self.pipeline.append(drawer(drone, position, self.font_scale, self.color, self.thickness))
@@ -125,12 +125,12 @@ class PipelineDrawerBuilder:
 
         for drawer in drawers:
             if drawer == PipelineDrawerBuilder.DRAWER_FPS:
-                pd.addDrawer(drone, DrawerFPS)
+                pd.add_drawer(drone, DrawerFPS)
             elif drawer == PipelineDrawerBuilder.DRONE_BATTERY:
-                pd.addDrawer(drone, DrawerDroneBattery)
+                pd.add_drawer(drone, DrawerDroneBattery)
             elif drawer == PipelineDrawerBuilder.DRONE_TEMPERATURE:
-                pd.addDrawer(drone, DrawerDroneTemperature)
+                pd.add_drawer(drone, DrawerDroneTemperature)
             elif drawer == PipelineDrawerBuilder.DRONE_HEIGHT:
-                pd.addDrawer(drone, DrawerDroneHeight)
+                pd.add_drawer(drone, DrawerDroneHeight)
 
         return pd

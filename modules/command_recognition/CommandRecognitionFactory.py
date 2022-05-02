@@ -8,6 +8,7 @@ from modules.command_recognition.CommandRecognitionModule \
 
 from modules.command_recognition.tracking.TrackingFactory import VideoTrackingFactory
 
+
 class CommandRecognitionFactory:
     VideoFace = "VideoFace"
     VideoHand = "VideoHand"

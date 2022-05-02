@@ -1,4 +1,3 @@
-
 # TODO
 # only for debug, to be deleted
 import sys
@@ -64,8 +63,6 @@ class GlobalFactory:
         return template_pattern
 
 
-# TODO
-# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
 
