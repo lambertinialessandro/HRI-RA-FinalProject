@@ -26,23 +26,23 @@ class Window:
             # print("Time:", keyboard_event.time)
 
             #if keyboard_event.name == "esc":
-            #    cls.end()
+            #    self.cls.end()
             #el
             if keyboard_event.name == "l":
-                cls.drone.land()
+                self.cls.drone.land()
             elif keyboard_event.name == "t":
-                cls.drone.take_off()
+                self.cls.drone.take_off()
             elif keyboard_event.name == "u":
-                cls.drone.move_up(10)
+                self.cls.drone.move_up(10)
             elif keyboard_event.name == "d":
-                cls.drone.move_down(10)
+                self.cls.drone.move_down(10)
 
             elif keyboard_event.name == "1":
                 print("Face!")
-                cls.command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
+                self.cls.command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
             elif keyboard_event.name == "2":
                 print("Hand!")
-                cls.command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoHand)
+                self.cls.command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoHand)
             # elif keyboard_event.name == "3":
             #     print("Holistic!")
             #     self.update_detector(VideoTrackingFactory.Holistic)
