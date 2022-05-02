@@ -226,5 +226,3 @@ class FakeDrone(AbstractDrone):
     def end(self):
         if self._stream_on:
             self.cap.release()
-
-

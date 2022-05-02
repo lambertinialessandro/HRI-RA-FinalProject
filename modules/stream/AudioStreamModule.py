@@ -47,5 +47,3 @@ class ComputerMicrophoneStream(AbstractAudioStream):
 
     def end(self):
         pass
-
-

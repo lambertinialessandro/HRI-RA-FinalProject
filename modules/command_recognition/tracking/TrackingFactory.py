@@ -55,5 +55,3 @@ if __name__ == "__main__":
     finally:
         stream.release_stream()
         cv2.destroyAllWindows()
-
-

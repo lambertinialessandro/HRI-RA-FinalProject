@@ -54,9 +54,9 @@ class AbstractHandTracking(AbstractModuleTracking):
 
         self.all_hands = []
         self.hand_detection =  mp.solutions.hands.Hands(static_image_mode=mode,
-                                         max_num_hands=max_hands,
-                                         min_detection_confidence=detection_con,
-                                         min_tracking_confidence=track_con)
+                                                        max_num_hands=max_hands,
+                                                        min_detection_confidence=detection_con,
+                                                        min_tracking_confidence=track_con)
 
     def _analyze_frame(self, frame):
         self.all_hands = []

@@ -101,14 +101,15 @@ class AbstractFaceTracking(AbstractModuleTracking):
 
 import cv2
 
+
 class PIDFaceTracking(AbstractFaceTracking):
     def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
         # 0.7, 0.01, 0.05
         p = 0.7
-        i = 0. # 0.01
-        d = 0. # 0.05
+        i = 0.  # 0.01
+        d = 0.  # 0.05
         self._pid_x = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
         self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2)
@@ -241,7 +242,6 @@ class PIDFaceTracking(AbstractFaceTracking):
                 cv2.circle(frame, (lm[0], lm[1]),
                            2, (0, 255, 255), cv2.FILLED)
 
-
         pos = self._get_face_min_dist()
         if pos != -1:
             face = self.bboxes[pos]
@@ -256,17 +256,17 @@ class PIDFaceTracking(AbstractFaceTracking):
 
                 cv2.line(frame, center, face.unnormalized_center(shape),
                          (0, 0, 0), thickness=1)
-                cv2.line(frame, center,(
+                cv2.line(frame, center, (
                                 int(center[0] - self.old_control_x*360),
                                 int(center[1] - self.old_control_y*360)
                             ), (255, 0, 0), thickness=2)
-
 
             cv2.circle(frame, self.face_old.unnormalized_center(shape),
                        2, (255, 0, 255), cv2.FILLED)
 
         cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
         return frame
+
 
 def main():
     import cv2
@@ -284,7 +284,7 @@ def main():
 
             cv2.imshow("Image", img)
             key = cv2.waitKey(1)
-            if key == 27: # ESC
+            if key == 27:  # ESC
                 break
 
         cap.release()
@@ -296,4 +296,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
