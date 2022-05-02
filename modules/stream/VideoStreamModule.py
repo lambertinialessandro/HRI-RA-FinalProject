@@ -30,7 +30,7 @@ class VideoDroneStream(AbstractVideoStream):
 
     def get_stream_frame(self):
         frame = cv2.resize(self.drone.frame, (self.w, self.h))
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # TODO
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
 
     def end(self):
@@ -38,17 +38,19 @@ class VideoDroneStream(AbstractVideoStream):
 
 
 class WebcamStream(AbstractVideoStream):
-    def __init__(self, capture_api=None):
+    def __init__(self, input_idx=0, capture_api=None):
         super().__init__()
 
-        self.inputIdx = 0
+        self.input_idx = input_idx
         self.w = 1280//2
         self.h = 720//2
 
-        self.cap = cv2.VideoCapture(self.inputIdx, capture_api)
+        self.cap = cv2.VideoCapture(self.input_idx, capture_api)
 
     def get_stream_frame(self):
         _, frame = self.cap.read()
+        frame = cv2.resize(frame, (self.w, self.h))
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
 
     def end(self):

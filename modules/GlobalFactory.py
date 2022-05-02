@@ -23,11 +23,12 @@ class GlobalFactory:
         pass
 
     @staticmethod
-    def create(type_drone, type_input, capture_api=None):
+    def create(type_drone, type_input, input_idx=0, capture_api=None):
         if type_drone == GlobalFactory.DJITello:
             drone, drone_edit_frame = DroneFactory.create(DroneFactory.DJITello, capture_api=capture_api)
         elif type_drone == GlobalFactory.FakeDrone:
-            drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)
+            drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone,
+                                                          input_idx=input_idx, capture_api=capture_api)
         else:
             raise ValueError(f"Type drone '{type_drone}' not accepted")
 
@@ -35,7 +36,7 @@ class GlobalFactory:
         control_module = ControlModule.ControlModule(drone)
 
         if type_input == GlobalFactory.VideoDrone:
-            stream_module = StreamFactory.create(StreamFactory.VideoDrone, drone)
+            stream_module = StreamFactory.create(StreamFactory.VideoDrone, drone=drone)
             command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
             template_pattern = TemplatePattern(drone,
                                                     stream_module,
@@ -43,7 +44,8 @@ class GlobalFactory:
                                                     control_module,
                                                     drone_edit_frame)
         elif type_input == GlobalFactory.VideoPC:
-            stream_module = StreamFactory.create(StreamFactory.VideoPC, capture_api)
+            stream_module = StreamFactory.create(StreamFactory.VideoPC, input_idx=input_idx,
+                                                 capture_api=capture_api)
             command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
             template_pattern = TemplatePattern(drone,
                                                     stream_module,

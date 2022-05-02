@@ -17,13 +17,13 @@ class StreamFactory:
         pass
 
     @staticmethod
-    def create(type_input, drone=None, capture_api=None):
+    def create(type_input, drone=None, input_idx=0, capture_api=None):
         stream = None
         if type_input == StreamFactory.VideoDrone:
             assert drone is not None
             stream = VideoDroneStream(drone)
         elif type_input == StreamFactory.VideoPC:
-            stream = WebcamStream(capture_api=capture_api)
+            stream = WebcamStream(input_idx=input_idx, capture_api=capture_api)
         elif type_input == StreamFactory.AudioPC:
             stream = ComputerMicrophoneStream()
 

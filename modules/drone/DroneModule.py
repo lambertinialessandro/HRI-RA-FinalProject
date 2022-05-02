@@ -152,9 +152,9 @@ class FakeDrone(AbstractDrone):
     _stream_on = False
     _is_flying = False
 
-    def __init__(self, capture_api=None):
+    def __init__(self, input_idx=0, capture_api=None):
         super(AbstractDrone, self).__init__()
-        self.inputIdx = 0
+        self.inputIdx = input_idx
         self.capture_api = capture_api
         self.w = 1280//2
         self.h = 720//2

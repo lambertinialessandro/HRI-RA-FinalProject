@@ -32,14 +32,14 @@ class DroneFactory:
         pass
 
     @staticmethod
-    def create(type_drone, capture_api=None):
+    def create(type_drone, input_idx=0, capture_api=None):
         drone = None
         drone_edit_frame = None
         if type_drone == DroneFactory.DJITello:
             drone = DJITello()
             drone_edit_frame = DroneEditFrame(drone)
         elif type_drone == DroneFactory.FakeDrone:
-            drone = FakeDrone(capture_api=capture_api)
+            drone = FakeDrone(input_idx=input_idx, capture_api=capture_api)
             drone_edit_frame = DroneEditFrame(drone)
 
         return drone, drone_edit_frame
