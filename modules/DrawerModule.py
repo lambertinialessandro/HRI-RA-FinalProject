@@ -26,7 +26,11 @@ class DrawerFPS(AbstractDrawer):
 
     def draw(self, frame):
         self.cTime = time.time()
-        fps = int(1/(self.cTime - self.pTime))
+        elapsed = self.cTime - self.pTime
+        if elapsed == 0:
+            fps = 0
+        else:
+            fps = int(1/(self.cTime - self.pTime))
         self.pTime = self.cTime
 
         cv2.putText(frame, f"FPS: {fps}", self.position, cv2.FONT_HERSHEY_PLAIN,
@@ -85,6 +89,23 @@ class DrawerDroneHeight(AbstractDrawer):
         return frame
 
 
+class DrawerDroneWifiSNR(AbstractDrawer):
+    def __init__(self, drone, position, font_scale, color, thickness):
+        super().__init__(drone, position, font_scale, color, thickness)
+
+        self.snr = None
+        self._update_snr()
+        schedule.every(1).seconds.do(self._update_snr)
+
+    def _update_snr(self):
+        self.snr = self.drone.wifi_snr
+
+    def draw(self, frame):
+        cv2.putText(frame, f"wifi snr: {self.snr}", self.position, cv2.FONT_HERSHEY_PLAIN,
+                    fontScale=self.font_scale, color=self.color, thickness=self.thickness)
+        return frame
+
+
 class PipelineDrawer:
     def __init__(self):
         self.pipeline = []
@@ -115,6 +136,7 @@ class PipelineDrawerBuilder:
     DRONE_BATTERY = "BATTERY"
     DRONE_TEMPERATURE = "TEMPERATURE"
     DRONE_HEIGHT = "HEIGHT"
+    DRONE_WIFI_SNR = "WIFI_SNR"
 
     def __init__(self):
         pass
@@ -132,5 +154,7 @@ class PipelineDrawerBuilder:
                 pd.add_drawer(drone, DrawerDroneTemperature)
             elif drawer == PipelineDrawerBuilder.DRONE_HEIGHT:
                 pd.add_drawer(drone, DrawerDroneHeight)
+            elif drawer == PipelineDrawerBuilder.DRONE_WIFI_SNR:
+                pd.add_drawer(drone, DrawerDroneWifiSNR)
 
         return pd

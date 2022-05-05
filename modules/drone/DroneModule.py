@@ -30,6 +30,11 @@ class AbstractDrone(ABC):
 
     @property
     @abstractmethod
+    def wifi_snr(self) -> int:
+        pass
+
+    @property
+    @abstractmethod
     def is_flying(self) -> bool:
         pass
 
@@ -106,6 +111,10 @@ class DJITello(AbstractDrone):
         return self._tello.get_height()
 
     @property
+    def wifi_snr(self) -> int:
+        return self._tello.query_wifi_signal_noise_ratio()
+
+    @property
     def is_flying(self) -> bool:
         return self._tello.is_flying
 
@@ -175,6 +184,10 @@ class FakeDrone(AbstractDrone):
 
     @property
     def height(self) -> int:
+        return np.random.randint(low=1, high=10)
+
+    @property
+    def wifi_snr(self) -> int:
         return np.random.randint(low=1, high=10)
 
     @property

@@ -84,9 +84,10 @@ class TemplatePattern(AbstractTemplatePattern):
                 self.state = self.displayer.show(frame)
         except KeyboardInterrupt:
             pass
-        except Exception as e:
-            print(e)
-            #self.execute()
+        # except Exception as e:
+        #     print(e)
+        #     raise e
+        #     throw e
         finally:
             self.end()
 

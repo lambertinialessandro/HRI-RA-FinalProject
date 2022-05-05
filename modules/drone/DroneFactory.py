@@ -14,7 +14,8 @@ class DroneEditFrame:
                                               [PipelineDrawerBuilder.DRAWER_FPS,
                                                PipelineDrawerBuilder.DRONE_BATTERY,
                                                PipelineDrawerBuilder.DRONE_TEMPERATURE,
-                                               PipelineDrawerBuilder.DRONE_HEIGHT])
+                                               PipelineDrawerBuilder.DRONE_HEIGHT,
+                                               PipelineDrawerBuilder.DRONE_WIFI_SNR])
 
     def edit(self, frame):
         frame = self.pd.draw(frame)
