@@ -172,7 +172,7 @@ class PIDFaceTracking(AbstractFaceTracking):
                 control_z = control_z if 0.1 < face.w and face.w < 0.3 else 0
 
                 control = (0, int(control_z), int(control_y), int(control_x))
-                print(control)
+                #print(control)
 
         else:
             if self.face_state == "Detected":

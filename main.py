@@ -13,6 +13,11 @@ if platform.system() == 'Windows':
     input_idx = 1
     capture_api = cv2.CAP_DSHOW
 
+import socket
+hostname = socket.gethostname()
+ip = socket.gethostbyname(hostname)
+port = 9999
+
 
 # 1. Drone is created
 #drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
@@ -23,7 +28,10 @@ if platform.system() == 'Windows':
 template_pattern = GlobalFactory.create(GlobalFactory.FakeDrone, GlobalFactory.VideoDrone,
                                         input_idx=input_idx, capture_api=capture_api)
 
-# 3. Starting sequence
+# 3. start web streaming
+template_pattern.start_web_streaming(ip, port)
+
+# 4. Starting sequence
 template_pattern.execute()
 
 #

@@ -2,7 +2,9 @@
 from abc import ABC, abstractmethod
 import time
 import schedule
-from threading import Lock
+import flask
+import threading
+import cv2
 
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
@@ -21,7 +23,7 @@ class AbstractTemplatePattern(ABC):
 
         # TODO
         # fix command block
-        self.mutex = Lock()
+        self.mutex = threading.Lock()
 
     @classmethod
     @abstractmethod
@@ -34,11 +36,25 @@ class AbstractTemplatePattern(ABC):
         pass
 
 
+# import flask
+# import threading
+# import cv2
+# lock = threading.Lock()
+# outputFrame = None
+# app = flask.Flask(__name__)
+
 class TemplatePattern(AbstractTemplatePattern):
     def __init__(self, drone, *args):
         super().__init__(*args)
         self.drone = drone
         self.command = None
+
+        self.frame = None
+
+        self.ip = None
+        self.port = None
+        self.lock = threading.Lock()
+        self.webThread = None
 
     def execute(self):
         self.state = True
@@ -58,6 +74,11 @@ class TemplatePattern(AbstractTemplatePattern):
                 # 5. Edit frame
                 frame = self.command_recognition.edit_frame(frame)
                 frame = self.drone_edit_frame.edit(frame)
+                #self.frame = frame
+
+                #global lock, outputFrame
+                with self.lock:
+                    self.frame = frame.copy()
 
                 # 6. Display frame
                 self.state = self.displayer.show(frame)
@@ -68,6 +89,39 @@ class TemplatePattern(AbstractTemplatePattern):
             #self.execute()
         finally:
             self.end()
+
+    def start_web_streaming(self, ip:str = "0.0.0.0", port:int = 8080):
+        self.ip = ip
+        self.port = port
+        app = flask.Flask(__name__)
+
+        @app.route("/")
+        def index():
+        	return flask.render_template("index.html")
+        @app.route("/video_feed")
+        def video_feed():
+        	return flask.Response(generate(),
+        		mimetype = "multipart/x-mixed-replace; boundary=frame")
+
+        def generate():
+            #global outputFrame, lock
+            while True:
+                with self.lock:
+                    if self.frame is None:
+                        continue
+                    (flag, encodedImage) = cv2.imencode(".jpg", self.frame)
+                    if not flag:
+                        continue
+                    yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
+                          bytearray(encodedImage) + b'\r\n')
+
+        def startWebServer():
+            app.run(host=self.ip, port=self.port, debug=True,
+                    threaded=True, use_reloader=False)
+
+        self.webThread = threading.Thread(target=startWebServer)
+        self.webThread.daemon = True
+        self.webThread.start()
 
     def end(self):
         print("Done!")
@@ -96,6 +150,9 @@ class TemplatePattern(AbstractTemplatePattern):
 
         print("[6/6] Turn off drone")
         self.drone.end()
+
+        if self.webThread is not None:
+            self.webThread
 
 
 from modules.window.Window import Window
