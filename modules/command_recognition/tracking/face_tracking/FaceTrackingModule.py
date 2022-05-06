@@ -124,9 +124,11 @@ class PIDFaceTracking(AbstractFaceTracking):
         self.face_old_ratio = 0
 
     def _execute(self) -> tuple:
-        control = (0, 0, 0, 0)
+        command = Command.SET_RC
+        value = (0, 0, 0, 0)
+
         pos = self._get_face_min_dist()
-        if pos != -1:
+        if pos != -1: # se c'è un viso
             face = self.bboxes[pos]
             self.face_old = face
             self.face_old_ratio = face.get_ratio()
@@ -141,6 +143,7 @@ class PIDFaceTracking(AbstractFaceTracking):
                 if face_elapsed_T > 2:
                     self.face_state = "Locked"
                     self.face_last_T = time.time()
+
             elif self.face_state == "Lost":
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 1:
@@ -169,28 +172,30 @@ class PIDFaceTracking(AbstractFaceTracking):
                 control_y *= 100
                 control_z *= -100
 
-                control_z = control_z if 0.1 < face.w and face.w < 0.3 else 0
+                control_z = control_z*1.2 if 0.1 < face.w and face.w < 0.3 else 0
 
-                control = (0, int(control_z), int(control_y), int(control_x))
+                value = (0, int(control_z), int(control_y), int(control_x))
                 #print(control)
 
-        else:
+        else: # se non c'è un viso
             if self.face_state == "Detected":
                 self.face_state = "None"
 
             elif self.face_state == "Locked":
                 face_elapsed_T = time.time() - self.face_last_T
-                control = (0, int(self.old_control_x),
-                           int(self.old_control_y),
-                           int(self.old_control_z))
-                if face_elapsed_T > 0.5:
+                if face_elapsed_T > 0.5: # dopo 0.5 secondi lo considero perso
                     self.face_state = "Lost"
+                    self.face_last_T = time.time()
+                else: # continuo a mandare il comando vecchio per 0.5 secondi
+                    value = (0, int(self.old_control_x),
+                               int(self.old_control_y),
+                               int(self.old_control_z))
 
             elif self.face_state == "Lost":
                 face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 2:
+                if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
                     self.face_state = "None"
-        return Command.SET_RC, control
+        return command, value
 
     def _is_last_user(self, pos):
         ratio = self.bboxes[pos].get_ratio()

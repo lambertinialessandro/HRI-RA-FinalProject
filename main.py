@@ -22,6 +22,7 @@ port = 9999
 # 1. Drone is created
 #drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
 
+# FakeDrone  DJITello
 # VideoDrone  VideoPC
 
 # 2. Creating the sequence
