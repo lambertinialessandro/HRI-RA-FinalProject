@@ -5,24 +5,7 @@ import sys
 sys.path.append('../../')
 
 from modules.drone.DroneModule import DJITello, FakeDrone
-from modules.DrawerModule import PipelineDrawerBuilder
-
-
-class DroneEditFrame:
-    def __init__(self, drone):
-        self.pd = PipelineDrawerBuilder.build(drone,
-                                              [PipelineDrawerBuilder.DRAWER_FPS,
-                                               PipelineDrawerBuilder.DRONE_BATTERY,
-                                               PipelineDrawerBuilder.DRONE_TEMPERATURE,
-                                               PipelineDrawerBuilder.DRONE_HEIGHT,
-                                               PipelineDrawerBuilder.DRONE_WIFI_SNR])
-
-    def edit(self, frame):
-        frame = self.pd.draw(frame)
-        return frame
-
-    def end(self):
-        self.pd.end()
+from modules.drone.DroneEditFrame import DroneEditFrame
 
 
 class DroneFactory:

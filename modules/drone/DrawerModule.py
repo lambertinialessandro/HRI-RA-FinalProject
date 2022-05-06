@@ -1,3 +1,4 @@
+
 import cv2
 import schedule
 import time
@@ -95,7 +96,7 @@ class DrawerDroneWifiSNR(AbstractDrawer):
 
         self.snr = None
         self._update_snr()
-        schedule.every(1).seconds.do(self._update_snr)
+        schedule.every(5).seconds.do(self._update_snr)
 
     def _update_snr(self):
         self.snr = self.drone.wifi_snr
@@ -105,56 +106,3 @@ class DrawerDroneWifiSNR(AbstractDrawer):
                     fontScale=self.font_scale, color=self.color, thickness=self.thickness)
         return frame
 
-
-class PipelineDrawer:
-    def __init__(self):
-        self.pipeline = []
-        self.len_pipeline = 0
-
-        self.font_scale = 1
-        self.w = 10
-        self.h = 15 + ((self.font_scale-1) * 0.5)
-        self.color = (0, 0, 255)
-        self.thickness = 1
-
-    def add_drawer(self, drone, drawer):
-        self.len_pipeline = self.len_pipeline + 1
-        position = (self.w, int(self.h * self.len_pipeline))
-        self.pipeline.append(drawer(drone, position, self.font_scale, self.color, self.thickness))
-
-    def draw(self, frame):
-        for drawer in self.pipeline:
-            frame = drawer.draw(frame)
-        return frame
-
-    def end(self):
-        schedule.clear()
-
-
-class PipelineDrawerBuilder:
-    DRAWER_FPS = "FPS"
-    DRONE_BATTERY = "BATTERY"
-    DRONE_TEMPERATURE = "TEMPERATURE"
-    DRONE_HEIGHT = "HEIGHT"
-    DRONE_WIFI_SNR = "WIFI_SNR"
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def build(drone, drawers):
-        pd = PipelineDrawer()
-
-        for drawer in drawers:
-            if drawer == PipelineDrawerBuilder.DRAWER_FPS:
-                pd.add_drawer(drone, DrawerFPS)
-            elif drawer == PipelineDrawerBuilder.DRONE_BATTERY:
-                pd.add_drawer(drone, DrawerDroneBattery)
-            elif drawer == PipelineDrawerBuilder.DRONE_TEMPERATURE:
-                pd.add_drawer(drone, DrawerDroneTemperature)
-            elif drawer == PipelineDrawerBuilder.DRONE_HEIGHT:
-                pd.add_drawer(drone, DrawerDroneHeight)
-            elif drawer == PipelineDrawerBuilder.DRONE_WIFI_SNR:
-                pd.add_drawer(drone, DrawerDroneWifiSNR)
-
-        return pd
