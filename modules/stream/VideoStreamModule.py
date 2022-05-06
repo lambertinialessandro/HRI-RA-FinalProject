@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import cv2
+import numpy as np
 
 from modules.drone.DroneModule import AbstractDrone as Drone
 
@@ -29,8 +30,12 @@ class VideoDroneStream(AbstractVideoStream):
         drone.streamon()
 
     def get_stream_frame(self):
-        frame = cv2.resize(self.drone.frame, (self.w, self.h))
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = self.drone.frame
+        if frame is not None:
+            frame = cv2.resize(self.drone.frame, (self.w, self.h))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        else:
+            frame = np.zeros((self.h, self.w, 3), np.uint8)
         return frame
 
     def end(self):
