@@ -48,12 +48,14 @@ class Window:
             #     self.update_detector(VideoTrackingFactory.Holistic)
 
             elif keyboard_event.scan_code == 72: # name == "freccia su"
-                self.cls.drone.set_rc_controls(0, 1, 0, 0)
+                self.cls.drone.set_rc_controls(0, 10, 0, 0)
             elif keyboard_event.scan_code == 80: # name == "freccia giù"
-                self.cls.drone.set_rc_controls(0, -1, 0, 0)
+                self.cls.drone.set_rc_controls(0, -10, 0, 0)
             elif keyboard_event.scan_code == 75: # name == "freccia sinistra"
-                self.cls.drone.set_rc_controls(0, 0, 0, 0)
+                self.cls.drone.set_rc_controls(0, 0, 0, 20)
             elif keyboard_event.scan_code == 77: # name == "freccia destra"
+                self.cls.drone.set_rc_controls(0, 0, 0, -20)
+            elif keyboard_event.name == "space": # 57
                 self.cls.drone.set_rc_controls(0, 0, 0, 0)
 
         keyboard.on_press(my_keyboard_hook)
