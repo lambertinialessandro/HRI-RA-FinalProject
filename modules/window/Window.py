@@ -33,9 +33,9 @@ class Window:
             elif keyboard_event.name == "t":
                 self.cls.drone.take_off()
             elif keyboard_event.name == "u":
-                self.cls.drone.move_up(10)
+                self.cls.drone.move_up(30)
             elif keyboard_event.name == "d":
-                self.cls.drone.move_down(10)
+                self.cls.drone.move_down(30)
 
             elif keyboard_event.name == "1":
                 print("Face!")
@@ -46,6 +46,15 @@ class Window:
             # elif keyboard_event.name == "3":
             #     print("Holistic!")
             #     self.update_detector(VideoTrackingFactory.Holistic)
+
+            elif keyboard_event.scan_code == 72: # name == "freccia su"
+                self.cls.drone.set_rc_controls(0, 1, 0, 0)
+            elif keyboard_event.scan_code == 80: # name == "freccia giù"
+                self.cls.drone.set_rc_controls(0, -1, 0, 0)
+            elif keyboard_event.scan_code == 75: # name == "freccia sinistra"
+                self.cls.drone.set_rc_controls(0, 0, 0, 0)
+            elif keyboard_event.scan_code == 77: # name == "freccia destra"
+                self.cls.drone.set_rc_controls(0, 0, 0, 0)
 
         keyboard.on_press(my_keyboard_hook)
 
