@@ -41,29 +41,31 @@ class ControlModule:
         if not self._drone.is_flying and command != Command.TAKE_OFF:
             return
 
-        if command == Command.TAKE_OFF:
+        if command == Command.NONE:
+            pass
+        elif command == Command.TAKE_OFF:
             self._drone.take_off()
         elif command == Command.LAND:
             self._drone.land()
         elif command == Command.STREAM_ON:
-            self._drone
+            self._drone.streamon()
         elif command == Command.STREAM_OFF:
-            self._drone
+            self._drone.streamoff()
 
         elif command == Command.MOVE_FORWARD:
-            self._drone
-
+            self._drone.move_forward(value)
         elif command == Command.MOVE_BACKWARD:
-            self._drone
+            self._drone.move_backward(value)
         elif command == Command.MOVE_UP:
             self._drone.move_up(value)
         elif command == Command.MOVE_DOWN:
             self._drone.move_down(value)
+
         elif command == Command.SET_RC:
             self._drone.set_rc_controls(*value)
+
         elif command == Command.ROTATE_CW:
             self._drone.rotate_cw(value)
-
         elif command == Command.ROTATE_CCW:
             self._drone.rotate_ccw(value)
 
