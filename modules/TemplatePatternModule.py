@@ -61,6 +61,7 @@ class TemplatePattern(AbstractTemplatePattern):
 
         try:
             while self.state:
+                schedule.run_pending()
 
                 # 1. Get the frame
                 frame = self.stream_module.get_stream_frame()
