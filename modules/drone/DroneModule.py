@@ -35,6 +35,11 @@ class AbstractDrone(ABC):
 
     @property
     @abstractmethod
+    def yaw(self) -> float:
+        pass
+
+    @property
+    @abstractmethod
     def is_flying(self) -> bool:
         pass
 
@@ -108,6 +113,7 @@ class DJITello(AbstractDrone):
 
     @property
     def battery(self) -> int:
+        "range 0 - 100"
         return self._tello.get_battery()
 
     @property
@@ -121,6 +127,11 @@ class DJITello(AbstractDrone):
     @property
     def wifi_snr(self) -> int:
         return self._tello.query_wifi_signal_noise_ratio()
+
+    @property
+    def yaw(self) -> int:
+        "range -180 - 180"
+        return self._tello.get_yaw()
 
     @property
     def is_flying(self) -> bool:
@@ -203,6 +214,10 @@ class FakeDrone(AbstractDrone):
     @property
     def wifi_snr(self) -> int:
         return np.random.randint(low=1, high=10)
+
+    @property
+    def yaw(self) -> int:
+        return np.random.randint(low=-180, high=180)
 
     @property
     def is_streaming(self) -> bool:
