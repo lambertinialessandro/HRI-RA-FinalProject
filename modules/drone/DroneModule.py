@@ -65,6 +65,14 @@ class AbstractDrone(ABC):
         pass
 
     @abstractmethod
+    def move_forward(self, value):
+        pass
+
+    @abstractmethod
+    def move_backward(self, value):
+        pass
+
+    @abstractmethod
     def move_up(self, value):
         pass
 
@@ -140,6 +148,12 @@ class DJITello(AbstractDrone):
     def land(self):
         # if self.is_flying:
         self._tello.land()
+
+    def move_forward(self, value):
+        self._tello.move_forward(value)
+
+    def move_backward(self, value):
+        self._tello.move_back(value)
 
     def move_up(self, value):
         self._tello.move_up(value)
@@ -223,6 +237,12 @@ class FakeDrone(AbstractDrone):
         if self._is_flying:
             self._is_flying = False
             print("DRONE: Land")
+
+    def move_forward(self, value):
+        pass
+
+    def move_backward(self, value):
+        pass
 
     def move_up(self, value):
         pass
