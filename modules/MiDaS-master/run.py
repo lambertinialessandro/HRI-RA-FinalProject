@@ -29,10 +29,11 @@ if platform.system() == 'Windows':
 
 
 class DeepMonocular():
-    def __init__(self, model_path, model_type="large", optimize=True):
+    def __init__(self, model_path, model_type="large", optimize=True, bits=1):
         self.model_path = model_path
         self.model_type = model_type
         self.optimize = optimize
+        self.bits = bits
 
         self._build_model()
 
@@ -115,9 +116,6 @@ class DeepMonocular():
 
         self.model.to(self.device)
 
-    def f():
-        pass
-
     def run_on_camera(self, input_idx=0, capture_api=None):
         cap = cv2.VideoCapture(input_idx, capture_api)
 
@@ -130,25 +128,21 @@ class DeepMonocular():
                 cv2.imshow('image', base_img)
                 cv2.imshow('Depth Map', out)
 
-                rgbd_image = open3d.geometry.RGBDImage.create_from_color_and_depth(
-                    open3d.geometry.Image(base_img), open3d.geometry.Image(out))
+                # rgbd_image = open3d.geometry.RGBDImage.create_from_color_and_depth(
+                #     open3d.geometry.Image(base_img), open3d.geometry.Image(out))
                 # Camera intrinsic parameters built into Open3D for Prime Sense
-                camera_intrinsic = open3d.camera.PinholeCameraIntrinsic(
-                    open3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
+                # camera_intrinsic = open3d.camera.PinholeCameraIntrinsic(
+                #     open3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
                 # Create the point cloud from images and camera intrisic parameters
-                pcd = open3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, camera_intrinsic)
+                #pcd = open3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, camera_intrinsic)
 
                 # Flip it, otherwise the pointcloud will be upside down
-                pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+                #pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
                 #pcd.paint_uniform_color([1, 0.706, 0])
-                open3d.visualization.draw_geometries([pcd])#, zoom=0.5)
+                #open3d.visualization.draw_geometries([pcd])#, zoom=0.5)
 
                 #open3d.io.write_point_cloud("prova.ply", pcd)
-
-
-                # input("asd")
-                break
 
                 key = cv2.waitKey(10)
                 if key == 27: # "esc"
@@ -175,7 +169,7 @@ class DeepMonocular():
             filename = os.path.join(
                 output_path, os.path.splitext(os.path.basename(img_name))[0]
             )
-            utils.write_depth(filename, out, bits=2)
+            utils.write_depth(filename, out, bits=self.bits)
 
         print("finished")
 
@@ -200,10 +194,9 @@ class DeepMonocular():
                 .numpy()
             )
 
-            bits=2
             depth_min = prediction.min()
             depth_max = prediction.max()
-            max_val = (2**(8*bits))-1
+            max_val = (2**(8*self.bits))-1
             #print(depth_min, depth_max)
 
             if depth_max - depth_min > np.finfo("float").eps:
@@ -211,9 +204,9 @@ class DeepMonocular():
             else:
                 out = np.zeros(prediction.shape, dtype=prediction.type)
 
-            if bits == 1:
+            if self.bits == 1:
                 out = out.astype("uint8")
-            elif bits == 2:
+            elif self.bits == 2:
                 out = out.astype("uint16")
         return out
 
@@ -250,7 +243,12 @@ if __name__ == "__main__":
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = True
 
-    dm = DeepMonocular(args.model_weights, args.model_type, args.optimize)
+    dm = DeepMonocular(args.model_weights, args.model_type, args.optimize, bits=1)
 
     # compute depth maps
-    dm.run_on_camera()
+    #dm.run_on_camera()
+
+    # compute depth maps
+    #dm.run_on_file(args.input_path, args.output_path)
+
+
