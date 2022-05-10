@@ -151,9 +151,10 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
                                                  depth_value])
 
             # projection in function of the orientation
-            point_3d_after_rotation = np.matmul(
+            point_3d_after_rotation = np.matmul(get_rotation_matrix(math.radians(90), axis="y"),
+                                                np.matmul(
                 get_rotation_matrix(math.radians(x_orientation), axis="x"),
-                point_3d_before_rotation)
+                point_3d_before_rotation))
             points_in_3d = np.append(points_in_3d, point_3d_after_rotation)
             depth_values.append(depth_value)
     return points_in_3d, depth_values
@@ -181,32 +182,37 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
 
 
 ################################################ plot_2d_top_view_referential #
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
 
-# step = 45
-# orientations_todo = [i for i in range(90, 360, step)]
-# orientations_done = [i for i in range(0, 90, step)]
+step = 60
+angle_done = 0
+orientations_todo = [i for i in range(angle_done, 360, step)]
+orientations_done = [i for i in range(0, angle_done, step)]
 
-# plot_2d_top_view_referential(ax, 0.1, 90, orientations_todo, orientations_done)
-# plt.show()
+plot_2d_top_view_referential(ax, 0.1, None, orientations_todo, orientations_done)
+plt.show()
 ##########################################################
 
 
 ################################# get_3d_points_from_depthmap # plot_3d_scene #
-# color = cv2.cvtColor(cv2.imread("color.jpeg", 3), cv2.COLOR_BGR2RGB)
-# depth_map = cv2.cvtColor(cv2.imread("depth.png"), cv2.COLOR_BGR2GRAY)
+# rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
+# depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
+# plt.imshow(rgb_image)
+# plt.show()
+# plt.imshow(depth_image)
+# plt.show()
 
 # points_in_3d = np.array([])
 # depth_values = []
-# x_orientation = 0
+# x_orientation = 45*7
 
 # points_in_3d, depth_values = get_3d_points_from_depthmap(
 #                                     points_in_3d,
 #                                     depth_values,
-#                                     depth_map,
-#                                     0*90,
-#                                     per_mil_to_keep=250)
+#                                     depth_image,
+#                                     x_orientation,
+#                                     per_mil_to_keep=10)
 
 # fig = plt.figure()
 # plot_3d_scene(fig, points_in_3d, depth_values)
@@ -214,7 +220,27 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
 
 
 #########################################################  #
+rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
+depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
+plt.imshow(rgb_image)
+plt.show()
+plt.imshow(depth_image)
+plt.show()
 
+points_in_3d = np.array([])
+depth_values = []
+
+angle = 60
+for i in range(360//angle):
+    points_in_3d, depth_values = get_3d_points_from_depthmap(
+                                        points_in_3d,
+                                        depth_values,
+                                        depth_image,
+                                        angle*i,
+                                        per_mil_to_keep=50)
+
+fig = plt.figure()
+plot_3d_scene(fig, points_in_3d, depth_values)
 ##########################################################
 
 
