@@ -76,7 +76,7 @@ def plot_3d_scene(fig, points_in_3d, depth_values):
     depth_values_normalized = depth_values/max_projection_value
     colormap = get_cmap(depth_values_normalized)
 
-    plot_referential(ax, 100)
+    # plot_referential(ax, 100) # TODO
 
     points_in_3d = points_in_3d.reshape([-1, 3])
     ax.scatter(-points_in_3d[:, 0], points_in_3d[:, 1], points_in_3d[:, 2],
@@ -142,7 +142,7 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
 
             x_depth_pos = int(x*x_depth_rescale_factor)
             y_depth_pos = int(y*y_depth_rescale_factor)
-            depth_value = depth_map[x_depth_pos, y_depth_pos]
+            depth_value = depth_map[x_depth_pos, y_depth_pos] +50 # TODO
 
             # get 3d vector
             x_point = depth_value * (x - X_CENTER_COORDINATE) / X_FOCAL
@@ -173,12 +173,14 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
 ##########################################################
 
 
+
 ############################################################ plot_referential #
 # fig = plt.figure()
 # ax = fig.add_subplot(111, projection='3d')
 # plot_referential(ax, 0.1, 0)
 # plt.show()
 ##########################################################
+
 
 
 ################################################ plot_2d_top_view_referential #
@@ -195,31 +197,33 @@ plt.show()
 ##########################################################
 
 
+
 ################################# get_3d_points_from_depthmap # plot_3d_scene #
-# rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
-# depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
-# plt.imshow(rgb_image)
-# plt.show()
-# plt.imshow(depth_image)
-# plt.show()
+rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
+depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
+plt.imshow(rgb_image)
+plt.show()
+plt.imshow(depth_image)
+plt.show()
 
-# points_in_3d = np.array([])
-# depth_values = []
-# x_orientation = 45*7
+points_in_3d = np.array([])
+depth_values = []
+x_orientation = 45*7
 
-# points_in_3d, depth_values = get_3d_points_from_depthmap(
-#                                     points_in_3d,
-#                                     depth_values,
-#                                     depth_image,
-#                                     x_orientation,
-#                                     per_mil_to_keep=10)
+points_in_3d, depth_values = get_3d_points_from_depthmap(
+                                    points_in_3d,
+                                    depth_values,
+                                    depth_image,
+                                    x_orientation,
+                                    per_mil_to_keep=50)
 
-# fig = plt.figure()
-# plot_3d_scene(fig, points_in_3d, depth_values)
+fig = plt.figure()
+plot_3d_scene(fig, points_in_3d, depth_values)
 ##########################################################
 
 
-#########################################################  #
+
+########################################################### for plot_3d_scene #
 rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
 depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
 plt.imshow(rgb_image)
@@ -244,9 +248,35 @@ plot_3d_scene(fig, points_in_3d, depth_values)
 ##########################################################
 
 
+
 #########################################################  #
 
 ##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
 
 
 #########################################################  #
