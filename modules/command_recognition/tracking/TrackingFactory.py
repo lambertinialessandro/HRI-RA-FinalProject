@@ -7,7 +7,7 @@ sys.path.append('../../')
 from modules.command_recognition.tracking.AbstractModuleTracking import EmptyTracking
 from modules.command_recognition.tracking.face_tracking.FaceTrackingModule import PIDFaceTracking
 from modules.command_recognition.tracking.hand_tracking.HandTrackingModule import HandTracking
-#from modules.command_recognition.holistic_tracking.HolisticModule import HolisticTracking
+from modules.command_recognition.tracking.holistic_tracking.HolisticModule import HolisticTracking
 
 
 class VideoTrackingFactory:
@@ -25,8 +25,10 @@ class VideoTrackingFactory:
             tracking = PIDFaceTracking(min_detection_confidence=0.6)
         elif type_input == VideoTrackingFactory.Hand:
             tracking = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
-        # elif type_input == TrackingFactory.Holistic:
-        #     detector = HolisticTracking()
+        elif type_input == VideoTrackingFactory.Holistic:
+            tracking = HolisticTracking(enable_segmentation=False, refine_face_landmarks=False,
+                         min_tracking_confidence=.8, min_detection_confidence=.8,
+                         flip_type=True)
         else:
             tracking = EmptyTracking()
 

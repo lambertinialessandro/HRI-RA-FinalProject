@@ -12,6 +12,7 @@ from modules.command_recognition.tracking.TrackingFactory import VideoTrackingFa
 class CommandRecognitionFactory:
     VideoFace = "VideoFace"
     VideoHand = "VideoHand"
+    VideoHolistic = "VideoHolistic"
     Audio = "Audio"
 
     def __init__(self):
@@ -23,7 +24,9 @@ class CommandRecognitionFactory:
         if type_input == CommandRecognitionFactory.VideoFace:
             command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Face)
         elif type_input == CommandRecognitionFactory.VideoHand:
-                command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Hand)
+            command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Hand)
+        elif type_input == CommandRecognitionFactory.VideoHolistic:
+            command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Holistic)
         elif type_input == CommandRecognitionFactory.Audio:
             command_recognition = AudioCommandRecognition()
 

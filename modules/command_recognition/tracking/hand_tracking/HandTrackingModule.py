@@ -2,6 +2,7 @@ import math
 from abc import abstractmethod
 from enum import Enum
 import mediapipe as mp
+import cv2
 
 # TODO
 # only for debug, to be deleted
@@ -13,9 +14,6 @@ from modules.command_recognition.tracking.AbstractModuleTracking import Abstract
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
-
-
-import cv2
 
 
 class HandEnum(Enum):
@@ -118,8 +116,8 @@ class AbstractHandTracking(AbstractModuleTracking):
 
 
 class HandTracking(AbstractHandTracking):
-    def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
-        super().__init__(mode=mode, max_hands=max_hands, detection_con=detection_con, track_con=track_con, flip_type=flip_type)
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
 
     def _execute(self) -> tuple:
         command = Command.NONE, None

@@ -37,7 +37,7 @@ class GlobalFactory:
 
         if type_input == GlobalFactory.VideoDrone:
             stream_module = StreamFactory.create(StreamFactory.VideoDrone, drone=drone)
-            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
+            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoHolistic)
             template_pattern = TemplatePattern(drone,
                                                     stream_module,
                                                     command_recognition,
@@ -46,7 +46,7 @@ class GlobalFactory:
         elif type_input == GlobalFactory.VideoPC:
             stream_module = StreamFactory.create(StreamFactory.VideoPC, input_idx=input_idx,
                                                  capture_api=capture_api)
-            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
+            command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoHolistic)
             template_pattern = TemplatePattern(drone,
                                                     stream_module,
                                                     command_recognition,
