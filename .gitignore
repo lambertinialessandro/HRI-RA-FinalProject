@@ -154,5 +154,6 @@ fabric.properties
 
 *.png
 *.jpeg
+*.pfm
 
 
