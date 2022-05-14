@@ -13,6 +13,7 @@ import random
 import numpy as np
 from matplotlib import cm
 import platform
+from modules.drone.DroneFactory import DroneFactory
 
 from modules.MiDaS.run import DeepMonocular
 
@@ -184,8 +185,13 @@ capture_api = None
 if platform.system() == 'Windows':
     input_idx = 1
     capture_api = cv2.CAP_DSHOW
-cap = cv2.VideoCapture(0)
+
 midas = DeepMonocular("modules/MiDaS/weights/midas_v21-f6b98070.pt", "midas_v21")
+
+# cap = cv2.VideoCapture(0)
+drone, drone_edit_frame = DroneFactory.create(DroneFactory.DJITello)
+drone_edit_frame.end()
+drone.streamon()
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -193,28 +199,29 @@ ax.view_init(elev=19, azim=180)
 z_orientation = 0
 
 while z_orientation < 360:
-    success, img = cap.read()
+    img = drone.frame
+    # _, img = cap.read()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255.0
 
-    if success:
-        depth = midas.run_frame(img)
+    depth = midas.run_frame(img)
 
-        z_orientation += 60
-        points_in_3d, depth_values = get_3d_points_from_depthmap(
-            [],
-            [],
-            depth,
-            z_orientation,
-            per_mil_to_keep=10
-        )
-        plot_3d_scene(ax, points_in_3d, depth_values, block=z_orientation == 300)
-        plt.pause(0.5)
-        time.sleep(1)
-    else:
-        exit("Camera strafanculata")
+    z_orientation += 60
+    points_in_3d, depth_values = get_3d_points_from_depthmap(
+        [],
+        [],
+        depth,
+        z_orientation,
+        per_mil_to_keep=10
+    )
+    plot_3d_scene(ax, points_in_3d, depth_values, block=z_orientation == 300)
+    plt.pause(0.5)
+
+    input("Premi un tasto")
 
 plt.pause(0.5)
 input()
+
+drone.end()
 
 # pfm = read_pfm("rgb_image2.pfm")
 # depth_image = pfm[0]
