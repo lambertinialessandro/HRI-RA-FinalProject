@@ -12,11 +12,14 @@ import random
 import numpy as np
 from matplotlib import cm
 
+from modules.MiDaS.utils import read_pfm
 
-def get_rotation_matrix(orientation, axis):
+
+def get_rotation_matrix(orientation, axis='x'):
     c = math.cos(orientation)
     s = math.sin(orientation)
 
+    rotation_matrix = None
     if axis == 'x':
         rotation_matrix = np.array(
             [[1, 0, 0],
@@ -34,6 +37,7 @@ def get_rotation_matrix(orientation, axis):
              [0, 0, 1]])
     return rotation_matrix
 
+
 def plot_arrow_text(ax, px, py, pz, dx, dy, dz, dist,
                     txt, color, size):
     ax.quiver(px, py, pz, dx, dy, dz,
@@ -41,14 +45,17 @@ def plot_arrow_text(ax, px, py, pz, dx, dy, dz, dist,
     ax.text(px + dx * dist, py + dy * dist,pz + dz * dist,
             txt, color=color, size=size)
 
+
 def get_cmap(values, cmap_name='rainbow'):
     cmap = cm.get_cmap(cmap_name, 12)
     depth_values_normalized = values/max(values)
     return cmap(depth_values_normalized)
 
+
 def plot_referential(ax, dist, x_orientation=None):
     if x_orientation is not None:
         origin = -dist, -dist, -dist
+
         ax.scatter(*origin, s=100, c='black')
         plot_arrow_text(ax, *origin, 1, 0, 0, dist/2, 'x', 'b', 15)
         plot_arrow_text(ax, *origin, 0, 1, 0, dist/2, 'y', 'r', 15)
@@ -60,6 +67,7 @@ def plot_referential(ax, dist, x_orientation=None):
         plot_arrow_text(ax, *origin, *direction, dist, x_orientation, 'r', 15)
     else:
         origin = 0, 0, 0
+
         ax.scatter(*origin, s=100, c='black')
         plot_arrow_text(ax, *origin, 1, 0, 0, dist/2, 'x', 'b', 15)
         plot_arrow_text(ax, *origin, 0, 1, 0, dist/2, 'y', 'r', 15)
@@ -68,6 +76,7 @@ def plot_referential(ax, dist, x_orientation=None):
     ax.set_xlim([-dist, dist])
     ax.set_ylim([-dist, dist])
     ax.set_zlim([-dist, dist])
+
 
 def plot_3d_scene(fig, points_in_3d, depth_values):
     ax = fig.add_subplot(111, projection='3d')
@@ -89,6 +98,7 @@ def plot_3d_scene(fig, points_in_3d, depth_values):
 
     plt.show()
     plt.pause(0.5)
+
 
 def plot_2d_top_view_referential(ax, dist, x_orientation = None,
                                  orientations_todo = [], orientations_done = []):
@@ -114,6 +124,7 @@ def plot_2d_top_view_referential(ax, dist, x_orientation = None,
     ax.set_xlim([-dist, dist])
     ax.set_ylim([-dist, dist])
     ax.set_zlim([-dist, dist])
+
 
 def get_3d_points_from_depthmap(points_in_3d, depth_values,
                                 depth_map, x_orientation,
