@@ -7,7 +7,7 @@ import open3d
 import os
 import glob
 import torch
-import utils
+import modules.MiDaS.utils
 import cv2
 import argparse
 
@@ -15,21 +15,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from torchvision.transforms import Compose
-from midas.dpt_depth import DPTDepthModel
-from midas.midas_net import MidasNet
-from midas.midas_net_custom import MidasNet_small
-from midas.transforms import Resize, NormalizeImage, PrepareForNet
+from modules.MiDaS.midas.dpt_depth import DPTDepthModel
+from modules.MiDaS.midas.midas_net import MidasNet
+from modules.MiDaS.midas.midas_net_custom import MidasNet_small
+from modules.MiDaS.midas.transforms import Resize, NormalizeImage, PrepareForNet
 
 
-import platform
-input_idx = 0
-capture_api = None
-if platform.system() == 'Windows':
-    input_idx = 1
-    capture_api = cv2.CAP_DSHOW
-
-
-class DeepMonocular():
+class DeepMonocular:
     def __init__(self, model_path, model_type="large", optimize=True, bits=1):
         self.model_path = model_path
         self.model_type = model_type
@@ -116,6 +108,9 @@ class DeepMonocular():
                 self.model = self.model.half()
 
         self.model.to(self.device)
+
+    def run_frame(self, frame):
+        return self._compute_depth(frame)
 
     def run_on_camera(self, input_idx=0, capture_api=None):
         cap = cv2.VideoCapture(input_idx, capture_api)
@@ -209,13 +204,13 @@ class DeepMonocular():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-i', '--input_path', default='input',
+    parser.add_argument('-i', '--input_path', default='.',
         help='folder with input images')
-    parser.add_argument('-o', '--output_path', default='output',
+    parser.add_argument('-o', '--output_path', default='.',
         help='folder for output images')
     parser.add_argument('-m', '--model_weights', default=None,
         help='path to the trained weights of model')
-    parser.add_argument('-t', '--model_type', default='dpt_hybrid', # midas_v21_small
+    parser.add_argument('-t', '--model_type', default='midas_v21', # midas_v21_small
         help='model type: dpt_large, dpt_hybrid, midas_v21_large or midas_v21_small')
 
     parser.add_argument('--optimize', dest='optimize', action='store_true')
@@ -226,7 +221,7 @@ if __name__ == "__main__":
 
     default_models = {
         "midas_v21_small": "weights/midas_v21_small-70d6b9c8.pt",
-        "midas_v21": "weights/midas_v21-f6b98070.pt",
+        "midas_v21": "modules/MiDaS/weights/midas_v21-f6b98070.pt",
         "dpt_large": "weights/dpt_large-midas-2f21e586.pt",
         "dpt_hybrid": "weights/dpt_hybrid-midas-501f0c75.pt",
     }
@@ -245,5 +240,3 @@ if __name__ == "__main__":
 
     # compute depth maps
     dm.run_on_file(args.input_path, args.output_path)
-
-
