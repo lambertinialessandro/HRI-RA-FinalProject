@@ -155,7 +155,7 @@ class DeepMonocular():
             cv2.destroyAllWindows()
 
     def run_on_file(self, input_path, output_path):
-        img_names = glob.glob(os.path.join(input_path, "*"))
+        img_names = glob.glob(os.path.join(input_path, "*.jpeg"))
         num_images = len(img_names)
 
         os.makedirs(output_path, exist_ok=True)
@@ -179,7 +179,7 @@ class DeepMonocular():
 
         with torch.no_grad():
             sample = torch.from_numpy(img_input).to(self.device).unsqueeze(0)
-            if self.optimize==True and self.device == torch.device("cuda"):
+            if self.optimize and self.device == torch.device("cuda"):
                 sample = sample.to(memory_format=torch.channels_last)
                 sample = sample.half()
             prediction = self.model.forward(sample)

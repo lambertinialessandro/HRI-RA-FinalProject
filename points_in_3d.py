@@ -85,16 +85,21 @@ def plot_3d_scene(fig, points_in_3d, depth_values):
     depth_values_normalized = depth_values/max_projection_value
     colormap = get_cmap(depth_values_normalized)
 
-    # plot_referential(ax, 100) # TODO
+    plot_referential(ax, 1000)
 
     points_in_3d = points_in_3d.reshape([-1, 3])
-    ax.scatter(-points_in_3d[:, 0], points_in_3d[:, 1], points_in_3d[:, 2],
-                c=colormap, s=5)
+    ax.scatter(
+        points_in_3d[:, 0],
+        points_in_3d[:, 1],
+        -points_in_3d[:, 2],
+        c=colormap,
+        s=5
+    )
 
-    dist = 300 # TODO
+    dist = 500
     ax.set_xlim([-dist, dist])
     ax.set_ylim([-dist, dist])
-    ax.set_zlim([-100, 100])
+    ax.set_zlim([-dist, dist])
 
     plt.show()
     plt.pause(0.5)
@@ -127,7 +132,7 @@ def plot_2d_top_view_referential(ax, dist, x_orientation = None,
 
 
 def get_3d_points_from_depthmap(points_in_3d, depth_values,
-                                depth_map, x_orientation,
+                                depth_map, z_orientation,
                                 per_mil_to_keep=1):
     IMAGE_WIDTH = 256
     IMAGE_HEIGHT = 256
@@ -151,23 +156,25 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
             if random.randint(0, 999) >= per_mil_to_keep:
                 continue
 
-            x_depth_pos = int(x*x_depth_rescale_factor)
-            y_depth_pos = int(y*y_depth_rescale_factor)
-            depth_value = depth_map[x_depth_pos, y_depth_pos] +50 # TODO
+            x_depth_pos = int(x * x_depth_rescale_factor)
+            y_depth_pos = int(y * y_depth_rescale_factor)
+            depth_value = depth_map[x_depth_pos, y_depth_pos]
 
             # get 3d vector
-            x_point = depth_value * (x - X_CENTER_COORDINATE) / X_FOCAL
+            z_point = depth_value * (x - X_CENTER_COORDINATE) / X_FOCAL
             y_point = depth_value * (y - Y_CENTER_COORDINATE) / Y_FOCAL
-            point_3d_before_rotation = np.array([x_point, y_point,
-                                                 depth_value])
+            point_3d_before_rotation = np.array([depth_value, y_point,
+                                                 z_point])
 
             # projection in function of the orientation
-            point_3d_after_rotation = np.matmul(get_rotation_matrix(math.radians(90), axis="y"),
-                                                np.matmul(
-                get_rotation_matrix(math.radians(x_orientation), axis="x"),
-                point_3d_before_rotation))
+            point_3d_after_rotation = np.matmul(
+                get_rotation_matrix(math.radians(z_orientation), axis="z"),
+                point_3d_before_rotation
+            )
+
             points_in_3d = np.append(points_in_3d, point_3d_after_rotation)
             depth_values.append(depth_value)
+
     return points_in_3d, depth_values
 
 
@@ -192,110 +199,115 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
 # plt.show()
 ##########################################################
 
-
-
-################################################ plot_2d_top_view_referential #
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-step = 60
-angle_done = 0
-orientations_todo = [i for i in range(angle_done, 360, step)]
-orientations_done = [i for i in range(0, angle_done, step)]
-
-plot_2d_top_view_referential(ax, 0.1, None, orientations_todo, orientations_done)
-plt.show()
-##########################################################
-
-
-
-################################# get_3d_points_from_depthmap # plot_3d_scene #
+#
+#
+# ################################################ plot_2d_top_view_referential #
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+#
+# step = 60
+# angle_done = 180
+# orientations_todo = [i for i in range(angle_done, 360, step)]
+# orientations_done = [i for i in range(0, angle_done, step)]
+#
+# plot_2d_top_view_referential(ax, 0.1, None, orientations_todo, orientations_done)
+# plt.show()
+# ##########################################################
+#
+#
+#
+# ################################# get_3d_points_from_depthmap # plot_3d_scene #
 rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
-depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
-plt.imshow(rgb_image)
-plt.show()
-plt.imshow(depth_image)
-plt.show()
+# depth_image = cv2.cvtColor(cv2.imread("rgb_image2.png"), cv2.COLOR_BGR2GRAY)
+pfm = read_pfm("rgb_image2.pfm")
+depth_image = pfm[0]
+
+# plt.imshow(rgb_image)
+# plt.show(block=False)
+#
+# plt.figure()
+# plt.imshow(depth_image)
+# plt.show(block=False)
 
 points_in_3d = np.array([])
 depth_values = []
-x_orientation = 45*7
+z_orientation = 45
 
 points_in_3d, depth_values = get_3d_points_from_depthmap(
                                     points_in_3d,
                                     depth_values,
                                     depth_image,
-                                    x_orientation,
-                                    per_mil_to_keep=50)
+                                    z_orientation,
+                                    per_mil_to_keep=100)
 
 fig = plt.figure()
 plot_3d_scene(fig, points_in_3d, depth_values)
-##########################################################
-
-
-
-########################################################### for plot_3d_scene #
-rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
-depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
-plt.imshow(rgb_image)
-plt.show()
-plt.imshow(depth_image)
-plt.show()
-
-points_in_3d = np.array([])
-depth_values = []
-
-angle = 60
-for i in range(360//angle):
-    points_in_3d, depth_values = get_3d_points_from_depthmap(
-                                        points_in_3d,
-                                        depth_values,
-                                        depth_image,
-                                        angle*i,
-                                        per_mil_to_keep=50)
-
-fig = plt.figure()
-plot_3d_scene(fig, points_in_3d, depth_values)
-##########################################################
-
-
-
-#########################################################  #
-
-##########################################################
-
-
-
-#########################################################  #
-
-##########################################################
-
-
-
-#########################################################  #
-
-##########################################################
-
-
-
-#########################################################  #
-
-##########################################################
-
-
-
-#########################################################  #
-
-##########################################################
-
-
-
-#########################################################  #
-
-##########################################################
-
-
-
+# ##########################################################
+#
+#
+#
+# ########################################################### for plot_3d_scene #
+# rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
+# depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
+# plt.imshow(rgb_image)
+# plt.show()
+# plt.imshow(depth_image)
+# plt.show()
+#
+# points_in_3d = np.array([])
+# depth_values = []
+#
+# angle = 60
+# for i in range(360//angle):
+#     points_in_3d, depth_values = get_3d_points_from_depthmap(
+#                                         points_in_3d,
+#                                         depth_values,
+#                                         depth_image,
+#                                         angle*i,
+#                                         per_mil_to_keep=50)
+#
+# fig = plt.figure()
+# plot_3d_scene(fig, points_in_3d, depth_values)
+# ##########################################################
+#
+#
+#
+# #########################################################  #
+#
+# ##########################################################
+#
+#
+#
+# #########################################################  #
+#
+# ##########################################################
+#
+#
+#
+# #########################################################  #
+#
+# ##########################################################
+#
+#
+#
+# #########################################################  #
+#
+# ##########################################################
+#
+#
+#
+# #########################################################  #
+#
+# ##########################################################
+#
+#
+#
+# #########################################################  #
+#
+# ##########################################################
+#
+#
+#
 
 
 
