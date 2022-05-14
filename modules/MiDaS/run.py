@@ -194,7 +194,15 @@ class DeepMonocular():
                 .cpu()
                 .numpy()
             )
-        return prediction
+
+            max_val = prediction.max()
+            depth = 1/prediction*1000
+
+            depth_min = depth.min()
+            depth_max = depth.max()
+
+            out = max_val * (depth - depth_min) / (depth_max - depth_min)
+        return out
 
 
 if __name__ == "__main__":

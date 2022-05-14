@@ -65,9 +65,6 @@ def write_pfm(path, image, scale=1):
         scale (int, optional): Scale. Defaults to 1.
     """
 
-    depth_max = image.max()
-    image = 1/image * depth_max
-
     with open(path, "wb") as file:
         color = None
 
@@ -179,8 +176,6 @@ def write_depth(path, depth, bits=1):
     depth_max = depth.max()
 
     max_val = (2**(8*bits))-1
-
-    depth = 1/depth
 
     if depth_max - depth_min > np.finfo("float").eps:
         out = max_val * (depth - depth_min) / (depth_max - depth_min)
