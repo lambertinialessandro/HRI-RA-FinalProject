@@ -196,12 +196,13 @@ class DeepMonocular():
             )
 
             max_val = prediction.max()
+            min_val = prediction.min()
             depth = 1/prediction*1000
 
             depth_min = depth.min()
             depth_max = depth.max()
 
-            out = max_val * (depth - depth_min) / (depth_max - depth_min)
+            out = max_val * (depth - depth_min) / (depth_max - depth_min) + min_val
         return out
 
 
