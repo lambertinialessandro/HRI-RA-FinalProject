@@ -108,3 +108,16 @@ venv.bak/
 *.jpg
 *.jpeg
 *.pt
+
+input/
+midas/
+mobile/
+output/
+ros/
+tf/
+weights/
+Dockerfile
+hubconf.py
+LICENSE
+README.md
+
