@@ -134,10 +134,10 @@ def plot_2d_top_view_referential(ax, dist, x_orientation = None,
 def get_3d_points_from_depthmap(points_in_3d, depth_values,
                                 depth_map, z_orientation,
                                 per_mil_to_keep=1):
-    IMAGE_WIDTH = 256
-    IMAGE_HEIGHT = 256
+    IMAGE_WIDTH = 960
+    IMAGE_HEIGHT = 720
 
-    H_FOV_DEGREES = 60
+    H_FOV_DEGREES = 82.6
     H_FOV_RAD = math.radians(H_FOV_DEGREES)
     V_FOV_RAD = math.radians(IMAGE_HEIGHT/IMAGE_WIDTH*H_FOV_DEGREES)
     X_FOCAL = IMAGE_WIDTH / (2*math.tan(H_FOV_RAD/2))
@@ -176,8 +176,6 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
             depth_values.append(depth_value)
 
     return points_in_3d, depth_values
-
-
 
 ############################################################# plot_arrow_text #
 # fig = plt.figure()
@@ -238,7 +236,7 @@ points_in_3d, depth_values = get_3d_points_from_depthmap(
                                     depth_values,
                                     depth_image,
                                     z_orientation,
-                                    per_mil_to_keep=100)
+                                    per_mil_to_keep=10)
 
 fig = plt.figure()
 plot_3d_scene(fig, points_in_3d, depth_values)
