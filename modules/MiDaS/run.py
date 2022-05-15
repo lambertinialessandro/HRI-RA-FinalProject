@@ -1,13 +1,10 @@
 """Compute depth maps for images in the input folder.
 """
 
-import open3d
-
-
 import os
 import glob
 import torch
-import modules.MiDaS.utils
+import utils
 import cv2
 import argparse
 
@@ -15,10 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from torchvision.transforms import Compose
-from modules.MiDaS.midas.dpt_depth import DPTDepthModel
-from modules.MiDaS.midas.midas_net import MidasNet
-from modules.MiDaS.midas.midas_net_custom import MidasNet_small
-from modules.MiDaS.midas.transforms import Resize, NormalizeImage, PrepareForNet
+from midas.dpt_depth import DPTDepthModel
+from midas.midas_net import MidasNet
+from midas.midas_net_custom import MidasNet_small
+from midas.transforms import Resize, NormalizeImage, PrepareForNet
 
 
 class DeepMonocular:
@@ -109,8 +106,23 @@ class DeepMonocular:
 
         self.model.to(self.device)
 
-    def run_frame(self, frame):
-        return self._compute_depth(frame)
+    def run_on_frame(self, frame):
+        out = self._compute_depth(frame)
+        depth_min = out.min()
+        depth_max = out.max()
+
+        max_val = (2**(8*self.bits))-1
+
+        if depth_max - depth_min > np.finfo("float").eps:
+            out = max_val * (out - depth_min) / (depth_max - depth_min)
+        else:
+            out = np.zeros(out.shape)
+
+        if self.bits == 1:
+            out = out.astype("uint8")
+        elif self.bits == 2:
+            out = out.astype("uint16")
+        return out
 
     def run_on_camera(self, input_idx=0, capture_api=None):
         cap = cv2.VideoCapture(input_idx, capture_api)
@@ -120,6 +132,21 @@ class DeepMonocular:
                 success, base_img = cap.read()
                 img = cv2.cvtColor(base_img, cv2.COLOR_BGR2RGB) / 255.0
                 out = self._compute_depth(img)
+
+                depth_min = out.min()
+                depth_max = out.max()
+
+                max_val = (2**(8*self.bits))-1
+
+                if depth_max - depth_min > np.finfo("float").eps:
+                    out = max_val * (out - depth_min) / (depth_max - depth_min)
+                else:
+                    out = np.zeros(out.shape)
+
+                if self.bits == 1:
+                    out = out.astype("uint8")
+                elif self.bits == 2:
+                    out = out.astype("uint16")
 
                 cv2.imshow('image', base_img)
                 cv2.imshow('Depth Map', out)
@@ -190,16 +217,33 @@ class DeepMonocular:
                 .numpy()
             )
 
-            max_val = prediction.max()
-            min_val = prediction.min()
-            depth = 1/prediction*1000
+            # max_val = prediction.max()
+            # min_val = prediction.min()
+            # depth = 1/prediction*1000
 
-            depth_min = depth.min()
-            depth_max = depth.max()
+            # depth_min = depth.min()
+            # depth_max = depth.max()
 
-            out = max_val * (depth - depth_min) / (depth_max - depth_min) + min_val
-        return out
+            # out = max_val * (depth - depth_min) / (depth_max - depth_min) + min_val
+        return prediction
 
+def buildDeepMonocular(model_weights=None, model_type="midas_v21_small", optimize=True, bits=1):
+
+    default_models = {
+        "midas_v21_small": "weights/midas_v21_small-70d6b9c8.pt",
+        "midas_v21": "modules/MiDaS/weights/midas_v21-f6b98070.pt",
+        "dpt_large": "weights/dpt_large-midas-2f21e586.pt",
+        "dpt_hybrid": "weights/dpt_hybrid-midas-501f0c75.pt",
+    }
+
+    if model_weights is None:
+        model_weights = default_models[model_type]
+
+    # set torch options
+    torch.backends.cudnn.enabled = True
+    torch.backends.cudnn.benchmark = True
+
+    return DeepMonocular(model_weights, model_type=model_type, optimize=optimize, bits=bits)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -210,7 +254,7 @@ if __name__ == "__main__":
         help='folder for output images')
     parser.add_argument('-m', '--model_weights', default=None,
         help='path to the trained weights of model')
-    parser.add_argument('-t', '--model_type', default='midas_v21', # midas_v21_small
+    parser.add_argument('-t', '--model_type', default='midas_v21_small', # midas_v21_small, dpt_hybrid
         help='model type: dpt_large, dpt_hybrid, midas_v21_large or midas_v21_small')
 
     parser.add_argument('--optimize', dest='optimize', action='store_true')
@@ -219,24 +263,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    default_models = {
-        "midas_v21_small": "weights/midas_v21_small-70d6b9c8.pt",
-        "midas_v21": "modules/MiDaS/weights/midas_v21-f6b98070.pt",
-        "dpt_large": "weights/dpt_large-midas-2f21e586.pt",
-        "dpt_hybrid": "weights/dpt_hybrid-midas-501f0c75.pt",
-    }
-
-    if args.model_weights is None:
-        args.model_weights = default_models[args.model_type]
-
-    # set torch options
-    torch.backends.cudnn.enabled = True
-    torch.backends.cudnn.benchmark = True
-
-    dm = DeepMonocular(args.model_weights, args.model_type, args.optimize, bits=1)
+    dm = buildDeepMonocular(model_weights=args.model_weights, model_type=args.model_type,
+                            optimize=args.optimize, bits=1)
 
     # compute depth maps
-    #dm.run_on_camera()
+    dm.run_on_camera()
 
     # compute depth maps
-    dm.run_on_file(args.input_path, args.output_path)
+    # dm.run_on_file(args.input_path, args.output_path)
