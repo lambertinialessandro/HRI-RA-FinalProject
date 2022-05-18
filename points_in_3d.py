@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon May  9 09:49:42 2022
 
-@author: lambe
-"""
+# %matplotlib qt
+# %matplotlib inline
+
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 import time
 
 import matplotlib.pyplot as plt
@@ -15,7 +17,7 @@ from matplotlib import cm
 import platform
 from modules.drone.DroneFactory import DroneFactory
 
-from modules.MiDaS.run import DeepMonocular
+#from modules.MiDaS.run import DeepMonocular
 
 from modules.MiDaS.utils import read_pfm
 
@@ -57,8 +59,8 @@ def get_cmap(values, cmap_name='rainbow'):
     return cmap(depth_values_normalized)
 
 
-def plot_referential(ax, dist, x_orientation=None):
-    if x_orientation is not None:
+def plot_referential(ax, dist, z_orientation=None):
+    if z_orientation is not None:
         origin = -dist, -dist, -dist
 
         ax.scatter(*origin, s=100, c='black')
@@ -67,9 +69,9 @@ def plot_referential(ax, dist, x_orientation=None):
         plot_arrow_text(ax, *origin, 0, 0, 1, dist/2, 'z', 'g', 15)
 
         origin = 0, 0, 0
-        angle = math.radians(x_orientation)
+        angle = math.radians(z_orientation)
         direction = math.cos(angle), math.sin(angle), 0
-        plot_arrow_text(ax, *origin, *direction, dist, x_orientation, 'r', 15)
+        plot_arrow_text(ax, *origin, *direction, dist, z_orientation, 'r', 15)
     else:
         origin = 0, 0, 0
 
@@ -83,7 +85,7 @@ def plot_referential(ax, dist, x_orientation=None):
     ax.set_zlim([-dist, dist])
 
 
-def plot_3d_scene(ax, points_in_3d, depth_values, block=True):
+def plot_3d_scene(ax, points_in_3d, depth_values):
     max_projection_value = max(depth_values)
     depth_values_normalized = depth_values/max_projection_value
     colormap = get_cmap(depth_values_normalized)
@@ -104,11 +106,11 @@ def plot_3d_scene(ax, points_in_3d, depth_values, block=True):
     ax.set_ylim([-dist, dist])
     ax.set_zlim([-dist, dist])
 
-    plt.show(block=block)
+    plt.show()
     # plt.pause(0.5)
 
 
-def plot_2d_top_view_referential(ax, dist, x_orientation = None,
+def plot_2d_top_view_referential(ax, dist, z_orientation = None,
                                  orientations_todo = [], orientations_done = []):
     origin = 0, 0, 0
 
@@ -124,8 +126,8 @@ def plot_2d_top_view_referential(ax, dist, x_orientation = None,
         direction = math.cos(angle), math.sin(angle), 0
         plot_arrow_text(ax, *origin, *direction, dist, orientation, 'g', 15)
 
-    if x_orientation is not None:
-        angle = math.radians(x_orientation)
+    if z_orientation is not None:
+        angle = math.radians(z_orientation)
         direction = math.cos(angle), math.sin(angle), 0
         plot_arrow_text(ax, *origin, *direction, dist, 'robot', 'black', 15)
 
@@ -134,11 +136,10 @@ def plot_2d_top_view_referential(ax, dist, x_orientation = None,
     ax.set_zlim([-dist, dist])
 
 
-def get_3d_points_from_depthmap(points_in_3d, depth_values,
-                                depth_map, z_orientation,
+def get_3d_points_from_depthmap(depth_map, position=[0, 0, 0], z_orientation=0,
                                 per_mil_to_keep=1):
-    IMAGE_WIDTH = 960
-    IMAGE_HEIGHT = 720
+    IMAGE_WIDTH = 256 # 960
+    IMAGE_HEIGHT = 256 # 720
 
     H_FOV_DEGREES = 82.6
     H_FOV_RAD = math.radians(H_FOV_DEGREES)
@@ -151,6 +152,10 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
     depth_width, depth_height = depth_map.shape
     x_depth_rescale_factor = depth_width / IMAGE_WIDTH
     y_depth_rescale_factor = depth_height / IMAGE_HEIGHT
+
+    points_in_3d = np.array([])
+    depth_values = np.array([])
+    rotation_matrix = get_rotation_matrix(math.radians(z_orientation), axis="z")
 
     for x in range(IMAGE_WIDTH):
         for y in range(IMAGE_HEIGHT):
@@ -166,62 +171,187 @@ def get_3d_points_from_depthmap(points_in_3d, depth_values,
             # get 3d vector
             z_point = depth_value * (x - X_CENTER_COORDINATE) / X_FOCAL
             y_point = depth_value * (y - Y_CENTER_COORDINATE) / Y_FOCAL
-            point_3d_before_rotation = np.array([depth_value, y_point,
-                                                 z_point])
+            point_3d_before_rotation = np.array([depth_value, y_point, z_point])
 
             # projection in function of the orientation
-            point_3d_after_rotation = np.matmul(
-                get_rotation_matrix(math.radians(z_orientation), axis="z"),
-                point_3d_before_rotation
-            )
-
-            points_in_3d = np.append(points_in_3d, point_3d_after_rotation)
-            depth_values.append(depth_value)
+            point_in_3d = np.matmul(rotation_matrix, point_3d_before_rotation
+                                    ) + position
+            points_in_3d = np.append(points_in_3d, point_in_3d)
+            depth_values = np.append(depth_values, depth_value)
 
     return points_in_3d, depth_values
 
 
-capture_api = None
-if platform.system() == 'Windows':
-    input_idx = 1
-    capture_api = cv2.CAP_DSHOW
+# capture_api = None
+# if platform.system() == 'Windows':
+#     input_idx = 1
+#     capture_api = cv2.CAP_DSHOW
 
-midas = DeepMonocular("modules/MiDaS/weights/midas_v21-f6b98070.pt", "midas_v21")
+# midas = DeepMonocular("modules/MiDaS/weights/dpt_hybrid-midas-501f0c75.pt", "dpt_hybrid")#"modules/MiDaS/weights/midas_v21-f6b98070.pt", "midas_v21")
 
-# cap = cv2.VideoCapture(0)
-drone, drone_edit_frame = DroneFactory.create(DroneFactory.DJITello)
-drone_edit_frame.end()
-drone.streamon()
+# # cap = cv2.VideoCapture(0)
+# drone, drone_edit_frame = DroneFactory.create(DroneFactory.DJITello)
+# drone_edit_frame.end()
+# drone.streamon()
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.view_init(elev=19, azim=180)
-z_orientation = 0
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.view_init(elev=19, azim=180)
+# z_orientation = 0
 
-while z_orientation < 360:
-    img = drone.frame
-    # _, img = cap.read()
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255.0
+# while z_orientation < 360:
+#     img = drone.frame
+#     # _, img = cap.read()
+#     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255.0
 
-    depth = midas.run_frame(img)
+#     depth = midas.run_frame(img)
 
-    z_orientation += 60
-    points_in_3d, depth_values = get_3d_points_from_depthmap(
-        [],
-        [],
-        depth,
-        z_orientation,
-        per_mil_to_keep=10
-    )
-    plot_3d_scene(ax, points_in_3d, depth_values, block=z_orientation == 300)
-    plt.pause(0.5)
+#     z_orientation += 60
+#     points_in_3d, depth_values = get_3d_points_from_depthmap(
+#         [],
+#         [],
+#         depth,
+#         z_orientation,
+#         per_mil_to_keep=10
+#     )
+#     plot_3d_scene(ax, points_in_3d, depth_values, block=z_orientation == 300)
+#     plt.pause(0.5)
 
-    input("Premi un tasto")
+#     input("Premi un tasto")
 
-plt.pause(0.5)
-input()
+# plt.pause(0.5)
+# input()
 
-drone.end()
+# drone.end()
 
 # pfm = read_pfm("rgb_image2.pfm")
 # depth_image = pfm[0]
+
+
+
+############################################################# plot_arrow_text #
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# origin = 0, 0, 0
+# dist = 0.09
+# for i in range(0, 360, 45):
+#     angle = math.radians(i)
+#     direction = math.cos(angle), math.sin(angle), 0
+#     plot_arrow_text(ax, *origin, *direction, dist, i, 'r', 15)
+##########################################################
+
+
+
+############################################################ plot_referential #
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# plot_referential(ax, 0.1, 0)
+# plt.show()
+##########################################################
+
+
+
+################################################ plot_2d_top_view_referential #
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+
+# step = 60
+# angle_done = 0
+# orientations_todo = [i for i in range(angle_done, 360, step)]
+# orientations_done = [i for i in range(0, angle_done, step)]
+
+# plot_2d_top_view_referential(ax, 0.1, None, orientations_todo, orientations_done)
+# plt.show()
+##########################################################
+
+
+
+################################# get_3d_points_from_depthmap # plot_3d_scene #
+# rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
+# depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
+# # plt.imshow(rgb_image)
+# # plt.show()
+# # plt.imshow(depth_image)
+# # plt.show()
+
+# points_in_3d = np.array([])
+# depth_values = []
+# z_orientation = 45*7
+
+# points_in_3d, depth_values = get_3d_points_from_depthmap(
+#                                     depth_image,
+#                                     position=[0, 0, 0],
+#                                     z_orientation=z_orientation,
+#                                     per_mil_to_keep=10)
+
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# plot_3d_scene(ax, points_in_3d, depth_values)
+##########################################################
+
+
+
+########################################################### for plot_3d_scene #
+rgb_image = cv2.cvtColor(cv2.imread("rgb_image2.jpeg", 3), cv2.COLOR_BGR2RGB)
+depth_image = cv2.cvtColor(cv2.imread("depth_image2.png"), cv2.COLOR_BGR2GRAY)
+# plt.imshow(rgb_image)
+# plt.show()
+# plt.imshow(depth_image)
+# plt.show()
+
+points_in_3d = np.array([])
+depth_values = np.array([])
+
+angle = 60
+for i in range(360//angle):
+    point_in_3d, depth_value = get_3d_points_from_depthmap(
+                                        depth_image,
+                                        position=[0, 0, 0],
+                                        z_orientation=i*angle,
+                                        per_mil_to_keep=10)
+    points_in_3d = np.append(points_in_3d, point_in_3d)
+    depth_values = np.append(depth_values, depth_value)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+plot_3d_scene(ax, points_in_3d, depth_values)
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
+#########################################################  #
+
+##########################################################
+
+
+
