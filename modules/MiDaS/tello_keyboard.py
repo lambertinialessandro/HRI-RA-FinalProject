@@ -9,6 +9,9 @@
 # %matplotlib qt
 # %matplotlib inline
 
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 import cv2
 import math
 import time
@@ -25,11 +28,22 @@ from djitellopy import Tello
 
 from run import buildDeepMonocular
 
+import platform
+capture_api = None
+input_idx = 0
+if platform.system() == 'Windows':
+    input_idx = 1
+    capture_api = cv2.CAP_DSHOW
+
+import sys
+sys.path.append('../../')
+from modules.drone.DroneModule import FakeDrone, DJITello
+
+
 global state
 state = True
 
-c = 0
-dm = buildDeepMonocular(model_weights=None, model_type="midas_v21_small", # midas_v21_small, dpt_hybrid
+dm = buildDeepMonocular(model_weights=None, model_type="dpt_hybrid", # midas_v21_small, dpt_hybrid
                         optimize=True, bits=1)
 
 def get_rotation_matrix(orientation, axis='x'):
@@ -61,8 +75,8 @@ def get_cmap(values, cmap_name='rainbow'):
 
 def get_3d_points_from_depthmap(depth_map, position=[0, 0, 0], z_orientation=0,
                                 per_mil_to_keep=1):
-    IMAGE_WIDTH = 256 # 960
-    IMAGE_HEIGHT = 256 # 720
+    IMAGE_WIDTH = 30 # 256 # 960
+    IMAGE_HEIGHT = 30 # 256 # 720
 
     H_FOV_DEGREES = 82.6
     H_FOV_RAD = math.radians(H_FOV_DEGREES)
@@ -104,7 +118,7 @@ def get_3d_points_from_depthmap(depth_map, position=[0, 0, 0], z_orientation=0,
 
     return points_in_3d, depth_values
 
-class Drone(Tello):
+class Drone(FakeDrone):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
         self.x = 0
@@ -126,7 +140,7 @@ class Drone(Tello):
         self.story = np.append(self.story, [[self.x, self.y, self.h, self.teta, 1]], axis=0)
 
     def move_back(self, value):
-        super().move_back(value)
+        super().move_backward(value)
         self.x = self.x + self.c * -value
         self.y = self.y + self.s * -value
         self.story = np.append(self.story, [[self.x, self.y, self.h, self.teta, 2]], axis=0)
@@ -144,14 +158,14 @@ class Drone(Tello):
         self.story = np.append(self.story, [[self.x, self.y, self.h, self.teta, 4]], axis=0)
 
     def rotate_clockwise(self, value):
-        super().rotate_clockwise(value)
+        super().rotate_cw(value)
         self.teta = self.teta - math.radians(value)
         self.c = math.cos(self.teta)
         self.s = math.sin(self.teta)
         self.story = np.append(self.story, [[self.x, self.y, self.h, self.teta, 5]], axis=0)
 
     def rotate_counter_clockwise(self, value):
-        super().rotate_counter_clockwise(value)
+        super().rotate_ccw(value)
         self.teta = self.teta + math.radians(value)
         self.c = math.cos(self.teta)
         self.s = math.sin(self.teta)
@@ -167,8 +181,8 @@ class Drone(Tello):
         self.h = self.h - value
         self.story = np.append(self.story, [[self.x, self.y, self.h, self.teta, 8]], axis=0)
 
-    def takeoff(self):
-        super().takeoff()
+    def take_off(self):
+        super().take_off()
         self.h = self.h + 100
         self.story = np.append(self.story, [[self.x, self.y, self.h, self.teta, -1]], axis=0)
 
@@ -184,22 +198,21 @@ class Drone(Tello):
             self.camera = Tello.CAMERA_FORWARD
         super().set_video_direction(self.camera)
 
-tello = Drone()
-tello.connect()
+tello = Drone(input_idx=input_idx, capture_api=capture_api)
 
-battery = tello.get_battery()
-height = tello.get_height()
-temperature = tello.get_temperature()
+battery = tello.battery
+height = tello.height
+temperature = tello.temperature
 
 def update_battery():
     global tello, battery
-    battery = tello.get_battery()
+    battery = tello.battery
 def update_height():
     global tello, height
-    height = tello.get_height()
+    height = tello.height
 def update_temperature():
     global tello, temperature
-    temperature = tello.get_temperature()
+    temperature = tello.temperature
 
 schedule.every(10).seconds.do(update_battery)
 schedule.every(1).seconds.do(update_height)
@@ -211,16 +224,16 @@ points_in_3d = np.array([])
 depth_values = np.array([])
 
 tello.streamon()
-frame_read = tello.get_frame_read()
-frame = frame_read.frame
+frame = tello.frame
 if frame is None:
     frame = out = np.zeros((256, 256, 3))
 depth = dm.run_on_frame(frame)
 
+per_mil_to_keep = 100
 point_in_3d, depth_value = get_3d_points_from_depthmap(depth,
                                 position=[tello.x, tello.y, tello.h],
                                 z_orientation=tello.teta,
-                                per_mil_to_keep=10)
+                                per_mil_to_keep=per_mil_to_keep)
 points_in_3d = np.append(points_in_3d, point_in_3d)
 points_in_3ds = points_in_3d.reshape([-1, 3])
 depth_values = np.append(depth_values, depth_value)
@@ -238,7 +251,7 @@ def my_keyboard_hook(keyboard_event):
         print("Time:", keyboard_event.time)
 
         if keyboard_event.name == "t":
-            tello.takeoff()
+            tello.take_off()
         elif keyboard_event.name == "esc":
             tello.land()
             state = False
@@ -267,7 +280,8 @@ keyboard.on_press(my_keyboard_hook)
 
 fig = plt.figure()
 fig.canvas.mpl_disconnect(fig.canvas.manager.key_press_handler_id)
-ax = fig.add_subplot(111, projection='3d')
+ax1 = fig.add_subplot(121, projection='3d')
+ax2 = fig.add_subplot(122, projection='3d')
 
 cv2.namedWindow('drone', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('drone', 600,600)
@@ -277,19 +291,20 @@ cv2.resizeWindow('depth', 600,600)
 
 try:
     time.sleep(2)
+    start_T = time.time()
     while state:
         schedule.run_pending()
 
-        frame = frame_read.frame
-        if c == 2500:
-            c = 0
+        frame = tello.frame
+        if time.time() - start_T > 10.5:
+            start_T = time.time()
             print("run_on_frame!")
             depth = dm.run_on_frame(frame)
 
             point_in_3d, depth_value = get_3d_points_from_depthmap(depth,
-                                            position=[tello.x, tello.y, tello.z],
+                                            position=[tello.x, tello.y, tello.h],
                                             z_orientation=tello.teta,
-                                            per_mil_to_keep=10)
+                                            per_mil_to_keep=per_mil_to_keep)
             points_in_3d = np.append(points_in_3d, point_in_3d)
             points_in_3ds = points_in_3d.reshape([-1, 3])
             depth_values = np.append(depth_values, depth_value)
@@ -298,6 +313,15 @@ try:
             depth_values_normalized = depth_values/max_projection_value
             colormap = get_cmap(depth_values_normalized)
 
+            ax2.clear()
+            ax2.scatter(
+                points_in_3ds[:, 0],
+                points_in_3ds[:, 1],
+                -points_in_3ds[:, 2],
+                c=colormap,
+                s=5
+            )
+
         cv2.putText(frame, f"battery: {battery}", (10, 15), cv2.FONT_HERSHEY_PLAIN,
                     fontScale=1, color=(0, 0, 255), thickness=1)
         cv2.putText(frame, f"Height: {height}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
@@ -305,21 +329,14 @@ try:
         cv2.putText(frame, f"temperature: {temperature}", (10, 45), cv2.FONT_HERSHEY_PLAIN,
                     fontScale=1, color=(0, 0, 255), thickness=1)
 
-        ax.clear()
-        ax.scatter(
-            points_in_3ds[:, 0],
-            points_in_3ds[:, 1],
-            -points_in_3ds[:, 2],
-            c=colormap,
-            s=5
-        )
+        ax1.clear()
 
         c = math.cos(tello.story[-1, 3])
         s = math.cos(tello.story[-1, 3])
-        ax.quiver(tello.story[-1, 0], tello.story[-1, 1], tello.story[-1, 2],
+        ax1.quiver(tello.story[-1, 0], tello.story[-1, 1], tello.story[-1, 2],
                   c, s, 0,
                   length=10, normalize=True, color="black")
-        ax.plot(
+        ax1.plot(
             tello.story[:, 0],
             tello.story[:, 1],
             tello.story[:, 2],
@@ -330,7 +347,6 @@ try:
         cv2.imshow("drone", frame)
         cv2.imshow("depth", depth)
         key = cv2.waitKey(1)
-        c = c + 1
 finally:
     print("Terminating!")
     cv2.destroyAllWindows()
@@ -341,24 +357,24 @@ finally:
 
 
 
-ii = input("ok? ")
+# ii = input("ok? ")
 
-if ii == "ok":
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    for i in range(tello.story.shape[0]):
-        ax.clear()
-        c = math.cos(tello.story[i, 3])
-        s = math.cos(tello.story[i, 3])
-        ax.quiver(tello.story[i, 0], tello.story[i, 1], tello.story[i, 2],
-                  c, s, 0,
-                  length=10, normalize=True, color="black")
-        ax.plot(
-            tello.story[0:i+1, 0],
-            tello.story[0:i+1, 1],
-            tello.story[0:i+1, 2],
-            c="red"
-        )
-        plt.pause(0.5)
+# if ii == "ok":
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
+#     for i in range(tello.story.shape[0]):
+#         ax.clear()
+#         c = math.cos(tello.story[i, 3])
+#         s = math.cos(tello.story[i, 3])
+#         ax.quiver(tello.story[i, 0], tello.story[i, 1], tello.story[i, 2],
+#                   c, s, 0,
+#                   length=10, normalize=True, color="black")
+#         ax.plot(
+#             tello.story[0:i+1, 0],
+#             tello.story[0:i+1, 1],
+#             tello.story[0:i+1, 2],
+#             c="red"
+#         )
+#         plt.pause(0.5)
 
 
