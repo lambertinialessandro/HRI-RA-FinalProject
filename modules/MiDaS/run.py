@@ -108,20 +108,20 @@ class DeepMonocular:
 
     def run_on_frame(self, frame):
         out = self._compute_depth(frame)
-        depth_min = out.min()
-        depth_max = out.max()
+        # depth_min = out.min()
+        # depth_max = out.max()
 
-        max_val = (2**(8*self.bits))-1
+        # max_val = (2**(8*self.bits))-1
 
-        if depth_max - depth_min > np.finfo("float").eps:
-            out = max_val * (out - depth_min) / (depth_max - depth_min)
-        else:
-            out = np.zeros(out.shape)
+        # if depth_max - depth_min > np.finfo("float").eps:
+        #     out = max_val * (out - depth_min) / (depth_max - depth_min) + 100
+        # else:
+        #     out = np.zeros(out.shape)
 
-        if self.bits == 1:
-            out = out.astype("uint8")
-        elif self.bits == 2:
-            out = out.astype("uint16")
+        # if self.bits == 1:
+        #     out = out.astype("uint8")
+        # elif self.bits == 2:
+        #     out = out.astype("uint16")
         return out
 
     def run_on_camera(self, input_idx=0, capture_api=None):
