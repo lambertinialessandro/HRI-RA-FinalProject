@@ -301,9 +301,7 @@ try:
             print("run_on_frame!")
             depth = dm.run_on_frame(frame)
 
-            max_v = depth.max()
-            inv_depth = max_v-depth
-            point_in_3d, depth_value = get_3d_points_from_depthmap(inv_depth,
+            point_in_3d, depth_value = get_3d_points_from_depthmap(depth,
                                             position=[tello.x, tello.y, tello.h],
                                             z_orientation=tello.teta,
                                             per_mil_to_keep=per_mil_to_keep)

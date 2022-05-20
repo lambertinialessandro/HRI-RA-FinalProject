@@ -112,7 +112,7 @@ class PIDFaceTracking(AbstractFaceTracking):
         d = 0.  # 0.05
         self._pid_x = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
-        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2) # TODO
+        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2)
 
         self.old_control_x = 0
         self.old_control_y = 0
@@ -193,11 +193,11 @@ class PIDFaceTracking(AbstractFaceTracking):
 
             elif self.face_state == "Lost":
                 face_elapsed_T = time.time() - self.face_last_T
-                # if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
-                #     self.face_state = "None"
+                if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
+                    self.face_state = "None"
         return command, value
 
-    def _is_last_user(self, pos): # TODO
+    def _is_last_user(self, pos):
         ratio = self.bboxes[pos].get_ratio()
         print(f"{self.face_state}  ratio: {np.abs(ratio-self.face_old_ratio)}")
 
@@ -222,11 +222,9 @@ class PIDFaceTracking(AbstractFaceTracking):
             else:
                 base_x, base_y, _, _ = self.face_old.to_tuple()
 
-
-                mse = [round(np.sum(np.power([base_x-bbox.x, base_y-bbox.y], 2)), 3) for bbox in self.bboxes]
-                print(mse)
+                mse = [np.sum(np.diff([[base_x, base_y], [bbox.x, bbox.y]])**2) for bbox in self.bboxes]
                 pos_mse = np.argmin(mse)
-                if mse[pos_mse] < 0.025: # TODO
+                if mse[pos] < 0.5:
                     pos = pos_mse
 
         return pos
@@ -236,27 +234,18 @@ class PIDFaceTracking(AbstractFaceTracking):
         shape = (w, h)
         center = w//2, h//2
 
-        i = 0
         for bbox in self.bboxes:
             cv2.rectangle(frame, bbox.to_unnormalized_tuple(shape), (255, 0, 255), 2)
-            cv2.putText(frame, f'{i}. {round(bbox.x, 3)}, {round(bbox.y, 3)}%', # int(bbox.detection*100)
+            cv2.putText(frame, f'{int(bbox.detection*100)}%',
                         (int(bbox.x*w), int(bbox.y*h-20)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
-            i = i + 1
             cv2.putText(frame, f'{bbox.w}',
                         (int(bbox.x*w), int(bbox.y*h-40)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
 
-            cv2.circle(frame, (int(bbox.x*w), int(bbox.y*h)),
-                       4, (0, 255, 0), cv2.FILLED)
-
             for lm in bbox.unnormalized_keypoints(shape):
                 cv2.circle(frame, (lm[0], lm[1]),
                            2, (0, 255, 255), cv2.FILLED)
-
-        base_x, base_y, _, _ = self.face_old.to_tuple()
-        cv2.circle(frame, (int(base_x*w), int(base_y*h)),
-                   4, (255, 0, 0), cv2.FILLED)
 
         pos = self._get_face_min_dist()
         if pos != -1:
@@ -286,10 +275,9 @@ class PIDFaceTracking(AbstractFaceTracking):
 
 def main():
     import cv2
-    import matplotlib.pyplot as plt
 
     try:
-        cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
         detector = PIDFaceTracking(min_detection_confidence=.8)
