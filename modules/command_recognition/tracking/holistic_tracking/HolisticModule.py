@@ -72,12 +72,12 @@ class AbstractHolisticTracking(AbstractModuleTracking):
             landmark_drawing_spec=mp_drawing_styles
             .get_default_pose_landmarks_style())
 
-        mp_drawing.draw_landmarks(
-            frame,
-            results.face_landmarks,
-            mp_holistic.FACEMESH_CONTOURS,
-            landmark_drawing_spec=mp_drawing_styles
-            .get_default_pose_landmarks_style())
+        # mp_drawing.draw_landmarks(
+        #     frame,
+        #     results.face_landmarks,
+        #     mp_holistic.FACEMESH_CONTOURS,
+        #     landmark_drawing_spec=mp_drawing_styles
+        #     .get_default_pose_landmarks_style())
 
     @abstractmethod
     def _execute(self) -> tuple:
