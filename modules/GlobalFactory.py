@@ -8,7 +8,7 @@ from modules.drone.DroneFactory import DroneFactory
 from modules.stream.StreamFactory import StreamFactory
 from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
 from modules.control import ControlModule
-from modules.templates.TemplatePatternModule import TemplatePattern, AudioTemplatePattern
+from modules.templates.TemplatePatternModule import TemplatePattern
 
 
 class GlobalFactory:
@@ -31,7 +31,6 @@ class GlobalFactory:
                                                           input_idx=input_idx, capture_api=capture_api)
         else:
             raise ValueError(f"Type drone '{type_drone}' not accepted")
-
 
         control_module = ControlModule.ControlModule(drone)
 

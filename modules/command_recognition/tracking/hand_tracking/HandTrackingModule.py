@@ -49,12 +49,13 @@ class AbstractHandTracking(AbstractModuleTracking):
     def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
         super().__init__()
         self.flip_type = flip_type
+        self.max_hands = max_hands
 
         self.all_hands = []
-        self.hand_detection =  mp.solutions.hands.Hands(static_image_mode=mode,
-                                                        max_num_hands=max_hands,
-                                                        min_detection_confidence=detection_con,
-                                                        min_tracking_confidence=track_con)
+        self.hand_detection = mp.solutions.hands.Hands(static_image_mode=mode,
+                                                       max_num_hands=max_hands,
+                                                       min_detection_confidence=detection_con,
+                                                       min_tracking_confidence=track_con)
 
     def _analyze_frame(self, frame):
         self.all_hands = []
@@ -150,13 +151,13 @@ class HandTracking(AbstractHandTracking):
 
             if distance > minDist:
                 if (-45 + delta) < angle < (45 - delta):
-                    command = Command.ROTATE_CW, 15 # Blue -> left
+                    command = Command.ROTATE_CW, 15  # Blue -> left
                 elif (45 + delta) < angle < (135 - delta):
-                    command = Command.LAND, None # Green -> bottom
+                    command = Command.LAND, None  # Green -> bottom
                 elif (-135 + delta) < angle < (-45 - delta):
-                    command = Command.TAKE_OFF, None # Red -> top
+                    command = Command.TAKE_OFF, None  # Red -> top
                 elif (135+delta) < angle or angle < (-135-delta):
-                    command = Command.ROTATE_CCW, 15 # magenta -> right
+                    command = Command.ROTATE_CCW, 15  # magenta -> right
 
         return command
 
@@ -215,7 +216,7 @@ class HandTracking(AbstractHandTracking):
 
         return frame
 
-    def _get_hands_info(self, hand_no=-1):
+    def _get_hands_info(self, hand_no):
         if isinstance(hand_no, int):
             assert hand_no < self.max_hands
 

@@ -18,6 +18,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 
+
 class AbstractHolisticTracking(AbstractModuleTracking):
     def __init__(self, static_image_mode=False, model_complexity=1,
                  smooth_landmarks=True, enable_segmentation=False,
@@ -29,8 +30,8 @@ class AbstractHolisticTracking(AbstractModuleTracking):
 
         self.mp_holistic = mp.solutions.holistic
         self.holistic_detection = mp.solutions.holistic.Holistic(static_image_mode=static_image_mode,
-                                         model_complexity=model_complexity,
-                                         smooth_landmarks=smooth_landmarks,
+                                                                 model_complexity=model_complexity,
+                                                                 smooth_landmarks=smooth_landmarks,
                                          enable_segmentation=enable_segmentation,
                                          smooth_segmentation=smooth_segmentation,
                                          refine_face_landmarks=refine_face_landmarks,

@@ -19,7 +19,7 @@ class AbstractTemplatePattern(ABC):
         self.command_recognition = command_recognition
         self.control_module = control_module
         self.drone_edit_frame = drone_edit_frame
-        self.displayer = Window(cls=self)
+        self.displayer = Window(binded_obj=self)
 
         # TODO
         # fix command block
@@ -72,7 +72,7 @@ class TemplatePattern(AbstractTemplatePattern):
                 # 3. Get the data from the image and compute the command as output
                 self.command, value = self.command_recognition.execute(frame)
 
-                # 4. Execute the comand
+                # 4. Execute the command
                 self.control_module.execute(self.command, value)
 
                 # 5. Edit frame
