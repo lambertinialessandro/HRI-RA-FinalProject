@@ -9,7 +9,8 @@ import cv2
 # link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 from modules.window.Window import Window
-from modules.templates.WebServer import WebServer
+from modules.template_pattern.templates.WebServer import WebServer
+
 
 
 class AbstractTemplatePattern(ABC):
@@ -71,6 +72,8 @@ class TemplatePattern(AbstractTemplatePattern):
 
                 # 3. Get the data from the image and compute the command as output
                 self.command, value = self.command_recognition.execute(frame)
+
+                self.command, value = reasoning_agent.execute(self.command, value)
 
                 # 4. Execute the command
                 self.control_module.execute(self.command, value)
