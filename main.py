@@ -30,7 +30,7 @@ template_pattern = GlobalFactory.create(GlobalFactory.DJITello, GlobalFactory.Vi
                                         input_idx=input_idx, capture_api=capture_api)
 
 # 3. start web streaming
-#template_pattern.start_web_streaming(ip, port)
+#template_pattern.start_web_streaming()
 
 # 4. Starting sequence
 template_pattern.execute()

@@ -8,7 +8,7 @@ from modules.drone.DroneFactory import DroneFactory
 from modules.stream.StreamFactory import StreamFactory
 from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
 from modules.control import ControlModule
-from modules.TemplatePatternModule import TemplatePattern, VideoTemplatePattern, AudioTemplatePattern
+from modules.templates.TemplatePatternModule import TemplatePattern, AudioTemplatePattern
 
 
 class GlobalFactory:

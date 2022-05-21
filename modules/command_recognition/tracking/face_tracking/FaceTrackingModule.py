@@ -128,7 +128,7 @@ class PIDFaceTracking(AbstractFaceTracking):
         value = (0, 0, 0, 0)
 
         pos = self._get_face_min_dist()
-        if pos != -1: # se c'è un viso
+        if pos != -1:  # se c'è un viso
             face = self.bboxes[pos]
             self.face_old = face
             self.face_old_ratio = face.get_ratio()

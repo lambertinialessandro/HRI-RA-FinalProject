@@ -1,4 +1,5 @@
 djitellopy
+flask
 keyboard
 mediapipe
 numpy

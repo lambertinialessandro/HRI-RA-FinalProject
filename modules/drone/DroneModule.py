@@ -121,7 +121,7 @@ class DJITello(AbstractDrone):
 
     @property
     def battery(self) -> int:
-        "range 0 - 100"
+        """range 0 - 100"""
         return self._tello.get_battery()
 
     @property
@@ -138,7 +138,7 @@ class DJITello(AbstractDrone):
 
     @property
     def yaw(self) -> int:
-        "range -180 - 180"
+        """range -180 - 180"""
         return self._tello.get_yaw()
 
     @property
