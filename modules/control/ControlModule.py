@@ -25,6 +25,9 @@ class Command(Enum):
     ROTATE_CW = 30
     ROTATE_CCW = 40
 
+    COOLING_ON = 50
+    COOLING_OFF = 51
+
     FOLLOW_ME = 100
 
     STOP_EXECUTION = 1000
@@ -68,6 +71,11 @@ class ControlModule:
             self._drone.rotate_cw(value)
         elif command == Command.ROTATE_CCW:
             self._drone.rotate_ccw(value)
+
+        elif command == Command.COOLING_ON:
+            self._drone.turn_motor_on()
+        elif command == Command.COOLING_OFF:
+            self._drone.turn_motor_off()
 
         elif command == Command.FOLLOW_ME:
             self._drone

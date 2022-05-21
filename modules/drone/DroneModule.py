@@ -48,6 +48,11 @@ class AbstractDrone(ABC):
     def is_streaming(self) -> bool:
         pass
 
+    @property
+    @abstractmethod
+    def is_cooling(self) -> bool:
+        pass
+
     # Controls
     @abstractmethod
     def streamon(self):
@@ -115,6 +120,8 @@ class DJITello(AbstractDrone):
             self._tello = Tello()
         self._tello.connect()
 
+        self._is_cooling = False
+
     @property
     def frame(self):
         return self._tello.get_frame_read().frame
@@ -148,6 +155,10 @@ class DJITello(AbstractDrone):
     @property
     def is_streaming(self) -> bool:
         return self._tello.stream_on
+
+    @property
+    def is_cooling(self) -> bool:
+        return self._is_cooling
 
     def streamon(self):
         if not self.is_streaming:
@@ -208,6 +219,8 @@ class FakeDrone(AbstractDrone):
         self.h = 720//2
         self.cap = None
 
+        self._is_cooling = False
+
     @property
     def frame(self):
         _, frame = self.cap.read()
@@ -240,6 +253,10 @@ class FakeDrone(AbstractDrone):
     @property
     def is_flying(self) -> bool:
         return self._is_flying
+
+    @property
+    def is_cooling(self) -> bool:
+        return self._is_cooling
 
     def streamon(self):
         if not self._stream_on:
