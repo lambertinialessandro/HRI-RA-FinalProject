@@ -1,51 +1,51 @@
+
 # TODO
 # only for debug, to be deleted
 import sys
-sys.path.append('../../')
+sys.path.append('../')
 
-from modules.command_recognition.CommandRecognitionModule \
-    import AudioCommandRecognition
+from modules.command_recognition.FaceCommandRecognition import PIDFaceCommandRecognition
+from modules.command_recognition.HandCommandRecognition import HandCommandRecognition
+from modules.command_recognition.HolisticCommandRecognition import HolisticCommandRecognition
 
-from modules.command_recognition.tracking.TrackingFactory import VideoTrackingFactory
 
-
-class CommandRecognitionFactory:
-    VideoFace = "VideoFace"
-    VideoHand = "VideoHand"
-    VideoHolistic = "VideoHolistic"
-    Audio = "Audio"
+class VideoCommandRecognitionFactory:
+    Face = "Face"
+    Hand = "Hand"
+    Holistic = "Holistic"
 
     def __init__(self):
         pass
 
     @staticmethod
     def create(type_input):
-        command_recognition = None
-        if type_input == CommandRecognitionFactory.VideoFace:
-            command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Face)
-        elif type_input == CommandRecognitionFactory.VideoHand:
-            command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Hand)
-        elif type_input == CommandRecognitionFactory.VideoHolistic:
-            command_recognition = VideoTrackingFactory.create(VideoTrackingFactory.Holistic)
-        elif type_input == CommandRecognitionFactory.Audio:
-            command_recognition = AudioCommandRecognition()
+        tracking = None
+        if type_input == VideoCommandRecognitionFactory.Face:
+            tracking = PIDFaceCommandRecognition(min_detection_confidence=0.6)
+        elif type_input == VideoCommandRecognitionFactory.Hand:
+            tracking = HandCommandRecognition(detection_con=.8, track_con=.8, flip_type=True)
+        elif type_input == VideoCommandRecognitionFactory.Holistic:
+            tracking = HolisticCommandRecognition(enable_segmentation=False, refine_face_landmarks=False,
+                                                  min_tracking_confidence=.8, min_detection_confidence=.8,
+                                                  flip_type=True)
 
-        return command_recognition
+        return tracking
 
 
-# TODO
-# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
     from modules.stream.StreamFactory import StreamFactory
 
     stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
-    command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.Video)
+
+    detector = VideoCommandRecognitionFactory.create(VideoCommandRecognitionFactory.Hand)
 
     try:
         while True:
             frame = stream.get_stream_frame()
-            command = command_recognition.get_command(frame)
+
+            command = detector.execute(frame)
+            frame = detector.edit_frame(frame)
 
             cv2.imshow("Image", frame)
             key = cv2.waitKey(1)
@@ -54,5 +54,3 @@ if __name__ == "__main__":
     finally:
         stream.release_stream()
         cv2.destroyAllWindows()
-
-
