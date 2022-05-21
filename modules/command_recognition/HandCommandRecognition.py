@@ -7,9 +7,9 @@ import cv2
 # TODO
 # only for debug, to be deleted
 import sys
-sys.path.append('../../../')
+sys.path.append('../')
 
-from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
@@ -45,7 +45,7 @@ class HandEnum(Enum):
                 self.PINKY_TIP.value]
 
 
-class AbstractHandTracking(AbstractModuleTracking):
+class AbstractHandTracking(AbstractCommandRecognitionModule):
     def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
         super().__init__()
         self.flip_type = flip_type
@@ -116,7 +116,7 @@ class AbstractHandTracking(AbstractModuleTracking):
         pass
 
 
-class HandTracking(AbstractHandTracking):
+class HandCommandRecognition(AbstractHandTracking):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
 
@@ -246,7 +246,7 @@ def main():
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
-        detector = HandTracking(detection_con=.8, track_con=.8, flip_type=True)
+        detector = HandCommandRecognition(detection_con=.8, track_con=.8, flip_type=True)
 
         while True:
             success, img = cap.read()

@@ -26,7 +26,7 @@ port = 9999
 # VideoDrone  VideoPC
 
 # 2. Creating the sequence
-template_pattern = GlobalFactory.create(GlobalFactory.DJITello, GlobalFactory.VideoDrone,
+template_pattern = GlobalFactory.create(GlobalFactory.FakeDrone, GlobalFactory.VideoDrone,
                                         input_idx=input_idx, capture_api=capture_api)
 
 # 3. start web streaming

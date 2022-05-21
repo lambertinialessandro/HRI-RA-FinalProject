@@ -8,15 +8,15 @@ import numpy as np
 
 # TODO: only for debug, to be deleted
 import sys
-sys.path.append('../../../')
+sys.path.append('../')
 
-from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 
 # TODO: link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
-class AbstractFaceTracking(AbstractModuleTracking):
+class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, model_selection=1, min_detection_confidence=0.5):
         super().__init__()
 
@@ -102,7 +102,7 @@ class AbstractFaceTracking(AbstractModuleTracking):
 import cv2
 
 
-class PIDFaceTracking(AbstractFaceTracking):
+class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
     def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
@@ -287,13 +287,12 @@ class PIDFaceTracking(AbstractFaceTracking):
 
 def main():
     import cv2
-    import matplotlib.pyplot as plt
 
     try:
         cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
         cap.set(3, 1280//2)
         cap.set(4, 720//2)
-        detector = PIDFaceTracking(min_detection_confidence=.8)
+        detector = PIDFaceCommandRecognition(min_detection_confidence=.8)
 
         while True:
             success, img = cap.read()

@@ -4,10 +4,10 @@ import mediapipe as mp
 import cv2
 
 import sys
-sys.path.append('../../../../')
+sys.path.append('../../')
 
-from modules.command_recognition.tracking.hand_tracking.HandTrackingModule import HandEnum
-from modules.command_recognition.tracking.AbstractModuleTracking import AbstractModuleTracking
+from modules.command_recognition.HandCommandRecognition import HandEnum
+from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
@@ -19,7 +19,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 
 
-class AbstractHolisticTracking(AbstractModuleTracking):
+class AbstractHolisticCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, static_image_mode=False, model_complexity=1,
                  smooth_landmarks=True, enable_segmentation=False,
                  smooth_segmentation=True, refine_face_landmarks=True,
@@ -29,14 +29,16 @@ class AbstractHolisticTracking(AbstractModuleTracking):
         self.flip_type = flip_type
 
         self.mp_holistic = mp.solutions.holistic
-        self.holistic_detection = mp.solutions.holistic.Holistic(static_image_mode=static_image_mode,
-                                                                 model_complexity=model_complexity,
-                                                                 smooth_landmarks=smooth_landmarks,
-                                         enable_segmentation=enable_segmentation,
-                                         smooth_segmentation=smooth_segmentation,
-                                         refine_face_landmarks=refine_face_landmarks,
-                                         min_tracking_confidence=min_tracking_confidence,
-                                         min_detection_confidence=min_detection_confidence)
+        self.holistic_detection = mp.solutions.holistic.Holistic(
+            static_image_mode=static_image_mode,
+            model_complexity=model_complexity,
+            smooth_landmarks=smooth_landmarks,
+            enable_segmentation=enable_segmentation,
+            smooth_segmentation=smooth_segmentation,
+            refine_face_landmarks=refine_face_landmarks,
+            min_tracking_confidence=min_tracking_confidence,
+            min_detection_confidence=min_detection_confidence
+        )
         self.all_hands = []
         self.results_data = False
 
@@ -72,12 +74,12 @@ class AbstractHolisticTracking(AbstractModuleTracking):
             landmark_drawing_spec=mp_drawing_styles
             .get_default_pose_landmarks_style())
 
-        mp_drawing.draw_landmarks(
-            frame,
-            results.face_landmarks,
-            mp_holistic.FACEMESH_CONTOURS,
-            landmark_drawing_spec=mp_drawing_styles
-            .get_default_pose_landmarks_style())
+        # mp_drawing.draw_landmarks(
+        #     frame,
+        #     results.face_landmarks,
+        #     mp_holistic.FACEMESH_CONTOURS,
+        #     landmark_drawing_spec=mp_drawing_styles
+        #     .get_default_pose_landmarks_style())
 
     @abstractmethod
     def _execute(self) -> tuple:
@@ -91,7 +93,7 @@ class AbstractHolisticTracking(AbstractModuleTracking):
         pass
 
 
-class HolisticTracking(AbstractHolisticTracking):
+class HolisticCommandRecognition(AbstractHolisticCommandRecognition):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
 
@@ -217,7 +219,7 @@ def main():
         cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
         #cap.set(3, 1280//2)
         #cap.set(4, 720//2)
-        detector = HolisticTracking(min_detection_confidence=.8, min_tracking_confidence=.8)
+        detector = HolisticCommandRecognition(min_detection_confidence=.8, min_tracking_confidence=.8)
 
         while True:
             success, img = cap.read()

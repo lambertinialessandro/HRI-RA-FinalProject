@@ -1,7 +1,7 @@
 import cv2
 import keyboard
 
-from modules.command_recognition.CommandRecognitionFactory import CommandRecognitionFactory
+from modules.command_recognition.CommandRecognitionFactory import VideoCommandRecognitionFactory
 
 
 class Window:
@@ -36,14 +36,13 @@ class Window:
 
             elif keyboard_event.name == "1":
                 print("Face!")
-                self._binded_obj.command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoFace)
+                self._binded_obj.command_recognition = VideoCommandRecognitionFactory.create(VideoCommandRecognitionFactory.Face)
             elif keyboard_event.name == "2":
                 print("Hand!")
-                self._binded_obj.command_recognition = CommandRecognitionFactory.create(CommandRecognitionFactory.VideoHand)
-            # elif keyboard_event.name == "3":
-            #     print("Holistic!")
-            #     self.update_detector(VideoTrackingFactory.Holistic)
-
+                self._binded_obj.command_recognition = VideoCommandRecognitionFactory.create(VideoCommandRecognitionFactory.Hand)
+            elif keyboard_event.name == "3":
+                print("Holistic!")
+                self._binded_obj.command_recognition = VideoCommandRecognitionFactory.create(VideoCommandRecognitionFactory.Holistic)
             elif keyboard_event.scan_code == 72: # name == "freccia su"
                 self._binded_obj.drone.set_rc_controls(0, 10, 0, 0)
             elif keyboard_event.scan_code == 80: # name == "freccia giù"
