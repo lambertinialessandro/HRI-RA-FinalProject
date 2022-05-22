@@ -7,6 +7,7 @@ from modules.drone.DroneFactory import DroneFactory
 
 from modules.stream.StreamFactory import StreamFactory
 from modules.command_recognition.CommandRecognitionFactory import VideoCommandRecognitionFactory
+from modules.reasoning_agent.reasoningAgentModule import reasoningAgent
 from modules.control import ControlModule
 from modules.templates.TemplatePatternModule import TemplatePattern
 
