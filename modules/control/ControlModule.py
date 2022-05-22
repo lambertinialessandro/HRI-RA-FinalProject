@@ -78,10 +78,10 @@ class ControlModule:
             self._drone.turn_motor_off()
 
         elif command == Command.FOLLOW_ME:
-            self._drone
+            self._drone  # TODO
 
         elif command == Command.STOP_EXECUTION:
-            self._drone
+            self._drone  # TODO
 
     def execute(self, command: Command, value=None):
         Thread(target=self.__execute, args=[command, value]).start()
