@@ -1,4 +1,6 @@
 
+from enum import Enum
+
 # TODO
 # only for debug, to be deleted
 import sys
@@ -8,24 +10,28 @@ from modules.stream.VideoStreamModule import VideoDroneStream, WebcamStream
 from modules.stream.AudioStreamModule import ComputerMicrophoneStream
 
 
-class StreamFactory:
+class StreamEnum(Enum):
     VideoDrone = "VideoDrone"
     VideoPC = "VideoPC"
     AudioPC = "AudioPC"
 
+
+class StreamFactory:
     def __init__(self):
         pass
 
     @staticmethod
-    def create(type_input, drone=None, input_idx=0, capture_api=None):
+    def create(type_stream: StreamEnum, drone=None, input_idx=0, capture_api=None):
         stream = None
-        if type_input == StreamFactory.VideoDrone:
+        if type_stream == StreamEnum.VideoDrone:
             assert drone is not None
             stream = VideoDroneStream(drone)
-        elif type_input == StreamFactory.VideoPC:
+        elif type_stream == StreamEnum.VideoPC:
             stream = WebcamStream(input_idx=input_idx, capture_api=capture_api)
-        elif type_input == StreamFactory.AudioPC:
+        elif type_stream == StreamEnum.AudioPC:
             stream = ComputerMicrophoneStream()
+        else:
+            raise ValueError(f"Type stream '{type_stream}' not accepted")
 
         return stream
 
@@ -40,7 +46,7 @@ if __name__ == "__main__":
     if platform.system() == '':
         capture_api = cv2.CAP_DSHOW
 
-    stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=capture_api)
+    stream = StreamFactory.create(StreamEnum.VideoPC, capture_api=capture_api)
 
     try:
         while True:

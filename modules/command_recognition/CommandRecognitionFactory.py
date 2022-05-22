@@ -1,4 +1,6 @@
 
+from enum import Enum
+
 # TODO
 # only for debug, to be deleted
 import sys
@@ -9,22 +11,23 @@ from modules.command_recognition.HandCommandRecognition import HandCommandRecogn
 from modules.command_recognition.HolisticCommandRecognition import HolisticCommandRecognition
 
 
-class VideoCommandRecognitionFactory:
+class VCREnum(Enum):
     Face = "Face"
     Hand = "Hand"
     Holistic = "Holistic"
 
+class VideoCommandRecognitionFactory:
     def __init__(self):
         pass
 
     @staticmethod
     def create(type_input):
         tracking = None
-        if type_input == VideoCommandRecognitionFactory.Face:
+        if type_input == VCREnum.Face:
             tracking = PIDFaceCommandRecognition(min_detection_confidence=0.6)
-        elif type_input == VideoCommandRecognitionFactory.Hand:
+        elif type_input == VCREnum.Hand:
             tracking = HandCommandRecognition(detection_con=.8, track_con=.8, flip_type=True)
-        elif type_input == VideoCommandRecognitionFactory.Holistic:
+        elif type_input == VCREnum.Holistic:
             tracking = HolisticCommandRecognition(enable_segmentation=False, refine_face_landmarks=False,
                                                   min_tracking_confidence=.8, min_detection_confidence=.8,
                                                   flip_type=True)
@@ -38,7 +41,7 @@ if __name__ == "__main__":
 
     stream = StreamFactory.create(StreamFactory.VideoPC, capture_api=cv2.CAP_DSHOW)  # cv2.CAP_DSHOW, None
 
-    detector = VideoCommandRecognitionFactory.create(VideoCommandRecognitionFactory.Hand)
+    detector = VideoCommandRecognitionFactory.create(VCREnum.Hand)
 
     try:
         while True:

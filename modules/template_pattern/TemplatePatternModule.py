@@ -1,21 +1,19 @@
+
 from abc import ABC, abstractmethod
-import time
-import schedule
-import flask
+# import time
 import threading
 import cv2
 
-# TODO
-# link between 2 files from different hierarchy maybe to be fixed
-from modules.control.ControlModule import Command
+# # TODO
+# # link between 2 files from different hierarchy maybe to be fixed
+# from modules.control.ControlModule import Command
 from modules.window.Window import Window
-from modules.template_pattern.templates.WebServer import WebServer
-
+from modules.template_pattern.WebServer import WebServer
 
 
 class AbstractTemplatePattern(ABC):
-    def __init__(self, stream_module, command_recognition, control_module,
-                 drone_edit_frame):
+    def __init__(self, stream_module, command_recognition,
+                 control_module, drone_edit_frame):
         self.stream_module = stream_module
         self.command_recognition = command_recognition
         self.control_module = control_module
@@ -37,72 +35,21 @@ class AbstractTemplatePattern(ABC):
         pass
 
 
-# import flask
-# import threading
-# import cv2
-# lock = threading.Lock()
-# outputFrame = None
-# app = flask.Flask(__name__)
 
-class TemplatePattern(AbstractTemplatePattern):
-    def __init__(self, drone, *args):
-        super().__init__(*args)
-        self.drone = drone
-        self.command = None
+class AbstractWebServerTemplatePattern(AbstractTemplatePattern):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.frame = None
-
-        self.ip = None
-        self.port = None
+        self.ip = "0.0.0.0"
+        self.port = 8080
         self.lock = threading.Lock()
-        self.webThread = None
-        self.state = None
-
-        self.web_server = WebServer(self._generate_frame, "0.0.0.0", 8080)
-
-    def execute(self):
-        self.state = True
-
-        try:
-            while self.state:
-                schedule.run_pending()
-
-                # 1. Get the frame
-                frame = self.stream_module.get_stream_frame()
-
-                # 3. Get the data from the image and compute the command as output
-                self.command, value = self.command_recognition.execute(frame)
-
-                self.command, value = reasoning_agent.execute(self.command, value)
-
-                # 4. Execute the command
-                self.control_module.execute(self.command, value)
-
-                # 5. Edit frame
-                frame = self.command_recognition.edit_frame(frame)
-                frame = self.drone_edit_frame.edit(frame)
-                # self.frame = frame
-
-                # global lock, outputFrame
-                with self.lock:
-                    self.frame = frame.copy()
-
-                # 6. Display frame
-                self.state = self.displayer.show(frame)
-        except KeyboardInterrupt:
-            pass
-        # except Exception as e:
-        #     print(e)
-        #     raise e
-        #     throw e
-        finally:
-            self.end()
+        self.web_server = WebServer(self._generate_frame, self.ip, self.port)
 
     def start_web_streaming(self):
         self.web_server.start()
 
     def _generate_frame(self):
-        # global outputFrame, lock
         while True:
             with self.lock:
                 if self.frame is None:
@@ -114,33 +61,159 @@ class TemplatePattern(AbstractTemplatePattern):
                        bytearray(encodedImage) + b'\r\n')
 
     def end(self):
-        print("Done!")
+        print("Done AbstractWebServerTemplatePattern!")
+
+        print("[1/1] Turn off web_server")
+        self.web_server.end()
+
+        print("\n")
+
+
+
+class TemplatePattern(AbstractWebServerTemplatePattern):
+    def __init__(self, drone, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.drone = drone
+        self.command = None
+
+        self.state = True
+
+    def execute(self):
+        try:
+            while self.state:
+                # 1. Get the frame
+                frame = self.stream_module.get_stream_frame()
+
+                # 2. Get the data from the image and compute the command as output
+                self.command, value = self.command_recognition.execute(frame)
+
+                # 3. Execute the command
+                self.control_module.execute(self.command, value)
+
+                # 4. Edit frame
+                frame = self.command_recognition.edit_frame(frame)
+                frame = self.drone_edit_frame.edit(frame)
+
+                # global lock, outputFrame
+                with self.lock:
+                    self.frame = frame.copy()
+
+                # 5. Display frame
+                self.state = self.displayer.show(frame)
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            print(e)
+            raise e
+        finally:
+            self.end()
+
+    def end(self):
+        print("Done TemplatePattern!")
         self.state = False
-        self.web_server.stop()
 
-        # print("[1/9] Turn off Window")
-        # self.window.end()
+        print("[1/7] Turn off super()\n")
+        super().end()
 
-        print("[1/6] Turn off stream_module")
+        print("[2/7] Turn off stream_module")
         self.stream_module.end()
-        # print("[3/9] Turn off frame_tracker")
-        # self.frame_tracker.end()
-        print("[2/6] Turn off command_recognition")
+        print("[3/7] Turn off command_recognition")
         self.command_recognition.end()
-        print("[3/6] Turn off control_module")
+        print("[4/7] Turn off control_module")
         self.control_module.end()
-        # print("[6/9] Turn off tracking_edit_frame")
-        # self.tracking_edit_frame.end()
-        print("[4/6] Turn off drone_edit_frame")
+        print("[5/7] Turn off drone_edit_frame")
         self.drone_edit_frame.end()
-        print("[5/6] Turn off displayer")
+        print("[6/7] Turn off displayer")
         self.displayer.end()
-
-        # print("[9/9] Turn off schedule")
-        # schedule.clear()
-
-        print("[6/6] Turn off drone")
+        print("[7/7] Turn off drone")
         self.drone.end()
+
+        print("\n")
+
+
+
+class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):
+    def __init__(self, drone, reasoning_agent, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.drone = drone
+        self.reasoning_agent = reasoning_agent
+        self.command = None
+
+        self.state = True
+
+    def execute(self):
+        try:
+            while self.state:
+                # 1. Get the frame
+                frame = self.stream_module.get_stream_frame()
+
+                # 3. Get the data from the image and compute the command as output
+                self.command, value = self.command_recognition.execute(frame)
+
+                # 4. Execute the command
+                self.control_module.execute(self.command, value)
+
+
+                self.command, value = self.reasoning_agent.execute(self.command, value)
+
+
+                # 5. Edit frame
+                frame = self.command_recognition.edit_frame(frame)
+                frame = self.drone_edit_frame.edit(frame)
+
+                # global lock, outputFrame
+                with self.lock:
+                    self.frame = frame.copy()
+
+                # 6. Display frame
+                self.state = self.displayer.show(frame)
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            print(e)
+            raise e
+        finally:
+            self.end()
+
+    def end(self):
+        print("Done ReasoningTemplatePattern!")
+        self.state = False
+
+        print("[1/7] Turn off super()\n")
+        super().end()
+
+        print("[2/7] Turn off stream_module")
+        self.stream_module.end()
+        print("[3/7] Turn off command_recognition")
+        self.command_recognition.end()
+        print("[4/7] Turn off control_module")
+        self.control_module.end()
+        print("[5/7] Turn off drone_edit_frame")
+        self.drone_edit_frame.end()
+        print("[6/7] Turn off displayer")
+        self.displayer.end()
+        print("[7/7] Turn off drone")
+        self.drone.end()
+
+        print("\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
 #
 # from modules.window.Window import Window

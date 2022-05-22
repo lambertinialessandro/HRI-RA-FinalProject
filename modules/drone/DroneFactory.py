@@ -1,4 +1,6 @@
 
+from enum import Enum
+
 # TODO
 # only for debug, to be deleted
 import sys
@@ -8,23 +10,27 @@ from modules.drone.DroneModule import DJITello, FakeDrone
 from modules.drone.DroneEditFrame import DroneEditFrame
 
 
-class DroneFactory:
+class DroneEnum(Enum):
     DJITello = "DJITello"
     FakeDrone = "FakeDrone"
 
+
+class DroneFactory:
     def __init__(self):
         pass
 
     @staticmethod
-    def create(type_drone, input_idx=0, capture_api=None):
+    def create(type_drone: DroneEnum, input_idx=0, capture_api=None):
         drone = None
         drone_edit_frame = None
-        if type_drone == DroneFactory.DJITello:
+        if type_drone == DroneEnum.DJITello:
             drone = DJITello()
             drone_edit_frame = DroneEditFrame(drone)
-        elif type_drone == DroneFactory.FakeDrone:
+        elif type_drone == DroneEnum.FakeDrone:
             drone = FakeDrone(input_idx=input_idx, capture_api=capture_api)
             drone_edit_frame = DroneEditFrame(drone)
+        else:
+            raise ValueError(f"Type drone '{type_drone}' not accepted")
 
         return drone, drone_edit_frame
 
@@ -37,7 +43,7 @@ if __name__ == "__main__":
     if platform.system() == 'Windows':
         capture_api = cv2.CAP_DSHOW
 
-    drone = DroneFactory.create(DroneFactory.DJITello, capture_api=capture_api)
+    drone = DroneFactory.create(DroneEnum.DJITello, capture_api=capture_api)
     drone.streamon()
 
     try:
