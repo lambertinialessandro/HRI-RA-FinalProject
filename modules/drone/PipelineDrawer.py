@@ -20,6 +20,8 @@ class PipelineDrawer:
         self.pipeline = []
         self.len_pipeline = 0
 
+        self.schedule = schedule.Scheduler()
+
         self.font_scale = 1
         self.w = 10
         self.h = 15 + ((self.font_scale-1) * 0.5)
@@ -42,15 +44,17 @@ class PipelineDrawer:
     def add_drawer(self, drone, drawer):
         self.len_pipeline = self.len_pipeline + 1
         position = (self.w, int(self.h * self.len_pipeline))
-        self.pipeline.append(drawer(drone, position, self.font_scale, self.color, self.thickness))
+        self.pipeline.append(drawer(self.schedule, drone, position, self.font_scale, self.color, self.thickness))
 
     def draw(self, frame):
+        self.schedule.run_pending()
+
         for drawer in self.pipeline:
             frame = drawer.draw(frame)
         return frame
 
     def end(self):
-        schedule.clear()
+        self.schedule.clear()
 
 
 if __name__ == "__main__":
@@ -78,8 +82,6 @@ if __name__ == "__main__":
                    #PipelineDrawer.DRONE_WIFI_SNR])
     try:
         while True:
-            schedule.run_pending()
-
             print(pd.pipeline[3].height)
             print(pd.pipeline[4].snr)
             time.sleep(0.5)

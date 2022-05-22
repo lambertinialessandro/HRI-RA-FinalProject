@@ -1,6 +1,5 @@
 
 import cv2
-import schedule
 import time
 from abc import ABC, abstractmethod
 
@@ -19,8 +18,8 @@ class AbstractDrawer(ABC):
 
 
 class DrawerFPS(AbstractDrawer):
-    def __init__(self, drone, position, font_scale, color, thickness):
-        super().__init__(drone, position, font_scale, color, thickness)
+    def __init__(self, schedule, *args, **kargs):
+        super().__init__(*args, **kargs)
 
         self.pTime = 0
         self.cTime = 0
@@ -40,8 +39,8 @@ class DrawerFPS(AbstractDrawer):
 
 
 class DrawerDroneBattery(AbstractDrawer):
-    def __init__(self, drone, position, font_scale, color, thickness):
-        super().__init__(drone, position, font_scale, color, thickness)
+    def __init__(self, schedule, *args, **kargs):
+        super().__init__(*args, **kargs)
 
         self.battery = None
         self._update_battery()
@@ -57,8 +56,8 @@ class DrawerDroneBattery(AbstractDrawer):
 
 
 class DrawerDroneTemperature(AbstractDrawer):
-    def __init__(self, drone, position, font_scale, color, thickness):
-        super().__init__(drone, position, font_scale, color, thickness)
+    def __init__(self, schedule, *args, **kargs):
+        super().__init__(*args, **kargs)
 
         self.temperature = None
         self._update_temperature()
@@ -74,8 +73,8 @@ class DrawerDroneTemperature(AbstractDrawer):
 
 
 class DrawerDroneHeight(AbstractDrawer):
-    def __init__(self, drone, position, font_scale, color, thickness):
-        super().__init__(drone, position, font_scale, color, thickness)
+    def __init__(self, schedule, *args, **kargs):
+        super().__init__(*args, **kargs)
 
         self.height = None
         self._update_height()
@@ -91,8 +90,8 @@ class DrawerDroneHeight(AbstractDrawer):
 
 
 class DrawerDroneWifiSNR(AbstractDrawer):
-    def __init__(self, drone, position, font_scale, color, thickness):
-        super().__init__(drone, position, font_scale, color, thickness)
+    def __init__(self, schedule, *args, **kargs):
+        super().__init__(*args, **kargs)
 
         self.snr = None
         self._update_snr()
