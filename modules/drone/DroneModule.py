@@ -107,6 +107,14 @@ class AbstractDrone(ABC):
         pass
 
     @abstractmethod
+    def turn_motor_on(self):
+        pass
+
+    @abstractmethod
+    def turn_motor_off(self):
+        pass
+
+    @abstractmethod
     def end(self):
         pass
 
@@ -202,6 +210,12 @@ class DJITello(AbstractDrone):
 
     def rotate_ccw(self, value):
         self._tello.rotate_counter_clockwise(value)
+
+    def turn_motor_on(self):
+        self._tello.turn_motor_on()
+
+    def turn_motor_off(self):
+        self._tello.turn_motor_off()
 
     def end(self):
         self._tello.end()
@@ -306,6 +320,12 @@ class FakeDrone(AbstractDrone):
         pass
 
     def rotate_ccw(self, value):
+        pass
+
+    def turn_motor_on(self):
+        pass
+
+    def turn_motor_off(self):
         pass
 
     def end(self):
