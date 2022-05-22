@@ -1,9 +1,10 @@
+
 import cv2
 import time
 import math
 from HandTrackingModule import HandDetector
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 detector = HandDetector(maxHands=2, detectionCon=.75, trackCon=.75)
 
 def getMano(lmList, num):
