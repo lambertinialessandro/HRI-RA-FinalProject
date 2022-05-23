@@ -1,7 +1,8 @@
 
 from modules.control.ControlModule import Command
 
-class reasoningAgent():
+
+class ReasoningAgent:
     def __init__(self, drone):
         self.drone = drone
 

@@ -9,7 +9,7 @@ from modules.drone.DroneFactory import DroneFactory, DroneEnum
 from modules.stream.StreamFactory import StreamFactory, StreamEnum
 from modules.command_recognition.CommandRecognitionFactory import \
     VideoCommandRecognitionFactory, VCREnum
-from modules.reasoning_agent.reasoningAgentModule import reasoningAgent
+from modules.reasoning_agent.ReasoningAgentModule import ReasoningAgent
 from modules.control import ControlModule
 from modules.template_pattern.TemplatePatternFactory import \
     TemplatePatternFactory, TemplateEnum

@@ -4,7 +4,7 @@ from enum import Enum
 import sys
 sys.path.append('../')
 
-from modules.reasoning_agent.reasoningAgentModule import reasoningAgent
+from modules.reasoning_agent.ReasoningAgentModule import ReasoningAgent
 from modules.template_pattern.TemplatePatternModule import TemplatePattern, ReasoningTemplatePattern
 
 
@@ -23,7 +23,7 @@ class TemplatePatternFactory:
         if type_template == TemplateEnum.BaseTemplate:
             template = TemplatePattern(drone, *args, **kwargs)
         elif type_template == TemplateEnum.ReasoningTemplate:
-            reasoning_agent = reasoningAgent(drone)
+            reasoning_agent = ReasoningAgent(drone)
             template = ReasoningTemplatePattern(reasoning_agent, drone,
                                                 *args, **kwargs)
         else:
