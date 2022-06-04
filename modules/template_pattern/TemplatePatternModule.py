@@ -35,7 +35,6 @@ class AbstractTemplatePattern(ABC):
         pass
 
 
-
 class AbstractWebServerTemplatePattern(AbstractTemplatePattern):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,7 +66,6 @@ class AbstractWebServerTemplatePattern(AbstractTemplatePattern):
         self.web_server.end()
 
         print("\n")
-
 
 
 class TemplatePattern(AbstractWebServerTemplatePattern):
@@ -129,7 +127,6 @@ class TemplatePattern(AbstractWebServerTemplatePattern):
         self.drone.end()
 
         print("\n")
-
 
 
 class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):

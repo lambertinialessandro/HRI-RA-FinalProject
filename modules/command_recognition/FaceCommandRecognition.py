@@ -1,4 +1,5 @@
 import dataclasses
+import cv2
 from abc import abstractmethod
 import mediapipe as mp
 from simple_pid import PID
@@ -20,7 +21,6 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, model_selection=1, min_detection_confidence=0.5):
         super().__init__()
 
-        self.bboxes = []
         self.face_detection = mp.solutions.face_detection.FaceDetection(
                 model_selection=model_selection,
                 min_detection_confidence=min_detection_confidence)
@@ -69,7 +69,7 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
         h, w, _ = frame.shape
         results = self.face_detection.process(frame)
 
-        self.bboxes = []
+        bboxes = []
         if not results.detections:
             return
 
@@ -85,10 +85,12 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
                                   detection=detection.score[0],
                                   keypoints=keypoints)
 
-            self.bboxes.append(bbox)
+            bboxes.append(bbox)
+
+        return bboxes
 
     @abstractmethod
-    def _execute(self) -> tuple:
+    def _execute(self, bboxes) -> tuple:
         pass
 
     @abstractmethod
@@ -97,9 +99,6 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
 
     def end(self):
         pass
-
-
-import cv2
 
 
 class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
@@ -123,13 +122,17 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
         self.face_old = None
         self.face_old_ratio = 0
 
-    def _execute(self) -> tuple:
+        self.bboxes = []
+
+    def _execute(self, bboxes) -> tuple:
+        self.bboxes = bboxes
+
         command = Command.SET_RC
         value = (0, 0, 0, 0)
 
         pos = self._get_face_min_dist()
         if pos != -1:  # se c'è un viso
-            face = self.bboxes[pos]
+            face = bboxes[pos]
             self.face_old = face
             self.face_old_ratio = face.get_ratio()
             face_center = face.center
@@ -172,10 +175,9 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
                 control_y *= 100
                 control_z *= -100
 
-                control_z = control_z*1.2 if 0.1 < face.w and face.w < 0.3 else 0
+                control_z = control_z*1.2 if 0.1 < face.w < 0.3 else 0
 
                 value = (0, int(control_z), int(control_y), int(control_x))
-                #print(control)
 
         else: # se non c'è un viso
             if self.face_state == "Detected":
@@ -196,18 +198,6 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
                 if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
                     self.face_state = "None"
         return command, value
-
-    def _is_last_user(self, pos): # TODO
-        ratio = self.bboxes[pos].get_ratio()
-        print(f"{self.face_state}  ratio: {np.abs(ratio-self.face_old_ratio)}")
-
-        if self.face_state == "None" :
-            return True
-
-        ratio = self.bboxes[pos].get_ratio()
-        if np.abs(ratio-self.face_old_ratio) < 20:
-            return True
-        return False
 
     def _get_face_min_dist(self):
         pos = -1
@@ -283,33 +273,3 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
 
         cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
         return frame
-
-
-def main():
-    import cv2
-
-    try:
-        cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
-        cap.set(3, 1280//2)
-        cap.set(4, 720//2)
-        detector = PIDFaceCommandRecognition(min_detection_confidence=.8)
-
-        while True:
-            success, img = cap.read()
-            _ = detector.execute(img)
-            img = detector.edit_frame(img)
-
-            cv2.imshow("Image", img)
-            key = cv2.waitKey(1)
-            if key == 27:  # ESC
-                break
-
-        cap.release()
-        cv2.destroyAllWindows()
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    main()
