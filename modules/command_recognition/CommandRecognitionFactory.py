@@ -7,7 +7,7 @@ import sys
 sys.path.append('../')
 
 from modules.command_recognition.FaceCommandRecognition import PIDFaceCommandRecognition
-from modules.command_recognition.HandCommandRecognition import HandCommandRecognition
+from modules.command_recognition.HandCommandRecognition import MediaPipeHandCommandRecognition
 from modules.command_recognition.HolisticCommandRecognition import \
     HolisticCommandRecognition, HolisticRACommandRecognition
 
