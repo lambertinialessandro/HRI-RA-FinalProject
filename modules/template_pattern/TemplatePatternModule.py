@@ -150,12 +150,10 @@ class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):
                 # 3. Get the data from the image and compute the command as output
                 self.command, value = self.command_recognition.execute(frame)
 
-                # 4. Execute the command
-                self.control_module.execute(self.command, value)
-
-
                 self.command, value = self.reasoning_agent.execute(self.command, value)
 
+                # 4. Execute the command
+                self.control_module.execute(self.command, value)
 
                 # 5. Edit frame
                 frame = self.command_recognition.edit_frame(frame)

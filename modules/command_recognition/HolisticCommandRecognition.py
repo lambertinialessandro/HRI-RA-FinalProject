@@ -214,23 +214,32 @@ class HolisticCommandRecognition(AbstractHolisticCommandRecognition):
         return []
 
 
+import time
 class HolisticRACommandRecognition(HolisticCommandRecognition):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
 
         self.state = 0
+        self.init_t = time.time()
 
     def _execute(self) -> tuple:
         command = Command.NONE, None
 
         if self.state == 0: # Inactive
-            pass
+            elapsed_t = time.time() - self.init_t
+            if elapsed_t > 3:
+                self.state = 1
+                command = Command.TAKE_OFF, None
 
         elif self.state == 1: # Searching
-            pass
+            if self.all_hands:
+                # TODO : if resoults for 2 seconds
+                self.state = 2
+            else:
+                command = Command.ROTATE_CW, 30
 
         elif self.state == 2: # Following
-            pass
+            pass # TODO follow as in face
 
         elif self.state == 3: # Identified
             command = super()._execute()
