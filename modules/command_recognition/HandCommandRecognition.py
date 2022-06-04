@@ -1,5 +1,4 @@
 import math
-from abc import abstractmethod
 from enum import Enum
 import mediapipe as mp
 import cv2
@@ -7,55 +6,27 @@ import cv2
 # TODO
 # only for debug, to be deleted
 import sys
+
 sys.path.append('../')
 
+from modules.command_recognition.HandGestureRecognizer import HandGestureRecognizer, HandGesture, HandEnum, Hand
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
-
-# TODO
-# link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
-class HandEnum(Enum):
-    WRIST = 0
-    THUMB_CMC = 1
-    THUMB_MCP = 2
-    THUMB_IP = 3
-    THUMB_TIP = 4
-    INDEX_FINGER_MCP = 5
-    INDEX_FINGER_PIP = 6
-    INDEX_FINGER_DIP = 7
-    INDEX_FINGER_TIP = 8
-    MIDDLE_FINGER_MCP = 9
-    MIDDLE_FINGER_PIP = 10
-    MIDDLE_FINGER_DIP = 11
-    MIDDLE_FINGER_TIP = 12
-    RING_FINGER_MCP = 13
-    RING_FINGER_PIP = 14
-    RING_FINGER_DIP = 15
-    RING_FINGER_TIP = 16
-    PINKY_MCP = 17
-    PINKY_PIP = 18
-    PINKY_DIP = 19
-    PINKY_TIP = 20
-
-    def tips(self):
-        return [self.THUMB_TIP.value, self.INDEX_FINGER_TIP.value,
-                self.MIDDLE_FINGER_TIP.value, self.RING_FINGER_TIP.value,
-                self.PINKY_TIP.value]
-
-
-class AbstractHandTracking(AbstractCommandRecognitionModule):
+class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
         super().__init__()
         self.flip_type = flip_type
         self.max_hands = max_hands
 
         self.all_hands = []
-        self.hand_detection = mp.solutions.hands.Hands(static_image_mode=mode,
-                                                       max_num_hands=max_hands,
-                                                       min_detection_confidence=detection_con,
-                                                       min_tracking_confidence=track_con)
+        self.hand_detection = mp.solutions.hands.Hands(
+            static_image_mode=mode,
+            max_num_hands=max_hands,
+            min_detection_confidence=detection_con,
+            min_tracking_confidence=track_con
+        )
 
     def _analyze_frame(self, frame):
         self.all_hands = []
@@ -66,7 +37,6 @@ class AbstractHandTracking(AbstractCommandRecognitionModule):
         if results.multi_hand_landmarks:
             h, w, c = frame.shape
             for handType, handLms in zip(results.multi_handedness, results.multi_hand_landmarks):
-                my_hand = {}
                 mylm_list = []
                 x_list = []
                 y_list = []
@@ -91,91 +61,54 @@ class AbstractHandTracking(AbstractCommandRecognitionModule):
                 cx = bbox[0] + (bbox[2] // 2)
                 cy = bbox[1] + (bbox[3] // 2)
 
-                my_hand["lmList"] = mylm_list
-                my_hand["bbox"] = bbox
-                my_hand["center"] = (cx, cy)
+                hand = Hand(
+                    center=(cx, cy),
+                    bbox=bbox,
+                    lmList=mylm_list,
+                    type=Hand.HandType.RIGHT
+                )
 
                 if self.flip_type:
                     if handType.classification[0].label == "Right":
-                        my_hand["type"] = "Left"
+                        hand.type = Hand.HandType.LEFT
                     else:
-                        my_hand["type"] = "Right"
+                        hand.type = Hand.HandType.RIGHT
                 else:
-                    my_hand["type"] = handType.classification[0].label
-                self.all_hands.append(my_hand)
+                    hand.type = handType.classification[0].label
+                self.all_hands.append(hand)
 
-    @abstractmethod
-    def _execute(self) -> tuple:
-        pass
+    def _execute(self, _) -> tuple:
+        r_hand = self._get_hands_info(Hand.HandType.RIGHT)
+        l_hand = self._get_hands_info(Hand.HandType.LEFT)
 
-    @abstractmethod
-    def edit_frame(self, frame):
-        pass
+        gesture, value = HandGestureRecognizer.execute(l_hand, r_hand)
 
-    def end(self):
-        pass
-
-
-class HandCommandRecognition(AbstractHandTracking):
-    def __init__(self, *args, **kargs):
-        super().__init__(*args, **kargs)
-
-    def _execute(self) -> tuple:
-        command = Command.NONE, None
-
-        r_hand = self._get_hands_info(hand_no="Right")
-        if r_hand:
-            # (cx, cy) = r_hand["center"]
-            (wx, wy, wz) = r_hand["lmList"][HandEnum.WRIST.value]
-            (pmx, pmy, pmz) = r_hand["lmList"][HandEnum.PINKY_MCP.value]
-            (imx, imy, imz) = r_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
-            (itx, ity, itz) = r_hand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
-
-            minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
-
-            distance = math.dist((imx, imy), (itx, ity))
-            angle = math.degrees(math.atan2(ity-imy, itx-imx))
-            #print(angle)
-            delta = 25  # max 45
-
-            (mtx, mty, mtz) = r_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
-            (rtx, rty, rtz) = r_hand["lmList"][HandEnum.RING_FINGER_TIP.value]
-            (ptx, pty, ptz) = r_hand["lmList"][HandEnum.PINKY_TIP.value]
-            (rmx, rmy, rmz) = r_hand["lmList"][HandEnum.RING_FINGER_MCP.value]
-
-            otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
-                                   math.dist((rtx, rty), (rmx, rmy)),
-                                   math.dist((ptx, pty), (rmx, rmy)))
-            if otherFingersDist > minDist:
-                return Command.NONE, None
-
-            if distance > minDist:
-                if (-45 + delta) < angle < (45 - delta):
-                    command = Command.ROTATE_CW, 15  # Blue -> left
-                elif (45 + delta) < angle < (135 - delta):
-                    command = Command.LAND, None  # Green -> bottom
-                elif (-135 + delta) < angle < (-45 - delta):
-                    command = Command.TAKE_OFF, None  # Red -> top
-                elif (135+delta) < angle or angle < (-135-delta):
-                    command = Command.ROTATE_CCW, 15  # magenta -> right
-
-        return command
+        if gesture == HandGesture.POINT_RIGHT:
+            return Command.MOVE_UP, value  # TODO
+        elif gesture == HandGesture.POINT_LEFT:
+            return Command.MOVE_UP, value  # TODO
+        elif gesture == HandGesture.POINT_UP:
+            return Command.MOVE_UP, value  # TODO
+        elif gesture == HandGesture.POINT_DOWN:
+            return Command.MOVE_UP, value  # TODO
+        else:
+            return Command.NONE, value
 
     def edit_frame(self, frame):
         for hand in self.all_hands:
-            bbox = hand["bbox"]
+            bbox = hand.bbox
             cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
                           (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
                           (255, 0, 255), 2)
-            cv2.putText(frame, hand["type"], (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
+            cv2.putText(frame, hand.type.value, (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
                         2, (0, 0, 255), 2)
 
-        r_hand = self._get_hands_info(hand_no="Right")
+        r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         if r_hand:
-            (wx, wy, wz) = r_hand["lmList"][HandEnum.WRIST.value]
-            (pmx, pmy, pmz) = r_hand["lmList"][HandEnum.PINKY_MCP.value]
-            (imx, imy, imz) = r_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
-            (itx, ity, itz) = r_hand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
+            (wx, wy, wz) = r_hand.lmList[HandEnum.WRIST.value]
+            (pmx, pmy, pmz) = r_hand.lmList[HandEnum.PINKY_MCP.value]
+            (imx, imy, imz) = r_hand.lmList[HandEnum.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = r_hand.lmList[HandEnum.INDEX_FINGER_TIP.value]
 
             minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
 
@@ -186,10 +119,10 @@ class HandCommandRecognition(AbstractHandTracking):
             delta = 25  # max 45
             action = ""
 
-            (mtx, mty, mtz) = r_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
-            (rtx, rty, rtz) = r_hand["lmList"][HandEnum.RING_FINGER_TIP.value]
-            (ptx, pty, ptz) = r_hand["lmList"][HandEnum.PINKY_TIP.value]
-            (rmx, rmy, rmz) = r_hand["lmList"][HandEnum.RING_FINGER_MCP.value]
+            (mtx, mty, mtz) = r_hand.lmList[HandEnum.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = r_hand.lmList[HandEnum.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = r_hand.lmList[HandEnum.PINKY_TIP.value]
+            (rmx, rmy, rmz) = r_hand.lmList[HandEnum.RING_FINGER_MCP.value]
 
             otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
                                    math.dist((rtx, rty), (rmx, rmy)),
@@ -216,53 +149,13 @@ class HandCommandRecognition(AbstractHandTracking):
 
         return frame
 
-    def _get_hands_info(self, hand_no):
-        if isinstance(hand_no, int):
-            assert hand_no < self.max_hands
+    def _get_hands_info(self, t: Hand.HandType):
+        if t == Hand.HandType.LEFT or t == Hand.HandType.RIGHT:
+            for hand in self.all_hands:
+                if hand.type == t:
+                    return hand
+        else:
+            raise ValueError(t)
 
-            if hand_no < 0:
-                return self.all_hands
-            else:
-                if hand_no <= len(self.all_hands):
-                    return self.all_hands[hand_no]
-        elif isinstance(hand_no, str):
-            if hand_no.lower() == "left":
-                for hand in self.all_hands:
-                    if hand["type"].lower() == "left":
-                        return hand
-            elif hand_no.lower() == "right":
-                for hand in self.all_hands:
-                    if hand["type"].lower() == "right":
-                        return hand
-        return []
-
-
-# TODO
-# only for debug, to be deleted
-def main():
-    import cv2
-
-    try:
-        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-        cap.set(3, 1280//2)
-        cap.set(4, 720//2)
-        detector = HandCommandRecognition(detection_con=.8, track_con=.8, flip_type=True)
-
-        while True:
-            success, img = cap.read()
-            command = detector.execute(img)
-            print(command)
-
-            cv2.imshow("Image", img)
-            key = cv2.waitKey(1)
-            if key == 27: # ESC
-                break
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    main()
-
-
+    def end(self):
+        pass
