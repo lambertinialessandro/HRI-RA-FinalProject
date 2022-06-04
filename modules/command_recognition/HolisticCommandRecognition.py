@@ -214,6 +214,31 @@ class HolisticCommandRecognition(AbstractHolisticCommandRecognition):
         return []
 
 
+class HolisticRACommandRecognition(HolisticCommandRecognition):
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
+
+        self.state = 0
+
+    def _execute(self) -> tuple:
+        command = Command.NONE, None
+
+        if self.state == 0: # Inactive
+            pass
+
+        elif self.state == 1: # Searching
+            pass
+
+        elif self.state == 2: # Following
+            pass
+
+        elif self.state == 3: # Identified
+            command = super()._execute()
+
+        return command
+
+
+
 def main():
     #try:
         cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
