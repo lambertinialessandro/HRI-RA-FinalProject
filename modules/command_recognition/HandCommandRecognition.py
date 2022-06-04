@@ -9,7 +9,7 @@ import sys
 
 sys.path.append('../')
 
-from modules.command_recognition.HandGestureRecognizer import HandGestureRecognizer, HandGesture, HandEnum
+from modules.command_recognition.HandGestureRecognizer import HandGestureRecognizer, HandGesture, HandEnum, Hand
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 from modules.control.ControlModule import Command
 
@@ -37,7 +37,6 @@ class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
         if results.multi_hand_landmarks:
             h, w, c = frame.shape
             for handType, handLms in zip(results.multi_handedness, results.multi_hand_landmarks):
-                my_hand = {}
                 mylm_list = []
                 x_list = []
                 y_list = []
@@ -62,22 +61,25 @@ class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
                 cx = bbox[0] + (bbox[2] // 2)
                 cy = bbox[1] + (bbox[3] // 2)
 
-                my_hand["lmList"] = mylm_list
-                my_hand["bbox"] = bbox
-                my_hand["center"] = (cx, cy)
+                hand = Hand(
+                    center=(cx, cy),
+                    bbox=bbox,
+                    lmList=mylm_list,
+                    type=Hand.HandType.RIGHT
+                )
 
                 if self.flip_type:
                     if handType.classification[0].label == "Right":
-                        my_hand["type"] = "Left"
+                        hand.type = Hand.HandType.LEFT
                     else:
-                        my_hand["type"] = "Right"
+                        hand.type = Hand.HandType.RIGHT
                 else:
-                    my_hand["type"] = handType.classification[0].label
-                self.all_hands.append(my_hand)
+                    hand.type = handType.classification[0].label
+                self.all_hands.append(hand)
 
-    def _execute(self, data) -> tuple:
-        r_hand = self._get_hands_info(hand_no="rx")
-        l_hand = self._get_hands_info(hand_no="lx")
+    def _execute(self, _) -> tuple:
+        r_hand = self._get_hands_info(Hand.HandType.RIGHT)
+        l_hand = self._get_hands_info(Hand.HandType.LEFT)
 
         gesture, value = HandGestureRecognizer.execute(l_hand, r_hand)
 
@@ -94,19 +96,19 @@ class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
 
     def edit_frame(self, frame):
         for hand in self.all_hands:
-            bbox = hand["bbox"]
+            bbox = hand.bbox
             cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
                           (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
                           (255, 0, 255), 2)
-            cv2.putText(frame, hand["type"], (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
+            cv2.putText(frame, hand.type.value, (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
                         2, (0, 0, 255), 2)
 
-        r_hand = self._get_hands_info(hand_no="rx")
+        r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         if r_hand:
-            (wx, wy, wz) = r_hand["lmList"][HandEnum.WRIST.value]
-            (pmx, pmy, pmz) = r_hand["lmList"][HandEnum.PINKY_MCP.value]
-            (imx, imy, imz) = r_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
-            (itx, ity, itz) = r_hand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
+            (wx, wy, wz) = r_hand.lmList[HandEnum.WRIST.value]
+            (pmx, pmy, pmz) = r_hand.lmList[HandEnum.PINKY_MCP.value]
+            (imx, imy, imz) = r_hand.lmList[HandEnum.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = r_hand.lmList[HandEnum.INDEX_FINGER_TIP.value]
 
             minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
 
@@ -117,10 +119,10 @@ class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
             delta = 25  # max 45
             action = ""
 
-            (mtx, mty, mtz) = r_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
-            (rtx, rty, rtz) = r_hand["lmList"][HandEnum.RING_FINGER_TIP.value]
-            (ptx, pty, ptz) = r_hand["lmList"][HandEnum.PINKY_TIP.value]
-            (rmx, rmy, rmz) = r_hand["lmList"][HandEnum.RING_FINGER_MCP.value]
+            (mtx, mty, mtz) = r_hand.lmList[HandEnum.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = r_hand.lmList[HandEnum.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = r_hand.lmList[HandEnum.PINKY_TIP.value]
+            (rmx, rmy, rmz) = r_hand.lmList[HandEnum.RING_FINGER_MCP.value]
 
             otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
                                    math.dist((rtx, rty), (rmx, rmy)),
@@ -147,20 +149,13 @@ class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
 
         return frame
 
-    def _get_hands_info(self, hand_no):
-        if isinstance(hand_no, str):
-            if hand_no.lower() == "lx":
-                for hand in self.all_hands:
-                    if hand["type"].lower() == "lx":
-                        return hand
-            elif hand_no.lower() == "rx":
-                for hand in self.all_hands:
-                    if hand["type"].lower() == "rx":
-                        return hand
+    def _get_hands_info(self, t: Hand.HandType):
+        if t == Hand.HandType.LEFT or t == Hand.HandType.RIGHT:
+            for hand in self.all_hands:
+                if hand.type == t:
+                    return hand
         else:
-            raise ValueError(hand_no)
-
-        return []
+            raise ValueError(t)
 
     def end(self):
         pass

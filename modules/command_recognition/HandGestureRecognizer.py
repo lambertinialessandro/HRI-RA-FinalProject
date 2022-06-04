@@ -1,3 +1,4 @@
+import dataclasses
 from enum import Enum
 import math
 
@@ -9,10 +10,10 @@ class HandGestureRecognizer:
 
         if right_hand:
             # (cx, cy) = right_hand["center"]
-            (wx, wy, wz) = right_hand["lmList"][HandEnum.WRIST.value]
-            (pmx, pmy, pmz) = right_hand["lmList"][HandEnum.PINKY_MCP.value]
-            (imx, imy, imz) = right_hand["lmList"][HandEnum.INDEX_FINGER_MCP.value]
-            (itx, ity, itz) = right_hand["lmList"][HandEnum.INDEX_FINGER_TIP.value]
+            (wx, wy, wz) = right_hand.lmList[HandEnum.WRIST.value]
+            (pmx, pmy, pmz) = right_hand.lmList[HandEnum.PINKY_MCP.value]
+            (imx, imy, imz) = right_hand.lmList[HandEnum.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = right_hand.lmList[HandEnum.INDEX_FINGER_TIP.value]
 
             minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy))) * 0.75
 
@@ -21,10 +22,10 @@ class HandGestureRecognizer:
             # print(angle)
             delta = 25  # max 45
 
-            (mtx, mty, mtz) = right_hand["lmList"][HandEnum.MIDDLE_FINGER_TIP.value]
-            (rtx, rty, rtz) = right_hand["lmList"][HandEnum.RING_FINGER_TIP.value]
-            (ptx, pty, ptz) = right_hand["lmList"][HandEnum.PINKY_TIP.value]
-            (rmx, rmy, rmz) = right_hand["lmList"][HandEnum.RING_FINGER_MCP.value]
+            (mtx, mty, mtz) = right_hand.lmList[HandEnum.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = right_hand.lmList[HandEnum.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = right_hand.lmList[HandEnum.PINKY_TIP.value]
+            (rmx, rmy, rmz) = right_hand.lmList[HandEnum.RING_FINGER_MCP.value]
 
             otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
                                    math.dist((rtx, rty), (rmx, rmy)),
@@ -46,6 +47,18 @@ class HandGestureRecognizer:
         #     pass
 
         return command, 15
+
+
+@dataclasses.dataclass
+class Hand:
+    class HandType(Enum):
+        LEFT = "left"
+        RIGHT = "right"
+
+    center: tuple
+    bbox: tuple
+    lmList: list
+    type: HandType
 
 
 class HandGesture(Enum):
