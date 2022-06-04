@@ -8,13 +8,15 @@ sys.path.append('../')
 
 from modules.command_recognition.FaceCommandRecognition import PIDFaceCommandRecognition
 from modules.command_recognition.HandCommandRecognition import HandCommandRecognition
-from modules.command_recognition.HolisticCommandRecognition import HolisticCommandRecognition
+from modules.command_recognition.HolisticCommandRecognition import \
+    HolisticCommandRecognition, HolisticRACommandRecognition
 
 
 class VCREnum(Enum):
     Face = "Face"
     Hand = "Hand"
     Holistic = "Holistic"
+    Holistic_RA = "Holistic_RA"
 
 class VideoCommandRecognitionFactory:
     def __init__(self):
@@ -31,6 +33,12 @@ class VideoCommandRecognitionFactory:
             tracking = HolisticCommandRecognition(enable_segmentation=False, refine_face_landmarks=False,
                                                   min_tracking_confidence=.8, min_detection_confidence=.8,
                                                   flip_type=True)
+        elif type_input == VCREnum.Holistic_RA:
+            tracking = HolisticRACommandRecognition(enable_segmentation=False, refine_face_landmarks=False,
+                                                  min_tracking_confidence=.8, min_detection_confidence=.8,
+                                                  flip_type=True)
+        else:
+            raise ValueError(f"Type input '{type_input}' not accepted")
 
         return tracking
 
