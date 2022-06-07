@@ -1,7 +1,9 @@
 # 2022 HRI Final Project
+<!--
 <p align="center">
     <img src="./READMEimages/title.png" style="width: 750px;"></img>
 </p>
+-->
 
 Final project for the course of Human Robot Interaction 2021/2022.
 
@@ -41,9 +43,10 @@ for any doubt or clarification contact me on:
     -   [Gianluca Lofrumento 🔗](https://www.instagram.com/gianlucchio/).
 
 ## 🎞️ Snapshots
-
+<!--
 <p align="center">
     <img src="./READMEimages/_.png" style="width: 800px; height: 300px"></img>
     <br>
     👷 WIP 👷
 </p>
+-->
