@@ -11,13 +11,14 @@ import numpy as np
 import sys
 sys.path.append('../')
 
+from modules.command_recognition.FaceGestureModule import Face
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 
 # TODO: link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
-class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
+class AbstractMediaPipeFaceCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, model_selection=1, min_detection_confidence=0.5):
         super().__init__()
 
@@ -25,51 +26,14 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
                 model_selection=model_selection,
                 min_detection_confidence=min_detection_confidence)
 
-    @dataclasses.dataclass
-    class _FaceBBox:
-        x: float
-        y: float
-        w: float
-        h: float
-        detection: float
-        keypoints: list
-
-        @property
-        def center(self) -> tuple:
-            return self.x + self.w / 2, self.y + self.h / 2
-
-        def unnormalized_center(self, shape) -> tuple:
-            normalized_center = self.center
-            return int(normalized_center[0] * shape[0]), int(normalized_center[1] * shape[1])
-
-        def to_tuple(self) -> tuple:
-            return self.x, self.y, self.w, self.h
-
-        def to_unnormalized_tuple(self, shape) -> tuple:
-            return int(self.x * shape[0]), int(self.y * shape[1]), \
-                int(self.w * shape[0]), int(self.h * shape[1]),
-
-        def normalize(self, width, height):
-            self.x /= width
-            self.w /= width
-
-            self.y /= height
-            self.h /= height
-
-        def get_ratio(self):
-            # right_eye, left_eye, nose, mouth, right_ear, left_ear
-            eyes = np.diff([self.keypoints[0], self.keypoints[1]])
-            ears = np.diff([self.keypoints[4], self.keypoints[5]])
-            return np.mean(eyes/ears)
-
-        def unnormalized_keypoints(self, shape):
-            return [[int(lm[0] * shape[0]), int(lm[1] * shape[1])] for lm in self.keypoints]
+        self.all_faces = []
 
     def _analyze_frame(self, frame):
+        self.all_faces = []
+
         h, w, _ = frame.shape
         results = self.face_detection.process(frame)
 
-        bboxes = []
         if not results.detections:
             return
 
@@ -78,19 +42,17 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
             bbox_c = detection.location_data.relative_bounding_box
 
             keypoints = [[lm.x, lm.y]for lm in detection.location_data.relative_keypoints]
-            bbox = self._FaceBBox(x=bbox_c.xmin,
+            bbox = Face(x=bbox_c.xmin,
                                   y=bbox_c.ymin,
                                   w=bbox_c.width,
                                   h=bbox_c.height,
                                   detection=detection.score[0],
                                   keypoints=keypoints)
 
-            bboxes.append(bbox)
-
-        return bboxes
+            self.all_faces.append(bbox)
 
     @abstractmethod
-    def _execute(self, bboxes) -> tuple:
+    def _execute(self) -> tuple:
         pass
 
     @abstractmethod
@@ -101,7 +63,7 @@ class AbstractFaceCommandRecognition(AbstractCommandRecognitionModule):
         pass
 
 
-class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
+class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
     def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
@@ -122,17 +84,13 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
         self.face_old = None
         self.face_old_ratio = 0
 
-        self.bboxes = []
-
-    def _execute(self, bboxes) -> tuple:
-        self.bboxes = bboxes
-
+    def _execute(self) -> tuple:
         command = Command.SET_RC
         value = (0, 0, 0, 0)
 
         pos = self._get_face_min_dist()
         if pos != -1:  # se c'è un viso
-            face = bboxes[pos]
+            face = self.all_faces[pos]
             self.face_old = face
             self.face_old_ratio = face.get_ratio()
             face_center = face.center
@@ -201,7 +159,7 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
 
     def _get_face_min_dist(self):
         pos = -1
-        len_bboxes = len(self.bboxes)
+        len_bboxes = len(self.all_faces)
         if len_bboxes > 0:
             if self.face_state == "None":
                 pos = 0
@@ -212,7 +170,7 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
             else:
                 base_x, base_y, _, _ = self.face_old.to_tuple()
 
-                mse = [round(np.sum(np.power([base_x-bbox.x, base_y-bbox.y], 2)), 3) for bbox in self.bboxes]
+                mse = [round(np.sum(np.power([base_x-bbox.x, base_y-bbox.y], 2)), 3) for bbox in self.all_faces]
                 pos_mse = np.argmin(mse)
                 if mse[pos_mse] < 0.025: # TODO
                     pos = pos_mse
@@ -225,7 +183,7 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
         center = w//2, h//2
 
         i = 0
-        for bbox in self.bboxes:
+        for bbox in self.all_faces:
             cv2.rectangle(frame, bbox.to_unnormalized_tuple(shape), (255, 0, 255), 2)
 
             cv2.putText(frame, f'{i}. {round(bbox.x, 3)}, {round(bbox.y, 3)}%', # int(bbox.detection*100)
@@ -251,7 +209,7 @@ class PIDFaceCommandRecognition(AbstractFaceCommandRecognition):
 
         pos = self._get_face_min_dist()
         if pos != -1:
-            face = self.bboxes[pos]
+            face = self.all_faces[pos]
 
             cv2.putText(frame, f"{self.face_state}",
                         (int(face.x*w), int(face.y*h-60)), cv2.FONT_HERSHEY_PLAIN,
