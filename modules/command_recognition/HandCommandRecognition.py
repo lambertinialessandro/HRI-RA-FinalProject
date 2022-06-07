@@ -1,5 +1,7 @@
+
 import math
 from enum import Enum
+from abc import abstractmethod
 import mediapipe as mp
 import cv2
 
@@ -9,12 +11,12 @@ import sys
 
 sys.path.append('../')
 
-from modules.command_recognition.HandGestureRecognizer import HandGestureRecognizer, HandGesture, HandEnum, Hand
+from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, HandEnum, Hand
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 from modules.control.ControlModule import Command
 
 
-class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
+class AbstractMediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
         super().__init__()
         self.flip_type = flip_type
@@ -77,7 +79,24 @@ class MediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
                     hand.type = handType.classification[0].label
                 self.all_hands.append(hand)
 
-    def _execute(self, _) -> tuple:
+    @abstractmethod
+    def _execute(self) -> tuple:
+        pass
+
+    @abstractmethod
+    def edit_frame(self, frame):
+        pass
+
+    def end(self):
+        pass
+
+
+class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
+    def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
+        super().__init__(mode=mode, max_hands=max_hands, detection_con=detection_con,
+                         track_con=track_con, flip_type=flip_type)
+
+    def _execute(self) -> tuple:
         r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         l_hand = self._get_hands_info(Hand.HandType.LEFT)
 

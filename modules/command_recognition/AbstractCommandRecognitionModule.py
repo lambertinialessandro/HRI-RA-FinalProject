@@ -6,16 +6,16 @@ class AbstractCommandRecognitionModule(ABC):
         pass
 
     @abstractmethod
-    def _analyze_frame(self, frame) -> tuple:  # Detector's output
+    def _analyze_frame(self, frame):
         pass
 
     @abstractmethod
-    def _execute(self, data) -> tuple:  # Command, value
+    def _execute(self) -> tuple:  # Command, value
         pass
 
     def execute(self, frame) -> tuple:
-        data = self._analyze_frame(frame)
-        return self._execute(data)
+        self._analyze_frame(frame)
+        return self._execute()
 
     @abstractmethod
     def edit_frame(self, frame):
