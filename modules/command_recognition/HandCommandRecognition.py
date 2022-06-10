@@ -49,8 +49,8 @@ class AbstractMediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
                 #                              data.label))
 
                 for id, lm in enumerate(handLms.landmark):
-                    px, py, pz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
-                    mylm_list.append([px, py, pz])
+                    px, py = int(lm.x * w), int(lm.y * h)
+                    mylm_list.append([px, py])
                     x_list.append(px)
                     y_list.append(py)
 
@@ -71,10 +71,10 @@ class AbstractMediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
                 )
 
                 if self.flip_type:
-                    if handType.classification[0].label == "Right":
-                        hand.type = Hand.HandType.LEFT
-                    else:
+                    if handType.classification[0].label.lower() == "right":
                         hand.type = Hand.HandType.RIGHT
+                    else:
+                        hand.type = Hand.HandType.LEFT
                 else:
                     hand.type = handType.classification[0].label
                 self.all_hands.append(hand)
