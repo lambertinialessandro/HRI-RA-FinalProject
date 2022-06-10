@@ -165,7 +165,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
     def _talk(self, text):
         self.engine.say(text)
-        self.engine.runAndWait()
+        #self.engine.runAndWait()
 
     def f_state_2(self):
         res, command, value = False, Command.NONE, None
@@ -173,13 +173,18 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         if self.results.face_landmarks:
             elapsed_t = time.time() - self.recognize_T
 
-            command, value = self.follow_face()
+            #command, value = self.follow_face()
 
             if elapsed_t >= 3:
                 res = True
         else:
             self.recognize_T = time.time()
             res, command, value = False, Command.ROTATE_CW, 30
+
+        return res, command, value
+
+    def f_state_3(self):
+        res, command, value = 3, Command.NONE, None
 
         return res, command, value
 
@@ -190,6 +195,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             elapsed_t = time.time() - self.init_t
             if elapsed_t > 3:
                 self.state = 1
+                self.recognize_T = time.time()
                 command, value = Command.TAKE_OFF, None
                 self._talk("checking for some intrusor")
 
@@ -206,7 +212,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             if res:
                 pass
 
-            if False:
+            if res == 3:
                 self.state = 3
                 self._talk("recognized person")
 
