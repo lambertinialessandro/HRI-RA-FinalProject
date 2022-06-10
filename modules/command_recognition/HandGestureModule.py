@@ -2,7 +2,7 @@ import dataclasses
 from enum import Enum
 import math
 
-from model.keypoint_classifier import KeyPointClassifier
+from modules.command_recognition.model.keypoint_classifier import KeyPointClassifier
 
 
 @dataclasses.dataclass
