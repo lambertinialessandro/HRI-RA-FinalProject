@@ -6,5 +6,6 @@ numpy
 opencv-python
 SpeechRecognition
 schedule
+tensorflow
 pyaudio
 pyttsx3

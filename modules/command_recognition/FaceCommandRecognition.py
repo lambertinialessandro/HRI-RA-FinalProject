@@ -43,11 +43,11 @@ class AbstractMediaPipeFaceCommandRecognition(AbstractCommandRecognitionModule):
 
             keypoints = [[lm.x, lm.y]for lm in detection.location_data.relative_keypoints]
             bbox = Face(x=bbox_c.xmin,
-                                  y=bbox_c.ymin,
-                                  w=bbox_c.width,
-                                  h=bbox_c.height,
-                                  detection=detection.score[0],
-                                  keypoints=keypoints)
+                        y=bbox_c.ymin,
+                        w=bbox_c.width,
+                        h=bbox_c.height,
+                        detection=detection.score[0],
+                        keypoints=keypoints)
 
             self.all_faces.append(bbox)
 

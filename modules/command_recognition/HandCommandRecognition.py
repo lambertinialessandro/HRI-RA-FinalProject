@@ -11,7 +11,7 @@ import sys
 
 sys.path.append('../')
 
-from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, HandEnum, Hand
+from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, Hand
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 from modules.control.ControlModule import Command
 
@@ -124,10 +124,10 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
 
         r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         if r_hand:
-            (wx, wy, wz) = r_hand.lmList[HandEnum.WRIST.value]
-            (pmx, pmy, pmz) = r_hand.lmList[HandEnum.PINKY_MCP.value]
-            (imx, imy, imz) = r_hand.lmList[HandEnum.INDEX_FINGER_MCP.value]
-            (itx, ity, itz) = r_hand.lmList[HandEnum.INDEX_FINGER_TIP.value]
+            (wx, wy, wz) = r_hand.lmList[Hand.Keypoints.WRIST.value]
+            (pmx, pmy, pmz) = r_hand.lmList[Hand.Keypoints.PINKY_MCP.value]
+            (imx, imy, imz) = r_hand.lmList[Hand.Keypoints.INDEX_FINGER_MCP.value]
+            (itx, ity, itz) = r_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
 
             minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy)))*0.75
 
@@ -138,10 +138,10 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
             delta = 25  # max 45
             action = ""
 
-            (mtx, mty, mtz) = r_hand.lmList[HandEnum.MIDDLE_FINGER_TIP.value]
-            (rtx, rty, rtz) = r_hand.lmList[HandEnum.RING_FINGER_TIP.value]
-            (ptx, pty, ptz) = r_hand.lmList[HandEnum.PINKY_TIP.value]
-            (rmx, rmy, rmz) = r_hand.lmList[HandEnum.RING_FINGER_MCP.value]
+            (mtx, mty, mtz) = r_hand.lmList[Hand.Keypoints.MIDDLE_FINGER_TIP.value]
+            (rtx, rty, rtz) = r_hand.lmList[Hand.Keypoints.RING_FINGER_TIP.value]
+            (ptx, pty, ptz) = r_hand.lmList[Hand.Keypoints.PINKY_TIP.value]
+            (rmx, rmy, rmz) = r_hand.lmList[Hand.Keypoints.RING_FINGER_MCP.value]
 
             otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
                                    math.dist((rtx, rty), (rmx, rmy)),

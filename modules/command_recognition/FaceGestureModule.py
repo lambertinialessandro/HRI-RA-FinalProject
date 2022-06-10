@@ -42,7 +42,3 @@ class Face:
 
     def unnormalized_keypoints(self, shape):
         return [[int(lm[0] * shape[0]), int(lm[1] * shape[1])] for lm in self.keypoints]
-
-
-
-
