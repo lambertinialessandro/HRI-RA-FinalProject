@@ -28,6 +28,7 @@ if platform.system() == 'Windows':
 # 2. Creating the sequence
 template_pattern = GlobalFactory.create(GlobalFactory.DroneEnum.FakeDrone,
                                         GlobalFactory.StreamEnum.VideoDrone,
+                                        GlobalFactory.VCREnum.Holistic_RA,
                                         GlobalFactory.TemplateEnum.BaseTemplate,
                                         input_idx=input_idx, capture_api=capture_api)
 

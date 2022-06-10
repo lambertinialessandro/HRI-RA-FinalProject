@@ -19,13 +19,18 @@ from modules.template_pattern.TemplatePatternFactory import \
 class GlobalFactory:
     DroneEnum = DroneEnum
     StreamEnum = StreamEnum
+    VCREnum = VCREnum
     TemplateEnum = TemplateEnum
 
     def __init__(self):
         pass
 
     @staticmethod
-    def create(type_drone, type_stream, type_template, input_idx=0, capture_api=None):
+    def create(type_drone: DroneEnum,
+               type_stream: StreamEnum,
+               type_cr: VCREnum,
+               type_template: TemplateEnum,
+               input_idx=0, capture_api=None):
 
         drone, drone_edit_frame = DroneFactory.create(type_drone,
                                                       input_idx=input_idx,
@@ -34,7 +39,7 @@ class GlobalFactory:
         stream_module = StreamFactory.create(type_stream,
                                              drone=drone)
 
-        command_recognition = VideoCommandRecognitionFactory.create(VCREnum.Holistic)
+        command_recognition = VideoCommandRecognitionFactory.create(type_cr)
 
         control_module = ControlModule.ControlModule(drone)
 
