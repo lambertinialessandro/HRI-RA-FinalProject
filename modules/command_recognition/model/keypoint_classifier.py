@@ -46,10 +46,10 @@ class KeyPointClassifier(object):
 
             temp_landmark_list[index][0] = temp_landmark_list[index][0] - base_x
             temp_landmark_list[index][1] = temp_landmark_list[index][1] - base_y
+            temp_landmark_list.pop()
 
         # Convert to a one-dimensional list
-        temp_landmark_list = list(
-            itertools.chain.from_iterable(temp_landmark_list))
+        temp_landmark_list = list(itertools.chain.from_iterable(temp_landmark_list))
 
         # Normalization
         max_value = max(list(map(abs, temp_landmark_list)))

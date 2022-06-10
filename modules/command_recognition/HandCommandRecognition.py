@@ -49,8 +49,8 @@ class AbstractMediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
                 #                              data.label))
 
                 for id, lm in enumerate(handLms.landmark):
-                    px, py = int(lm.x * w), int(lm.y * h)
-                    mylm_list.append([px, py])
+                    px, py, pz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                    mylm_list.append([px, py, pz])
                     x_list.append(px)
                     y_list.append(py)
 
