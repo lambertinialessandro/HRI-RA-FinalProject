@@ -55,9 +55,11 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         d = 0.  # 0.05
         self._pid_x = PID(p, i, d, sample_time=0.01, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=0.01, setpoint=0.5)
+        self._pid_z = PID(p, i, d, sample_time=0.01, setpoint=0.2) # TODO
 
         self.old_control_x = 0
         self.old_control_y = 0
+        self.old_control_z = 0
 
     def _analyze_frame(self, frame):
         self.left_hand = None
@@ -143,24 +145,34 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
                             detection=0.0,
                             keypoints=keypoints)
 
-    def follow_face(self, face_center):
+    def follow_face(self, face):
         command = Command.SET_RC
-        control_x = self._pid_x(face_center[0])
-        control_y = self._pid_y(face_center[1])
+        control_x = self._pid_x(face.center[0])
+        control_y = self._pid_y(face.center[1])
+        control_z = self._pid_z(face.w)
 
         if control_x == self.old_control_x and \
-                control_y == self.old_control_y:
+                control_y == self.old_control_y and \
+                control_z == self.old_control_z:
             return Command.NONE, None
 
         if control_x != self.old_control_x:
             self.old_control_x = control_x
         if control_y != self.old_control_y:
             self.old_control_y = control_y
+        if control_z != self.old_control_z:
+            self.old_control_z = control_z
 
         control_x *= -100
         control_y *= 100
+        control_z *= 100
 
-        value = (0, 0, int(control_y), int(control_x))
+        control_z = control_z*1.2 if 0.1 < face.w < 0.3 else 0
+
+        value = (0, int(control_z), int(control_y), int(control_x))
+        if value == (0, 0, 0, 0):
+            command = Command.NONE
+            value = None
         return command, value
 
     def _execute(self) -> tuple:
@@ -177,9 +189,10 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
                 return Command.MOVE_UP, value  # TODO
             elif gesture == HandGesture.POINT_DOWN:
                 return Command.MOVE_UP, value  # TODO
+            # elif none continue with face
 
         if self.face is not None:
-            command, value = self.follow_face(self.face.center)
+            command, value = self.follow_face(self.face)
 
         return command, value
 
@@ -241,9 +254,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         if self.face is not None:
             elapsed_t = time.time() - self.recognize_T
 
-            face_center = self.face.center
-
-            command, value = self.follow_face(face_center)
+            command, value = self.follow_face(self.face)
 
             if elapsed_t >= 10:
                 res = True
@@ -258,7 +269,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         res, command, value = False, Command.NONE, None
 
         if self.face is not None:
-            command, value = super().follow_face(self.face.center)
+            command, value = super().follow_face(self.face)
 
         return res, command, value
 
