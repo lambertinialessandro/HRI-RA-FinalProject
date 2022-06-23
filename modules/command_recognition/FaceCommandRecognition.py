@@ -147,9 +147,9 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
                     self.face_state = "Lost"
                     self.face_last_T = time.time()
                 else: # continuo a mandare il comando vecchio per 0.5 secondi
-                    value = (0, int(self.old_control_x),
+                    value = (0, 0,
                                int(self.old_control_y),
-                               int(self.old_control_z))
+                               int(self.old_control_x))
 
             elif self.face_state == "Lost":
                 face_elapsed_T = time.time() - self.face_last_T
