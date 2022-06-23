@@ -1,4 +1,5 @@
 
+from enum import Enum
 import time
 import mediapipe as mp
 import cv2
@@ -21,6 +22,15 @@ from modules.control.ControlModule import Command
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
+
+
+class PoseEnum(Enum):
+    LEFT_SHOULDER = 11
+    RIGHT_SHOULDER = 12
+    LEFT_ELBOW = 13
+    RIGHT_ELBOW = 14
+    LEFT_WRIST = 15
+    RIGHT_WRIST = 16
 
 
 
@@ -49,6 +59,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         self.left_hand = None
         self.right_hand = None
         self.face = None
+        self.pose = None
 
         p = 0.7
         i = 0.  # 0.01
@@ -65,6 +76,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         self.left_hand = None
         self.right_hand = None
         self.face = None
+        self.pose = None
 
         results = self.holistic_detection.process(frame)
         self.results = results
@@ -144,6 +156,10 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
                             h=max_y-min_y,
                             detection=0.0,
                             keypoints=keypoints)
+
+        if self.results.pose_landmarks:
+            keypoints = [[lm.x, lm.y]for lm in self.results.pose_landmarks.landmark]
+            self.pose = keypoints
 
     def follow_face(self, face):
         command = Command.SET_RC
@@ -260,16 +276,39 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 res = True
         else:
             self.recognize_T = time.time()
-            value = (0, 0, 0, 3) # self.eval_rotation()
+            value = (0, 0, 3, 0) # self.eval_rotation()
             res, command, value = False, Command.SET_RC, value
 
         return res, command, value
 
+    def secret_pass(self):
+        if self.pose is not None:
+            ls = self.pose[PoseEnum.LEFT_SHOULDER]
+            rs = self.pose[PoseEnum.RIGHT_SHOULDER]
+            le = self.pose[PoseEnum.LEFT_ELBOW]
+            re = self.pose[PoseEnum.RIGHT_ELBOW]
+            lw = self.pose[PoseEnum.LEFT_WRIST]
+            rw = self.pose[PoseEnum.RIGHT_WRIST]
+
+            if (ls.x < rw.x and le.x < rw.x) and \
+                (rs.x < lw.x and re.x < lw.x) and \
+                (le.y < rw.y and rw.y < ls.y) and \
+                (re.y < lw.y and lw.y < rs.y):
+                    return True
+        return False
+
     def f_state_2(self):
         res, command, value = False, Command.NONE, None
 
-        if self.face is not None:
+        if self.secret_pass():
+            elapsed_T = self.secret_T - time.time()
+
+            if elapsed_T > 10:
+                res = True
+
+        elif self.face is not None:
             command, value = super().follow_face(self.face)
+            self.secret_T = time.time()
 
         return res, command, value
 
@@ -292,6 +331,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             res, command, value = self.f_state_1()
             if res:
                 self.state = 2
+                self.secret_T = time.time()
                 self._talk("find one intrusor, starting follow")
 
         elif self.state == 2:  # Following
@@ -299,9 +339,6 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             res, command, value = self.f_state_2()
 
             if res:
-                pass
-
-            if res == 3:
                 self.state = 3
                 self._talk("recognized person")
 
