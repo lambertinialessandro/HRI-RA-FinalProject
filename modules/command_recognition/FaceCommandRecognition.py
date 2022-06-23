@@ -133,7 +133,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
                 control_y *= 100
                 control_z *= -100
 
-                control_z = control_z*1.2 if 0.1 < face.w < 0.3 else 0
+                control_z = control_z#*1.2 if 0.1 < face.w < 0.3 else 0
 
                 value = (0, int(control_z), int(control_y), int(control_x))
 

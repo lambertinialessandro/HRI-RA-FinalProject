@@ -6,6 +6,7 @@ from enum import Enum
 import sys
 sys.path.append('../')
 
+from modules.command_recognition.AbstractCommandRecognitionModule import EmptyCommandRecognition
 from modules.command_recognition.FaceCommandRecognition import PIDFaceCommandRecognition
 from modules.command_recognition.HandCommandRecognition import MediaPipeHandCommandRecognition
 from modules.command_recognition.HolisticCommandRecognition import \
@@ -13,6 +14,7 @@ from modules.command_recognition.HolisticCommandRecognition import \
 
 
 class VCREnum(Enum):
+    Empty = "Empty"
     Face = "Face"
     Hand = "Hand"
     Holistic = "Holistic"
@@ -26,7 +28,9 @@ class VideoCommandRecognitionFactory:
     @staticmethod
     def create(type_input):
         command_recognition = None
-        if type_input == VCREnum.Face:
+        if type_input == VCREnum.Empty:
+            command_recognition = EmptyCommandRecognition()
+        elif type_input == VCREnum.Face:
             command_recognition = PIDFaceCommandRecognition(min_detection_confidence=0.6)
         elif type_input == VCREnum.Hand:
             command_recognition = MediaPipeHandCommandRecognition(detection_con=.8, track_con=.8, flip_type=True)

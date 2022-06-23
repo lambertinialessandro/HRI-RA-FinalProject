@@ -36,6 +36,9 @@ class Window:
             #    self._binded_obj.drone.move_up(30)
             #elif keyboard_event.name == "d":
             #    self._binded_obj.drone.move_down(30)
+            elif keyboard_event.name == "0":
+                print("Empty!")
+                self._binded_obj.command_recognition = vrf.create(VCREnum.Empty)
             elif keyboard_event.name == "1":
                 print("Face!")
                 self._binded_obj.command_recognition = vrf.create(VCREnum.Face)
