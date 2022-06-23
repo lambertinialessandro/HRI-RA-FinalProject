@@ -5,6 +5,8 @@ from modules.command_recognition.CommandRecognitionFactory import \
     VideoCommandRecognitionFactory as vrf, VCREnum
 
 
+import matplotlib.pyplot as plt
+
 class Window:
     _instance = None
 
@@ -30,10 +32,10 @@ class Window:
                 self._binded_obj.drone.land()
             elif keyboard_event.name == "t":
                 self._binded_obj.drone.take_off()
-            elif keyboard_event.name == "u":
-                self._binded_obj.drone.move_up(30)
-            elif keyboard_event.name == "d":
-                self._binded_obj.drone.move_down(30)
+            #elif keyboard_event.name == "u":
+            #    self._binded_obj.drone.move_up(30)
+            #elif keyboard_event.name == "d":
+            #    self._binded_obj.drone.move_down(30)
             elif keyboard_event.name == "1":
                 print("Face!")
                 self._binded_obj.command_recognition = vrf.create(VCREnum.Face)
@@ -56,6 +58,28 @@ class Window:
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, -20)
             elif keyboard_event.name == "space": # 57
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, 0)
+
+
+            elif keyboard_event.name == "w":
+                self._binded_obj.drone.move_forward(30)
+            elif keyboard_event.name == "s":
+                self._binded_obj.drone.move_backward(30)
+            elif keyboard_event.name == "a":
+                self._binded_obj.drone.move_left(30)
+            elif keyboard_event.name == "d":
+                self._binded_obj.drone.move_right(30)
+            elif keyboard_event.name == "e":
+                self._binded_obj.drone.rotate_cw(30)
+            elif keyboard_event.name == "q":
+                self._binded_obj.drone.rotate_ccw(30)
+            elif keyboard_event.name == "r":
+                self._binded_obj.drone.move_up(30)
+            elif keyboard_event.name == "f":
+                self._binded_obj.drone.move_down(30)
+
+            #elif keyboard_event.name == "p":
+            #    plt.show()
+
 
         keyboard.on_press(my_keyboard_hook)
 
