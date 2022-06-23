@@ -51,6 +51,7 @@ class Window:
             elif keyboard_event.name == "4":
                 print("Holistic RA!")
                 self._binded_obj.command_recognition = vrf.create(VCREnum.Holistic_RA)
+
             elif keyboard_event.scan_code == 72: # name == "freccia su"
                 self._binded_obj.drone.set_rc_controls(0, 10, 0, 0)
             elif keyboard_event.scan_code == 80: # name == "freccia giù"
@@ -59,6 +60,10 @@ class Window:
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, 20)
             elif keyboard_event.scan_code == 77: # name == "freccia destra"
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, -20)
+            elif keyboard_event.name == "p": # name == "freccia sinistra"
+                self._binded_obj.drone.set_rc_controls(0, 0, 20, 0)
+            elif keyboard_event.name == "o": # name == "freccia destra"
+                self._binded_obj.drone.set_rc_controls(0, 0, -20, 0)
             elif keyboard_event.name == "space": # 57
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, 0)
 
