@@ -2,12 +2,15 @@
 import time
 import mediapipe as mp
 import cv2
+
 import pyttsx3
+from simple_pid import PID
 
 import sys
 sys.path.append('../../')
 
-from modules.command_recognition.HandCommandRecognition import Hand
+from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, Hand
+from modules.command_recognition.FaceGestureModule import Face
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 
 # TODO
@@ -43,7 +46,24 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
 
         self.results = None
 
+        self.left_hand = None
+        self.right_hand = None
+        self.face = None
+
+        p = 0.7
+        i = 0.  # 0.01
+        d = 0.  # 0.05
+        self._pid_x = PID(p, i, d, sample_time=0.01, setpoint=0.5)
+        self._pid_y = PID(p, i, d, sample_time=0.01, setpoint=0.5)
+
+        self.old_control_x = 0
+        self.old_control_y = 0
+
     def _analyze_frame(self, frame):
+        self.left_hand = None
+        self.right_hand = None
+        self.face = None
+
         results = self.holistic_detection.process(frame)
         self.results = results
 
@@ -107,14 +127,61 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             )
             self.right_hand = hand
 
+        if self.results.face_landmarks:
+            x_v = [p.x for p in self.results.face_landmarks.landmark]
+            min_x = min(x_v)
+            max_x = max(x_v)
+            y_v = [p.y for p in self.results.face_landmarks.landmark]
+            min_y = min(y_v)
+            max_y = max(y_v)
 
+            keypoints = [[lm.x, lm.y]for lm in self.results.face_landmarks.landmark]
+            self.face = Face(x=min_x,
+                            y=min_y,
+                            w=max_x-min_x,
+                            h=max_y-min_y,
+                            detection=0.0,
+                            keypoints=keypoints)
 
-        return self.holistic_detection.process(frame)
+    def follow_face(self, face_center):
+        command = Command.SET_RC
+        control_x = self._pid_x(face_center[0])
+        control_y = self._pid_y(face_center[1])
+
+        if control_x == self.old_control_x and \
+                control_y == self.old_control_y:
+            return Command.NONE, None
+
+        if control_x != self.old_control_x:
+            self.old_control_x = control_x
+        if control_y != self.old_control_y:
+            self.old_control_y = control_y
+
+        control_x *= -100
+        control_y *= 100
+
+        value = (0, 0, int(control_y), int(control_x))
+        return command, value
 
     def _execute(self) -> tuple:
-        command = Command.NONE, None
-        # TODO
-        return command
+        command = Command.NONE
+        value = None
+        if self.left_hand is not None and self.right_hand is not None:
+            gesture, value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
+
+            if gesture == HandGesture.POINT_RIGHT:
+                return Command.MOVE_UP, value  # TODO
+            elif gesture == HandGesture.POINT_LEFT:
+                return Command.MOVE_UP, value  # TODO
+            elif gesture == HandGesture.POINT_UP:
+                return Command.MOVE_UP, value  # TODO
+            elif gesture == HandGesture.POINT_DOWN:
+                return Command.MOVE_UP, value  # TODO
+
+        if self.face is not None:
+            command, value = self.follow_face(self.face.center)
+
+        return command, value
 
     def edit_frame(self, frame):
         if self.results is None:
@@ -141,12 +208,12 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             landmark_drawing_spec=mp_drawing_styles
             .get_default_pose_landmarks_style())
 
-        # mp_drawing.draw_landmarks(
-        #     frame,
-        #     self.results.face_landmarks,
-        #     mp_holistic.FACEMESH_CONTOURS,
-        #     landmark_drawing_spec=mp_drawing_styles
-        #     .get_default_pose_landmarks_style())
+        mp_drawing.draw_landmarks(
+            frame,
+            self.results.face_landmarks,
+            mp_holistic.FACEMESH_CONTOURS,
+            landmark_drawing_spec=mp_drawing_styles
+            .get_default_pose_landmarks_style())
 
         return frame
 
@@ -164,27 +231,34 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         self._talk("Starting Controll procedure")
 
     def _talk(self, text):
+        print(text)
         self.engine.say(text)
         #self.engine.runAndWait()
+
+    def f_state_1(self):
+        res, command, value = False, Command.NONE, None
+
+        if self.face is not None:
+            elapsed_t = time.time() - self.recognize_T
+
+            face_center = self.face.center
+
+            command, value = self.follow_face(face_center)
+
+            if elapsed_t >= 10:
+                res = True
+        else:
+            self.recognize_T = time.time()
+            value = (0, 0, 0, 3) # self.eval_rotation()
+            res, command, value = False, Command.SET_RC, value
+
+        return res, command, value
 
     def f_state_2(self):
         res, command, value = False, Command.NONE, None
 
-        if self.results.face_landmarks:
-            elapsed_t = time.time() - self.recognize_T
-
-            #command, value = self.follow_face()
-
-            if elapsed_t >= 3:
-                res = True
-        else:
-            self.recognize_T = time.time()
-            res, command, value = False, Command.ROTATE_CW, 30
-
-        return res, command, value
-
-    def f_state_3(self):
-        res, command, value = 3, Command.NONE, None
+        if self.face is not None:
+            command, value = super().follow_face(self.face.center)
 
         return res, command, value
 
@@ -195,19 +269,23 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             elapsed_t = time.time() - self.init_t
             if elapsed_t > 3:
                 self.state = 1
+
+                self.old_control_x = 0
+                self.old_control_y = 0
                 self.recognize_T = time.time()
+
                 command, value = Command.TAKE_OFF, None
                 self._talk("checking for some intrusor")
 
         elif self.state == 1:  # Searching
-            res, command, value = self.f_state_2()
+            res, command, value = self.f_state_1()
             if res:
                 self.state = 2
                 self._talk("find one intrusor, starting follow")
 
         elif self.state == 2:  # Following
             # TODO follow as in face
-            res, command, value = self.f_state_3()
+            res, command, value = self.f_state_2()
 
             if res:
                 pass
