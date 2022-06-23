@@ -18,6 +18,7 @@ class AbstractVideoStream(ABC):
     @abstractmethod
     def end(cls):
         pass
+    
 
 
 class VideoDroneStream(AbstractVideoStream):

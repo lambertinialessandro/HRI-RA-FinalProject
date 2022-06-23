@@ -12,6 +12,7 @@ sys.path.append('../../')
 from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, Hand
 from modules.command_recognition.FaceGestureModule import Face
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
+from modules.stream.RecordVideoModule import RecordVideoModule
 
 # TODO
 # link between 2 files from different hierarchy maybe to be fixed
@@ -60,16 +61,19 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         self.old_control_y = 0
         self.old_control_z = 0
 
+        self.frame = None
+
     def _analyze_frame(self, frame):
+        self.frame = frame
         self.left_hand = None
         self.right_hand = None
         self.face = None
 
-        results = self.holistic_detection.process(frame)
+        results = self.holistic_detection.process(self.frame)
         self.results = results
 
         if results.left_hand_landmarks:
-            h, w, c = frame.shape
+            h, w, c = self.frame.shape
 
             mylm_list = []
             x_list = []
@@ -99,7 +103,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             self.left_hand = hand
 
         if results.right_hand_landmarks:
-            h, w, c = frame.shape
+            h, w, c = self.frame.shape
 
             mylm_list = []
             x_list = []
@@ -242,6 +246,8 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         self.init_t = time.time()
         self._talk("Starting control procedure")
 
+        self._rec = None
+
     def _talk(self, text):
         print(text)
         self.engine.say(text)
@@ -290,6 +296,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         elif self.state == 1:  # Searching
             res, command, value = self._search_intruder()
             if res:
+                self._rec = RecordVideoModule(f"video_{int(time.time())}.mp4", self.frame.shape)
                 self.state = 2
                 self._talk("find one intruder, starting follow")
 
@@ -297,11 +304,15 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             # TODO follow as in face
             res, command, value = self._follow_intruder()
 
+            self._rec.write_frame(self.frame)
+
             if res:
                 pass
 
             if res == 3:
                 self.state = 3
+
+                self._rec.end()
                 self._talk("recognized person")
 
         elif self.state == 3:  # Identified
