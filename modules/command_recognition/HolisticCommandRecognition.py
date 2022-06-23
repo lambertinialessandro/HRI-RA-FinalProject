@@ -23,7 +23,6 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 
 
-
 class HolisticCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, static_image_mode=False, model_complexity=1,
                  smooth_landmarks=True, enable_segmentation=False,
@@ -241,14 +240,14 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
         self.state = 0
         self.init_t = time.time()
-        self._talk("Starting Controll procedure")
+        self._talk("Starting control procedure")
 
     def _talk(self, text):
         print(text)
         self.engine.say(text)
         #self.engine.runAndWait()
 
-    def f_state_1(self):
+    def _search_intruder(self):
         res, command, value = False, Command.NONE, None
 
         if self.face is not None:
@@ -260,12 +259,12 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 res = True
         else:
             self.recognize_T = time.time()
-            value = (0, 0, 0, 3) # self.eval_rotation()
+            value = (0, 0, 0, 3)  # self.eval_rotation()
             res, command, value = False, Command.SET_RC, value
 
         return res, command, value
 
-    def f_state_2(self):
+    def _follow_intruder(self):
         res, command, value = False, Command.NONE, None
 
         if self.face is not None:
@@ -289,14 +288,14 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 self._talk("checking for some intrusor")
 
         elif self.state == 1:  # Searching
-            res, command, value = self.f_state_1()
+            res, command, value = self._search_intruder()
             if res:
                 self.state = 2
-                self._talk("find one intrusor, starting follow")
+                self._talk("find one intruder, starting follow")
 
         elif self.state == 2:  # Following
             # TODO follow as in face
-            res, command, value = self.f_state_2()
+            res, command, value = self._follow_intruder()
 
             if res:
                 pass
