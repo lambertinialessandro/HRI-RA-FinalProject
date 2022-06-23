@@ -281,7 +281,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
         return res, command, value
 
-    def secret_pass(self):
+    def _secret_pass(self):
         if self.pose is not None:
             ls = self.pose[PoseEnum.LEFT_SHOULDER]
             rs = self.pose[PoseEnum.RIGHT_SHOULDER]
@@ -300,7 +300,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
     def _follow_intruder(self):
         res, command, value = False, Command.NONE, None
 
-        if self.secret_pass():
+        if self._secret_pass():
             elapsed_T = self.secret_T - time.time()
 
             if elapsed_T > 10:
