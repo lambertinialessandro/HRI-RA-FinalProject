@@ -13,7 +13,8 @@ class KeyPointClassifier(object):
         self.interpreter = tf.lite.Interpreter(
             model_path=model_path,
             num_threads=1
-        ).allocate_tensors()
+        )
+        self.interpreter.allocate_tensors()
 
         self.input = self.interpreter.get_input_details()
         self.output = self.interpreter.get_output_details()
