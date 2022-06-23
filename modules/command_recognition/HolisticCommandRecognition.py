@@ -257,14 +257,14 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
         self.state = 0
         self.init_t = time.time()
-        self._talk("Starting Controll procedure")
+        self._talk("Starting control procedure")
 
     def _talk(self, text):
         print(text)
         self.engine.say(text)
         #self.engine.runAndWait()
 
-    def f_state_1(self):
+    def _search_intruder(self):
         res, command, value = False, Command.NONE, None
 
         if self.face is not None:
@@ -297,7 +297,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                     return True
         return False
 
-    def f_state_2(self):
+    def _follow_intruder(self):
         res, command, value = False, Command.NONE, None
 
         if self.secret_pass():
@@ -328,7 +328,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 self._talk("checking for some intrusor")
 
         elif self.state == 1:  # Searching
-            res, command, value = self.f_state_1()
+            res, command, value = self._search_intruder()
             if res:
                 self.state = 2
                 self.secret_T = time.time()
@@ -336,7 +336,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
         elif self.state == 2:  # Following
             # TODO follow as in face
-            res, command, value = self.f_state_2()
+            res, command, value = self._follow_intruder()
 
             if res:
                 self.state = 3
