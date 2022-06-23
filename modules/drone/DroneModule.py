@@ -1,4 +1,7 @@
+
 from abc import ABC, abstractmethod
+
+import math
 import cv2  # TODO: remove this and FakeDrone
 import numpy as np
 
@@ -6,6 +9,10 @@ from djitellopy import Tello
 
 
 class AbstractDrone(ABC):
+    def __init__(self):
+        self.curr_pos = [0.0, 0.0, 0.0]
+        self.curr_ang = 0.0
+
     # Camera
     @property
     @abstractmethod
@@ -226,7 +233,7 @@ class FakeDrone(AbstractDrone):
     _is_flying = False
 
     def __init__(self, input_idx=0, capture_api=None):
-        super(AbstractDrone, self).__init__()
+        super(FakeDrone, self).__init__()
         self.inputIdx = input_idx
         self.capture_api = capture_api
         self.w = 1280//2
@@ -299,28 +306,44 @@ class FakeDrone(AbstractDrone):
             print("DRONE: Land")
 
     def move_forward(self, value):
-        pass
+        self.curr_pos = [self.curr_pos[0] + value * math.cos(self.curr_ang),
+                         self.curr_pos[1] + value * math.sin(self.curr_ang),
+                         self.curr_pos[2]]
 
     def move_backward(self, value):
-        pass
+        self.curr_pos = [self.curr_pos[0] - value * math.cos(self.curr_ang),
+                         self.curr_pos[1] - value * math.sin(self.curr_ang),
+                         self.curr_pos[2]]
 
     def move_left(self, value):
-        pass
+        angle = self.curr_ang - math.pi / 2
+        self.curr_pos = [self.curr_pos[0] + value * math.cos(angle),
+                         self.curr_pos[1] + value * math.sin(angle),
+                         self.curr_pos[2]]
 
     def move_right(self, value):
-        pass
+        angle = self.curr_ang + math.pi / 2
+        self.curr_pos = [self.curr_pos[0] + value * math.cos(angle),
+                         self.curr_pos[1] + value * math.sin(angle),
+                         self.curr_pos[2]]
 
     def move_up(self, value):
-        pass
+        self.curr_pos = [self.curr_pos[0],
+                         self.curr_pos[1],
+                         self.curr_pos[2] + value]
 
     def move_down(self, value):
-        pass
+        self.curr_pos = [self.curr_pos[0],
+                         self.curr_pos[1],
+                         self.curr_pos[2] - value]
 
     def rotate_cw(self, value):
-        pass
+        angle = self.curr_ang + value * math.pi / 180
+        self.curr_ang = self.curr_ang + math.radians(angle)
 
     def rotate_ccw(self, value):
-        pass
+        angle = self.curr_ang - value * math.pi / 180
+        self.curr_ang = self.curr_ang + math.radians(angle)
 
     def turn_motor_on(self):
         pass
