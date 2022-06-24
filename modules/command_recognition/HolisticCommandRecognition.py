@@ -289,17 +289,17 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
     def _secret_pass(self):
         if self.pose is not None:
-            ls = self.pose[PoseEnum.LEFT_SHOULDER]
-            rs = self.pose[PoseEnum.RIGHT_SHOULDER]
-            le = self.pose[PoseEnum.LEFT_ELBOW]
-            re = self.pose[PoseEnum.RIGHT_ELBOW]
-            lw = self.pose[PoseEnum.LEFT_WRIST]
-            rw = self.pose[PoseEnum.RIGHT_WRIST]
+            ls = self.pose[PoseEnum.LEFT_SHOULDER.value]
+            rs = self.pose[PoseEnum.RIGHT_SHOULDER.value]
+            le = self.pose[PoseEnum.LEFT_ELBOW.value]
+            re = self.pose[PoseEnum.RIGHT_ELBOW.value]
+            lw = self.pose[PoseEnum.LEFT_WRIST.value]
+            rw = self.pose[PoseEnum.RIGHT_WRIST.value]
 
-            if (ls.x < rw.x and le.x < rw.x) and \
-                (rs.x < lw.x and re.x < lw.x) and \
-                (le.y < rw.y and rw.y < ls.y) and \
-                (re.y < lw.y and lw.y < rs.y):
+            if (ls[0] > rw[0] and le[0] > rw[0]) and \
+                (rs[0] < lw[0] and re[0] < lw[0]) and \
+                (le[1] > rw[1] and rw[1] > ls[1]) and \
+                (re[1] > lw[1] and lw[1] > rs[1]):
                     return True
         return False
 
@@ -307,7 +307,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         res, command, value = False, Command.NONE, None
 
         if self._secret_pass():
-            elapsed_T = self.secret_T - time.time()
+            elapsed_T = time.time() - self.secret_T
 
             if elapsed_T > 10:
                 res = True
