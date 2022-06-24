@@ -357,3 +357,8 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             command, value = super()._execute()
 
         return command, value
+
+    def end(self):
+        super().end()
+
+        self._rec.end()
