@@ -12,27 +12,16 @@ if platform.system() == 'Windows':
     input_idx = 1
     capture_api = cv2.CAP_DSHOW
 
-# import socket
-# hostname = socket.gethostname()
-# ip = socket.gethostbyname(hostname)
-# port = 9999
 
-
-# 1. Drone is created
-# drone, drone_edit_frame = DroneFactory.create(DroneFactory.FakeDrone, capture_api=capture_api)  # capture_api to be deleted
-
-# FakeDrone  DJITello
-# VideoDrone  VideoPC
-
-# 2. Creating the sequence
+# 1. Creating the sequence
 template_pattern = GlobalFactory.create(GlobalFactory.DroneEnum.FakeDrone,
                                         GlobalFactory.StreamEnum.VideoDrone,
                                         GlobalFactory.VCREnum.Holistic_RA,
                                         GlobalFactory.TemplateEnum.BaseTemplate,
                                         input_idx=input_idx, capture_api=capture_api)
 
-# 3. start web streaming
+# 2. start web streaming
 #template_pattern.start_web_streaming()
 
-# 4. Starting sequence
+# 3. Starting sequence
 template_pattern.execute()
