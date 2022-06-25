@@ -278,7 +278,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
             command, value = self.follow_face(self.face)
 
-            if elapsed_t >= 10:
+            if elapsed_t >= 3: #10:
                 res = True
         else:
             self.recognize_T = time.time()
@@ -309,7 +309,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         if self._secret_pass():
             elapsed_T = time.time() - self.secret_T
 
-            if elapsed_T > 10:
+            if elapsed_T > 1: #10:
                 res = True
 
         elif self.face is not None:
