@@ -20,7 +20,7 @@ class AbstractDrone(ABC):
         self.__thread.start()
 
     def __perform_command(self):
-        while self._queue is not None:
+        while self._queue:
             try:
                 command = self._queue.pop(0)
                 if len(command) > 1:
