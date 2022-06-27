@@ -18,7 +18,7 @@ class AbstractVideoStream(ABC):
     @abstractmethod
     def end(cls):
         pass
-    
+
 
 
 class VideoDroneStream(AbstractVideoStream):
@@ -40,7 +40,10 @@ class VideoDroneStream(AbstractVideoStream):
         return frame
 
     def end(self):
-        self.drone.streamoff()
+        try:
+            self.drone.streamoff()
+        except:
+            pass
 
 
 class WebcamStream(AbstractVideoStream):
