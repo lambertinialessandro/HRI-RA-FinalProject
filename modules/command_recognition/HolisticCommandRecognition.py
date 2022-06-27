@@ -174,6 +174,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         if control_x == self.old_control_x and control_y == self.old_control_y:
             return Command.NONE, None
 
+        control_z = self._pid_z(face.w)
         #if abs(control_x) < 5 and abs(control_y) < 5:
         #    control_z = self._pid_z(face.w)
         #else:
