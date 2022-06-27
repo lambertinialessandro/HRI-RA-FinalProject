@@ -73,7 +73,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
         d = 0.  # 0.05
         self._pid_x = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
-        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2)  # TODO
+        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2) # TODO
 
         self.old_control_x = 0
         self.old_control_y = 0

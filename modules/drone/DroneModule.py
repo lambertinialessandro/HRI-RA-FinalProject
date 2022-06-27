@@ -1,10 +1,9 @@
-import time
+
 from abc import ABC, abstractmethod
 
 import math
 import cv2  # TODO: remove this and FakeDrone
 import numpy as np
-from threading import Thread
 
 from djitellopy import Tello
 
@@ -13,20 +12,6 @@ class AbstractDrone(ABC):
     def __init__(self):
         self.curr_pos = [0.0, 0.0, 0.0]
         self.curr_ang = 0.0
-
-        self._queue = []
-
-        self.__thread = Thread(target=self.__perform_command)
-        self.__thread.start()
-
-    def __perform_command(self):
-        while self._queue:
-            try:
-                command = self._queue.pop(0)
-                command()
-                time.sleep(0.05)
-            except IndexError:
-                pass
 
     # Camera
     @property
@@ -170,7 +155,7 @@ class DJITello(AbstractDrone):
         return self._tello.get_height()
 
     @property
-    def wifi_snr(self) -> str:
+    def wifi_snr(self) -> int:
         return self._tello.query_wifi_signal_noise_ratio()
 
     @property
@@ -199,48 +184,47 @@ class DJITello(AbstractDrone):
             self._tello.streamoff()
 
     def set_rc_controls(self, lr, fb, up, j):
-        self._queue.append(self._tello.send_rc_control(lr, fb, up, j))
+        return self._tello.send_rc_control(lr, fb, up, j)
 
     def take_off(self):
         if not self.is_flying:
-            self._queue.append(self._tello.takeoff())
+            self._tello.takeoff()
 
     def land(self):
         # if self.is_flying:
-        self._queue.append(self._tello.land())
+        self._tello.land()
 
     def move_forward(self, value):
-        self._queue.append(self._tello.move_forward(value))
+        self._tello.move_forward(value)
 
     def move_backward(self, value):
-        self._queue.append(self._tello.move_back(value))
+        self._tello.move_back(value)
 
     def move_left(self, value):
-        self._queue.append(self._tello.move_left(value))
+        self._tello.move_left(value)
 
     def move_right(self, value):
-        self._queue.append(self._tello.move_right(value))
+        self._tello.move_right(value)
 
     def move_up(self, value):
-        self._queue.append(self._tello.move_up(value))
+        self._tello.move_up(value)
 
     def move_down(self, value):
-        self._queue.append(self._tello.move_down(value))
+        self._tello.move_down(value)
 
     def rotate_cw(self, value):
-        self._queue.append(self._tello.rotate_clockwise(value))
+        self._tello.rotate_clockwise(value)
 
     def rotate_ccw(self, value):
-        self._queue.append(self._tello.rotate_counter_clockwise(value))
+        self._tello.rotate_counter_clockwise(value)
 
     def turn_motor_on(self):
-        self._queue.append(self._tello.turn_motor_on())
+        self._tello.turn_motor_on()
 
     def turn_motor_off(self):
         self._tello.turn_motor_off()
 
     def end(self):
-        self._queue = None
         self._tello.end()
 
 
