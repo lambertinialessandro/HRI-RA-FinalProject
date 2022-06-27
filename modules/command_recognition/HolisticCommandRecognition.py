@@ -189,9 +189,9 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         control_z = control_z*1.2 if 0.1 < face.w < 0.3 else 0
 
         value = (0, int(control_z), int(control_y), int(control_x))
-        if value == (0, 0, 0, 0):
-            command = Command.NONE
-            value = None
+        # if value == (0, 0, 0, 0): # TODO
+        #     command = Command.NONE
+        #     value = None
         return command, value
 
     def _execute(self) -> tuple:
@@ -281,7 +281,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 res = True
         else:
             self.recognize_T = time.time()
-            value = (0, 0, 3, 0) # self.eval_rotation()
+            value = (0, 0, 0, 20) # self.eval_rotation()
             res, command, value = False, Command.SET_RC, value
 
         return res, command, value
@@ -327,6 +327,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
 
                 self.old_control_x = 0
                 self.old_control_y = 0
+                self.old_control_z = 0
                 self.recognize_T = time.time()
 
                 command, value = Command.TAKE_OFF, None
