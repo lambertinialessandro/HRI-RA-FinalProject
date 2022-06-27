@@ -1,7 +1,6 @@
 djitellopy
 flask
 keyboard
-imageio
 mediapipe
 numpy
 opencv-python
