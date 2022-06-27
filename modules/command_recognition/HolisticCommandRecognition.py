@@ -34,7 +34,6 @@ class PoseEnum(Enum):
     RIGHT_WRIST = 16
 
 
-
 class HolisticCommandRecognition(AbstractCommandRecognitionModule):
     def __init__(self, static_image_mode=False, model_complexity=1,
                  smooth_landmarks=True, enable_segmentation=False,
@@ -342,7 +341,6 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 self._talk("find one intrusor, starting follow")
 
         elif self.state == 2:  # Following
-            # TODO follow as in face
             res, command, value = self._follow_intruder()
 
             self._rec.write_frame(self.frame)
@@ -361,4 +359,5 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
     def end(self):
         super().end()
 
-        self._rec.end()
+        if self._rec is not None:
+            self._rec.end()
