@@ -66,7 +66,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         d = 0.  # 0.05
         self._pid_x = PID(p, i, d, sample_time=0.01, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=0.01, setpoint=0.5)
-        self._pid_z = PID(p, i, d, sample_time=0.01, setpoint=0.2) # TODO
+        self._pid_z = PID(p, i, d, sample_time=0.01, setpoint=0.18)
 
         self.old_control_x = 0
         self.old_control_y = 0
@@ -153,12 +153,14 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             max_y = max(y_v)
 
             keypoints = [[lm.x, lm.y]for lm in self.results.face_landmarks.landmark]
-            self.face = Face(x=min_x,
-                            y=min_y,
-                            w=max_x-min_x,
-                            h=max_y-min_y,
-                            detection=0.0,
-                            keypoints=keypoints)
+            self.face = Face(
+                x=min_x,
+                y=min_y,
+                w=max_x-min_x,
+                h=max_y-min_y,
+                detection=0.0,
+                keypoints=keypoints
+            )
 
         if self.results.pose_landmarks:
             keypoints = [[lm.x, lm.y]for lm in self.results.pose_landmarks.landmark]
@@ -168,12 +170,14 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         command = Command.SET_RC
         control_x = self._pid_x(face.center[0])
         control_y = self._pid_y(face.center[1])
-        control_z = self._pid_z(face.w)
 
-        if control_x == self.old_control_x and \
-                control_y == self.old_control_y and \
-                control_z == self.old_control_z:
+        if control_x == self.old_control_x and control_y == self.old_control_y:
             return Command.NONE, None
+
+        if abs(control_x) < 5 and abs(control_y) < 5:
+            control_z = self._pid_z(face.w)
+        else:
+            control_z = 0
 
         if control_x != self.old_control_x:
             self.old_control_x = control_x
@@ -186,7 +190,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         control_y *= 100
         control_z *= 100
 
-        control_z = control_z*1.2 if 0.1 < face.w < 0.3 else 0
+        # print(f"X: {int(control_x)} Y: {int(control_y)} Z: {int(control_z)}")
 
         value = (0, int(control_z), int(control_y), int(control_x))
         # if value == (0, 0, 0, 0): # TODO
@@ -240,12 +244,13 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             landmark_drawing_spec=mp_drawing_styles
             .get_default_pose_landmarks_style())
 
-        mp_drawing.draw_landmarks(
-            frame,
-            self.results.face_landmarks,
-            mp_holistic.FACEMESH_CONTOURS,
-            landmark_drawing_spec=mp_drawing_styles
-            .get_default_pose_landmarks_style())
+        # mp_drawing.draw_landmarks(
+        #     frame,
+        #     self.results.face_landmarks,
+        #     mp_holistic.FACEMESH_CONTOURS,
+        #     landmark_drawing_spec=mp_drawing_styles
+        #     .get_default_pose_landmarks_style()
+        # )
 
         return frame
 
