@@ -220,16 +220,23 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         value = None
         if self.left_hand is not None and self.right_hand is not None:
             gesture, value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
-            print(gesture)
 
-            if gesture == HandGesture.POINT_RIGHT:
-                return Command.MOVE_UP, value  # TODO
-            elif gesture == HandGesture.POINT_LEFT:
-                return Command.MOVE_UP, value  # TODO
-            elif gesture == HandGesture.POINT_UP:
-                return Command.MOVE_UP, value  # TODO
-            elif gesture == HandGesture.POINT_DOWN:
-                return Command.MOVE_UP, value  # TODO
+            if gesture == HandGesture.FORWARD:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.STOP:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.UP:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.LAND:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.DOWN:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.BACK:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.LEFT:
+                return Command.NONE, value  # TODO
+            elif gesture == HandGesture.RIGHT:
+                return Command.NONE, value  # TODO
             # elif none continue with face
 
         if self.face is not None:

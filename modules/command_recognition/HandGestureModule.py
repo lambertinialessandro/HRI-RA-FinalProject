@@ -46,11 +46,16 @@ class Hand:
 
 
 class HandGesture(Enum):
-    NONE = 0
-    POINT_RIGHT = 1
-    POINT_LEFT = 2
-    POINT_UP = 3
-    POINT_DOWN = 4
+    NONE = 0    # ❌
+
+    FORWARD = 1 # ✋
+    STOP = 2    # ✊
+    UP = 3      # 👆
+    LAND = 4    # 👌
+    DOWN = 5    # 👇
+    BACK = 6    # 👊
+    LEFT = 7    # 👈 thumb
+    RIGHT = 8   # 👉 thumb
 
 
 class HandGestureRecognizer:
@@ -63,10 +68,9 @@ class HandGestureRecognizer:
 
         if right_hand:
             hand_sign = HandGestureRecognizer._keypointClassifier.classify(right_hand.lmList)
-
             print(hand_sign)
 
-        return command, value
+        return hand_sign, value
 
         # Old stuff:
         # if right_hand:
