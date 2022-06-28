@@ -36,7 +36,7 @@ class KeyPointClassifier(object):
 
         print(np.round(results, 5))
 
-        if results[best_res] > 0.7 and \
+        if results[best_res] <= 0.7 or \
             ((results[best_res] - sorted(results)[:-1]) < 0.5).any():
             return 0
         else:
