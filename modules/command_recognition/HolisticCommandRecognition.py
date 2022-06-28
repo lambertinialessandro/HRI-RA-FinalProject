@@ -56,6 +56,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
 
         self.results = None
 
+        self.gesture = HandGesture.NONE
         self.left_hand = None
         self.right_hand = None
         self.face = None
@@ -219,23 +220,23 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         command = Command.NONE
         value = None
         if self.left_hand is not None and self.right_hand is not None:
-            gesture, value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
+            self.gesture, value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
 
-            if gesture == HandGesture.FORWARD:
+            if self.gesture == HandGesture.FORWARD:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.STOP:
+            elif self.gesture == HandGesture.STOP:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.UP:
+            elif self.gesture == HandGesture.UP:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.LAND:
+            elif self.gesture == HandGesture.LAND:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.DOWN:
+            elif self.gesture == HandGesture.DOWN:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.BACK:
+            elif self.gesture == HandGesture.BACK:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.LEFT:
+            elif self.gesture == HandGesture.LEFT:
                 return Command.NONE, value  # TODO
-            elif gesture == HandGesture.RIGHT:
+            elif self.gesture == HandGesture.RIGHT:
                 return Command.NONE, value  # TODO
             # elif none continue with face
 
@@ -268,6 +269,10 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             mp_holistic.HAND_CONNECTIONS,
             landmark_drawing_spec=mp_drawing_styles
             .get_default_pose_landmarks_style())
+
+        frame = HandGestureRecognizer.edit_frame(frame,
+                                                 self.left_hand,
+                                                 self.right_hand, self.gesture)
 
         # mp_drawing.draw_landmarks(
         #     frame,
