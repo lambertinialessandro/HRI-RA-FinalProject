@@ -1,6 +1,8 @@
+
 import dataclasses
 from enum import Enum
 import math
+import cv2
 
 from modules.command_recognition.model.keypoint_classifier import KeyPointClassifier
 
@@ -70,7 +72,39 @@ class HandGestureRecognizer:
             hand_sign = HandGestureRecognizer._keypointClassifier.classify(right_hand.lmList)
             print(hand_sign)
 
+        if left_hand:
+            (ttx, tty, ttz) = left_hand.lmList[Hand.Keypoints.THUMB_TIP.value]
+            (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
+
+            distance = math.dist((ttx, tty), (itx, ity))
+            delta = 0.1 # (1-0)/10 -> (end value - init value) / num steps
+            value = distance // delta
+
         return hand_sign, value
+
+    @staticmethod
+    def edit_frame(frame, left_hand: Hand, right_hand: Hand, gesture):
+
+        if right_hand:
+            bbox = right_hand.bbox
+            cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
+                          (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
+                          (255, 0, 255), 2)
+            cv2.putText(frame, str(gesture), (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
+                        2, (0, 0, 255), 2)
+
+        if left_hand:
+            (ttx, tty, ttz) = left_hand.lmList[Hand.Keypoints.THUMB_TIP.value]
+            (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
+
+            distance = math.dist((ttx, tty), (itx, ity))
+            delta = 0.1 # (1-0)/10 -> (end value - init value) / num steps
+            value = distance // delta
+
+            cv2.line(frame, (ttx, tty), (itx, ity), (255, 0, 255), 2)
+            cv2.putText(frame, str(value), (itx, ity), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
+
+        return frame
 
         # Old stuff:
         # if right_hand:
