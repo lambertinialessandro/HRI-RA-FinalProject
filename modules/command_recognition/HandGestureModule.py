@@ -1,6 +1,6 @@
-
 import dataclasses
 from enum import Enum
+from modules.control.ControlModule import Command
 import math
 import cv2
 
@@ -70,7 +70,23 @@ class HandGestureRecognizer:
 
         if right_hand:
             hand_sign = HandGestureRecognizer._keypointClassifier.classify(right_hand.lmList)
-            print(hand_sign)
+
+            if hand_sign == 0:  # Forward
+                command = Command.NONE
+            elif hand_sign == 1:  # Stop
+                command = Command.NONE
+            elif hand_sign == 2:  # Up
+                command = Command.NONE
+            elif hand_sign == 3:  # Land
+                command = Command.NONE
+            elif hand_sign == 4:  # Down
+                command = Command.NONE
+            elif hand_sign == 5:  # Back
+                command = Command.NONE
+            elif hand_sign == 6:  # Left
+                command = Command.NONE
+            elif hand_sign == 7:  # Right
+                command = Command.NONE
 
         if left_hand:
             (ttx, tty, ttz) = left_hand.lmList[Hand.Keypoints.THUMB_TIP.value]
