@@ -102,16 +102,16 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
 
         gesture, value = HandGestureRecognizer.execute(l_hand, r_hand)
 
-        if gesture == HandGesture.POINT_RIGHT:
+        if gesture == HandGesture.RIGHT:
             return Command.MOVE_UP, value  # TODO
-        elif gesture == HandGesture.POINT_LEFT:
+        elif gesture == HandGesture.LEFT:
             return Command.MOVE_UP, value  # TODO
-        elif gesture == HandGesture.POINT_UP:
+        elif gesture == HandGesture.UP:
             return Command.MOVE_UP, value  # TODO
-        elif gesture == HandGesture.POINT_DOWN:
+        elif gesture == HandGesture.DOWN:
             return Command.MOVE_UP, value  # TODO
         else:
-            return Command.NONE, value
+            return Command.NONE, 0
 
     def edit_frame(self, frame):
         for hand in self.all_hands:

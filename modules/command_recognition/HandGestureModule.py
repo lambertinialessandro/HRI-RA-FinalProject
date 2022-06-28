@@ -1,6 +1,6 @@
-
 import dataclasses
 from enum import Enum
+from modules.control.ControlModule import Command
 import math
 import cv2
 
@@ -48,16 +48,16 @@ class Hand:
 
 
 class HandGesture(Enum):
-    NONE = 0    # ❌
+    NONE = 0     # ❌
 
-    FORWARD = 1 # ✋
-    STOP = 2    # ✊
-    UP = 3      # 👆
-    LAND = 4    # 👌
-    DOWN = 5    # 👇
-    BACK = 6    # 👊
-    LEFT = 7    # 👈 thumb
-    RIGHT = 8   # 👉 thumb
+    FORWARD = 1  # ✋
+    STOP = 2     # ✊
+    UP = 3       # 👆
+    LAND = 4     # 👌
+    DOWN = 5     # 👇
+    BACK = 6     # 👊
+    LEFT = 7     # 👈 thumb
+    RIGHT = 8    # 👉 thumb
 
 
 class HandGestureRecognizer:
@@ -65,19 +65,18 @@ class HandGestureRecognizer:
 
     @staticmethod
     def execute(left_hand: Hand, right_hand: Hand) -> tuple:  # Gesture, value
-        command = None
+        hand_sign = HandGesture.NONE
         value = 0
 
         if right_hand:
             hand_sign = HandGestureRecognizer._keypointClassifier.classify(right_hand.lmList)
-            print(hand_sign)
 
         if left_hand:
             (ttx, tty, ttz) = left_hand.lmList[Hand.Keypoints.THUMB_TIP.value]
             (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
 
             distance = math.dist((ttx, tty), (itx, ity))
-            delta = 0.1 # (1-0)/10 -> (end value - init value) / num steps
+            delta = 0.1  # (1-0)/10 -> (end value - init value) / num steps
             value = distance // delta
 
         return hand_sign, value
