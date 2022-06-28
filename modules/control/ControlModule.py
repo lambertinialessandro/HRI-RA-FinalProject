@@ -19,6 +19,8 @@ class Command(Enum):
     MOVE_BACKWARD = 11
     MOVE_UP = 12
     MOVE_DOWN = 13
+    MOVE_LEFT = 14
+    MOVE_RIGHT = 15
 
     SET_RC = 29
 
@@ -65,6 +67,10 @@ class ControlModule:
             self._drone.move_up(value)
         elif command == Command.MOVE_DOWN:
             self._drone.move_down(value)
+        elif command == Command.MOVE_LEFT:
+            self._drone.move_left(value)
+        elif command == Command.MOVE_RIGHT:
+            self._drone.move_right(value)
 
         elif command == Command.SET_RC:
             self._drone.set_rc_controls(*value)

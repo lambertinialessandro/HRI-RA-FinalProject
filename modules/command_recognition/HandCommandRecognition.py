@@ -103,13 +103,13 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
         gesture, value = HandGestureRecognizer.execute(l_hand, r_hand)
 
         if gesture == HandGesture.RIGHT:
-            return Command.MOVE_UP, value  # TODO
+            return Command.MOVE_RIGHT, value  # TODO
         elif gesture == HandGesture.LEFT:
-            return Command.MOVE_UP, value  # TODO
+            return Command.MOVE_LEFT, value  # TODO
         elif gesture == HandGesture.UP:
             return Command.MOVE_UP, value  # TODO
         elif gesture == HandGesture.DOWN:
-            return Command.MOVE_UP, value  # TODO
+            return Command.MOVE_DOWN, value  # TODO
         else:
             return Command.NONE, 0
 
