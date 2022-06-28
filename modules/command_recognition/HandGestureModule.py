@@ -48,16 +48,16 @@ class Hand:
 
 
 class HandGesture(Enum):
-    NONE = 0    # ❌
+    NONE = 0     # ❌
 
-    FORWARD = 1 # ✋
-    STOP = 2    # ✊
-    UP = 3      # 👆
-    LAND = 4    # 👌
-    DOWN = 5    # 👇
-    BACK = 6    # 👊
-    LEFT = 7    # 👈 thumb
-    RIGHT = 8   # 👉 thumb
+    FORWARD = 1  # ✋
+    STOP = 2     # ✊
+    UP = 3       # 👆
+    LAND = 4     # 👌
+    DOWN = 5     # 👇
+    BACK = 6     # 👊
+    LEFT = 7     # 👈 thumb
+    RIGHT = 8    # 👉 thumb
 
 
 class HandGestureRecognizer:
@@ -65,35 +65,18 @@ class HandGestureRecognizer:
 
     @staticmethod
     def execute(left_hand: Hand, right_hand: Hand) -> tuple:  # Gesture, value
-        command = None
+        hand_sign = HandGesture.NONE
         value = 0
 
         if right_hand:
             hand_sign = HandGestureRecognizer._keypointClassifier.classify(right_hand.lmList)
-
-            if hand_sign == 0:  # Forward
-                command = Command.NONE
-            elif hand_sign == 1:  # Stop
-                command = Command.NONE
-            elif hand_sign == 2:  # Up
-                command = Command.NONE
-            elif hand_sign == 3:  # Land
-                command = Command.NONE
-            elif hand_sign == 4:  # Down
-                command = Command.NONE
-            elif hand_sign == 5:  # Back
-                command = Command.NONE
-            elif hand_sign == 6:  # Left
-                command = Command.NONE
-            elif hand_sign == 7:  # Right
-                command = Command.NONE
 
         if left_hand:
             (ttx, tty, ttz) = left_hand.lmList[Hand.Keypoints.THUMB_TIP.value]
             (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
 
             distance = math.dist((ttx, tty), (itx, ity))
-            delta = 0.1 # (1-0)/10 -> (end value - init value) / num steps
+            delta = 0.1  # (1-0)/10 -> (end value - init value) / num steps
             value = distance // delta
 
         return hand_sign, value
