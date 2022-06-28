@@ -16,17 +16,17 @@ class Command(Enum):
     STREAM_OFF = 4
 
     MOVE_FORWARD = 10
-    MOVE_BACKWARD = 20
-    MOVE_UP = 11
-    MOVE_DOWN = 12
+    MOVE_BACKWARD = 11
+    MOVE_UP = 12
+    MOVE_DOWN = 13
 
     SET_RC = 29
 
     ROTATE_CW = 30
-    ROTATE_CCW = 40
+    ROTATE_CCW = 31
 
-    COOLING_ON = 50
-    COOLING_OFF = 51
+    COOLING_ON = 40
+    COOLING_OFF = 41
 
     FOLLOW_ME = 100
 
