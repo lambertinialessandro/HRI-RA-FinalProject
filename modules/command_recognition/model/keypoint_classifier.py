@@ -31,13 +31,16 @@ class KeyPointClassifier(object):
 
         output_index = self.output[0]['index']
 
-        result = np.argmax(
-            np.squeeze(
-                self.interpreter.get_tensor(output_index)
-            )
-        )
+        results = np.squeeze(self.interpreter.get_tensor(output_index))
+        best_res = np.argmax(results)
 
-        return result
+        print(np.round(results, 5))
+
+        if results[best_res] > 0.7 and \
+            ((results[best_res] - sorted(results)[:-1]) < 0.5).any():
+            return 0
+        else:
+            return best_res + 1
 
     def _pre_process_landmark(self, landmarks):
         temp_landmarks = copy.deepcopy(landmarks)
