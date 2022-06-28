@@ -270,7 +270,8 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             landmark_drawing_spec=mp_drawing_styles
             .get_default_pose_landmarks_style())
 
-        frame = HandGestureRecognizer.edit_frame(frame,
+        if self.right_hand is not None and self.left_hand is not None:
+            frame = HandGestureRecognizer.edit_frame(frame,
                                                  self.left_hand,
                                                  self.right_hand, self.gesture)
 
