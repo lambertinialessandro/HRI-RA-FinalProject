@@ -174,30 +174,46 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         if control_x == self.old_control_x and control_y == self.old_control_y:
             return Command.NONE, None
 
-        control_z = self._pid_z(face.w)
-        #if abs(control_x) < 5 and abs(control_y) < 5:
-        #    control_z = self._pid_z(face.w)
-        #else:
-        #    control_z = 0
-
         if control_x != self.old_control_x:
             self.old_control_x = control_x
         if control_y != self.old_control_y:
             self.old_control_y = control_y
-        if control_z != self.old_control_z:
-            self.old_control_z = control_z
 
         control_x *= -100
         control_y *= 100
-        control_z *= 100
 
-        #control_z = control_z*1.2 if 0.1 < face.w < 0.3 else 0
+        value = (0, 0, int(control_y), int(control_x))
 
-        value = (0, int(control_z), int(control_y), int(control_x))
-        # if value == (0, 0, 0, 0): # TODO
-        #     command = Command.NONE
-        #     value = None
         return command, value
+
+    def follow_body(self, face):
+        command, value = self.follow_face(face)
+        control_z = self._pid_z(face.w)
+
+        if command == Command.SET_RC:
+            x = value[3]
+            y = value[2]
+
+            command = Command.SET_RC
+            #if abs(control_x) < 5 and abs(control_y) < 5:
+            #    control_z = self._pid_z(face.w)
+            #else:
+            #    control_z = 0
+
+            if control_z != self.old_control_z:
+                self.old_control_z = control_z
+
+            control_z *= 100
+
+            #control_z = control_z if 0.1 < face.w < 0.3 else 0
+
+            value = (0, int(control_z), y, x)
+            return command, value
+        else:
+            if control_z == self.old_control_z:
+                return Command.NONE, None
+            else:
+                return Command.SET_RC, (0, int(control_z), 0, 0)
 
     def _execute(self) -> tuple:
         command = Command.NONE
@@ -323,7 +339,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
                 res = True
 
         elif self.face is not None:
-            command, value = super().follow_face(self.face)
+            command, value = super().follow_body(self.face)
             self.secret_T = time.time()
 
         return res, command, value
