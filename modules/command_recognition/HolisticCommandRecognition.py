@@ -93,7 +93,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             y_list = []
 
             for id, lm in enumerate(results.left_hand_landmarks.landmark):
-                px, py, pz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                px, py, pz = lm.x, lm.y, lm.x # int(lm.x * w), int(lm.y * h), int(lm.z * w)
                 mylm_list.append([px, py, pz])
                 x_list.append(px)
                 y_list.append(py)
@@ -123,7 +123,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             y_list = []
 
             for id, lm in enumerate(results.right_hand_landmarks.landmark):
-                px, py, pz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                px, py, pz = lm.x, lm.y, lm.x # int(lm.x * w), int(lm.y * h), int(lm.z * w)
                 mylm_list.append([px, py, pz])
                 x_list.append(px)
                 y_list.append(py)
