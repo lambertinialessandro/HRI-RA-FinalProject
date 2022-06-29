@@ -137,7 +137,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
 
                 value = (0, int(control_z), int(control_y), int(control_x))
 
-        else: # se non c'è un viso
+        else:  # se non c'è un viso
             if self.face_state == "Detected":
                 self.face_state = "None"
 
@@ -155,6 +155,9 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
                     self.face_state = "None"
+
+        if value == (0, 0, 0, 0):
+            command = Command.NONE
         return command, value
 
     def _get_face_min_dist(self):

@@ -15,7 +15,6 @@ from modules.template_pattern.TemplatePatternFactory import \
     TemplatePatternFactory, TemplateEnum
 
 
-
 class GlobalFactory:
     DroneEnum = DroneEnum
     StreamEnum = StreamEnum

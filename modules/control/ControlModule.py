@@ -46,7 +46,8 @@ class ControlModule:
         if not self._drone.is_flying and command != Command.TAKE_OFF:
             return
 
-        print(command)
+        if command != Command.NONE:
+            print(f"Applying command: {command}, {value}")
 
         if command == Command.NONE:
             pass

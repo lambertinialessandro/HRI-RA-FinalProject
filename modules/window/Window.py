@@ -5,8 +5,6 @@ from modules.command_recognition.CommandRecognitionFactory import \
     VideoCommandRecognitionFactory as vrf, VCREnum
 
 
-import matplotlib.pyplot as plt
-
 class Window:
     _instance = None
 
@@ -52,19 +50,19 @@ class Window:
                 print("Holistic RA!")
                 self._binded_obj.command_recognition = vrf.create(VCREnum.Holistic_RA)
 
-            elif keyboard_event.scan_code == 72: # name == "freccia su"
+            elif keyboard_event.name == "up":  # name == "freccia su"
                 self._binded_obj.drone.set_rc_controls(0, 10, 0, 0)
-            elif keyboard_event.scan_code == 80: # name == "freccia giù"
+            elif keyboard_event.name == "down":  # name == "freccia giù"
                 self._binded_obj.drone.set_rc_controls(0, -10, 0, 0)
-            elif keyboard_event.scan_code == 75: # name == "freccia sinistra"
+            elif keyboard_event.name == "left":  # name == "freccia sinistra"
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, 20)
-            elif keyboard_event.scan_code == 77: # name == "freccia destra"
+            elif keyboard_event.name == "right":  # name == "freccia destra"
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, -20)
-            elif keyboard_event.name == "p": # name == "freccia sinistra"
+            elif keyboard_event.name == "p":  # name == "freccia sinistra"
                 self._binded_obj.drone.set_rc_controls(0, 0, 20, 0)
-            elif keyboard_event.name == "o": # name == "freccia destra"
+            elif keyboard_event.name == "o":  # name == "freccia destra"
                 self._binded_obj.drone.set_rc_controls(0, 0, -20, 0)
-            elif keyboard_event.name == "space": # 57
+            elif keyboard_event.name == "space":  # 57
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, 0)
 
 

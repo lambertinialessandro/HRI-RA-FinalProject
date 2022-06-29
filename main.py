@@ -14,11 +14,14 @@ if platform.system() == 'Windows':
 
 
 # 1. Creating the sequence
-template_pattern = GlobalFactory.create(GlobalFactory.DroneEnum.FakeDrone,
-                                        GlobalFactory.StreamEnum.VideoDrone,
-                                        GlobalFactory.VCREnum.Holistic_RA,
-                                        GlobalFactory.TemplateEnum.BaseTemplate,
-                                        input_idx=input_idx, capture_api=capture_api)
+template_pattern = GlobalFactory.create(
+    GlobalFactory.DroneEnum.DJITello,
+    GlobalFactory.StreamEnum.VideoDrone,
+    GlobalFactory.VCREnum.Face,
+    GlobalFactory.TemplateEnum.BaseTemplate,
+    input_idx=input_idx,
+    capture_api=capture_api,
+)
 
 # 2. start web streaming
 #template_pattern.start_web_streaming()
