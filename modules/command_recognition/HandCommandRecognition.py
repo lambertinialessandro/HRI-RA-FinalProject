@@ -1,9 +1,9 @@
 
 import math
-from enum import Enum
 from abc import abstractmethod
 import mediapipe as mp
 import cv2
+import time
 
 # TODO
 # only for debug, to be deleted
@@ -11,7 +11,8 @@ import sys
 
 sys.path.append('../')
 
-from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, Hand
+from modules.command_recognition.model.keypoint_classifier import HandGesture
+from modules.command_recognition.HandGestureModule import HandGestureRecognizer, Hand
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 from modules.control.ControlModule import Command
 
@@ -49,7 +50,7 @@ class AbstractMediaPipeHandCommandRecognition(AbstractCommandRecognitionModule):
                 #                              data.label))
 
                 for id, lm in enumerate(handLms.landmark):
-                    px, py, pz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                    px, py, pz = lm.x, lm.y, lm.x # int(lm.x * w), int(lm.y * h), int(lm.z * w)
                     mylm_list.append([px, py, pz])
                     x_list.append(px)
                     y_list.append(py)
@@ -95,25 +96,54 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
     def __init__(self, mode=False, max_hands=2, detection_con=.5, track_con=.5, flip_type=True):
         super().__init__(mode=mode, max_hands=max_hands, detection_con=detection_con,
                          track_con=track_con, flip_type=flip_type)
+        self.gesture, self.value = HandGesture.NONE, 0
+        self.old_gesture = Command.NONE
+        self.time_g = time.time()
 
     def _execute(self) -> tuple:
         r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         l_hand = self._get_hands_info(Hand.HandType.LEFT)
 
-        gesture, value = HandGestureRecognizer.execute(l_hand, r_hand)
+        self.gesture, self.value = HandGestureRecognizer.execute(l_hand, r_hand)
 
-        if gesture == HandGesture.RIGHT:
-            return Command.MOVE_RIGHT, value  # TODO
-        elif gesture == HandGesture.LEFT:
-            return Command.MOVE_LEFT, value  # TODO
-        elif gesture == HandGesture.UP:
-            return Command.MOVE_UP, value  # TODO
-        elif gesture == HandGesture.DOWN:
-            return Command.MOVE_DOWN, value  # TODO
+        if self.gesture == HandGesture.FORWARD:
+            command, value = Command.MOVE_FORWARD, self.value  # TODO
+        elif self.gesture == HandGesture.STOP:
+            command, value = Command.NONE, self.value  # TODO
+        elif self.gesture == HandGesture.UP:
+            command, value = Command.MOVE_UP, self.value  # TODO
+        elif self.gesture == HandGesture.LAND:
+            command, value = Command.LAND, self.value  # TODO
+        elif self.gesture == HandGesture.DOWN:
+            command, value = Command.MOVE_DOWN, self.value  # TODO
+        elif self.gesture == HandGesture.BACK:
+            command, value = Command.MOVE_BACKWARD, self.value  # TODO
+        elif self.gesture == HandGesture.LEFT:
+            command, value = Command.MOVE_LEFT, self.value  # TODO
+        elif self.gesture == HandGesture.RIGHT:
+            command, value = Command.MOVE_RIGHT, self.value  # TODO
         else:
             return Command.NONE, 0
 
+        if self.old_gesture == self.gesture:
+            elapsed_t = time.time() - self.time_g
+            if elapsed_t > 2:
+                self.time_g = time.time()
+                return command, value
+        else:
+            self.old_gesture = self.gesture
+            self.time_g = time.time()
+
+        return Command.NONE, value
+
     def edit_frame(self, frame):
+        r_hand = self._get_hands_info(Hand.HandType.RIGHT)
+        l_hand = self._get_hands_info(Hand.HandType.LEFT)
+        frame = HandGestureRecognizer.edit_frame(frame, l_hand, r_hand,
+                                                 self.gesture, self.value)
+
+        return frame
+
         for hand in self.all_hands:
             bbox = hand.bbox
             cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
@@ -122,7 +152,6 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
             cv2.putText(frame, hand.type.value, (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
                         2, (0, 0, 255), 2)
 
-        r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         if r_hand:
             (wx, wy, wz) = r_hand.lmList[Hand.Keypoints.WRIST.value]
             (pmx, pmy, pmz) = r_hand.lmList[Hand.Keypoints.PINKY_MCP.value]

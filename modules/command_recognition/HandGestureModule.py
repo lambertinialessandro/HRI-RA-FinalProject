@@ -4,7 +4,7 @@ from modules.control.ControlModule import Command
 import math
 import cv2
 
-from modules.command_recognition.model.keypoint_classifier import KeyPointClassifier
+from modules.command_recognition.model.keypoint_classifier import KeyPointClassifier, HandGesture
 
 
 @dataclasses.dataclass
@@ -45,19 +45,6 @@ class Hand:
             return [self.THUMB_TIP.value, self.INDEX_FINGER_TIP.value,
                     self.MIDDLE_FINGER_TIP.value, self.RING_FINGER_TIP.value,
                     self.PINKY_TIP.value]
-
-
-class HandGesture(Enum):
-    NONE = 0     # ❌
-
-    FORWARD = 1  # ✋
-    STOP = 2     # ✊
-    UP = 3       # 👆
-    LAND = 4     # 👌
-    DOWN = 5     # 👇
-    BACK = 6     # 👊
-    LEFT = 7     # 👈 thumb
-    RIGHT = 8    # 👉 thumb
 
 
 class HandGestureRecognizer:

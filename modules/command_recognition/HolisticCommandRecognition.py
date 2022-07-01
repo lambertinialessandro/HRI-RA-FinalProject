@@ -10,7 +10,8 @@ from simple_pid import PID
 import sys
 sys.path.append('../../')
 
-from modules.command_recognition.HandGestureModule import HandGestureRecognizer, HandGesture, Hand
+from modules.command_recognition.model.keypoint_classifier import HandGesture
+from modules.command_recognition.HandGestureModule import HandGestureRecognizer, Hand
 from modules.command_recognition.FaceGestureModule import Face
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 from modules.stream.RecordVideoModule import RecordVideoModule
@@ -56,7 +57,9 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
 
         self.results = None
 
-        self.gesture = HandGesture.NONE
+        self.gesture, self.value = HandGesture.NONE, 0
+        self.old_gesture = Command.NONE
+        self.time_g = time.time()
         self.left_hand = None
         self.right_hand = None
         self.face = None
@@ -204,7 +207,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             if control_z != self.old_control_z:
                 self.old_control_z = control_z
 
-            control_z *= 100
+            control_z *= 100 * 3
 
             #control_z = control_z if 0.1 < face.w < 0.3 else 0
 
@@ -220,28 +223,46 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         command = Command.NONE
         value = None
         if self.left_hand is not None and self.right_hand is not None:
-            self.gesture, value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
+            self.gesture, self.value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
 
             if self.gesture == HandGesture.FORWARD:
-                return Command.NONE, value  # TODO
+                command, value = Command.MOVE_FORWARD, self.value  # TODO
             elif self.gesture == HandGesture.STOP:
-                return Command.NONE, value  # TODO
+                command, value = Command.NONE, self.value  # TODO
             elif self.gesture == HandGesture.UP:
-                return Command.NONE, value  # TODO
+                command, value = Command.MOVE_UP, self.value  # TODO
             elif self.gesture == HandGesture.LAND:
-                return Command.NONE, value  # TODO
+                command, value = Command.LAND, self.value  # TODO
             elif self.gesture == HandGesture.DOWN:
-                return Command.NONE, value  # TODO
+                command, value = Command.MOVE_DOWN, self.value  # TODO
             elif self.gesture == HandGesture.BACK:
-                return Command.NONE, value  # TODO
+                command, value = Command.MOVE_BACKWARD, self.value  # TODO
             elif self.gesture == HandGesture.LEFT:
-                return Command.NONE, value  # TODO
+                command, value = Command.MOVE_LEFT, self.value  # TODO
             elif self.gesture == HandGesture.RIGHT:
-                return Command.NONE, value  # TODO
-            # elif none continue with face
+                command, value = Command.MOVE_RIGHT, self.value  # TODO
+            else:
+                command, value = Command.NONE, 0
 
-        if self.face is not None:
+            if self.old_gesture == self.gesture:
+                elapsed_t = time.time() - self.time_g
+                if elapsed_t > 2:
+                    self.time_g = time.time()
+                else:
+                    command, value = Command.NONE, value
+            else:
+                self.old_gesture = self.gesture
+                self.time_g = time.time()
+                command, value = Command.NONE, value
+
+        if self.face is not None and self.gesture == HandGesture.NONE:
             command, value = self.follow_face(self.face)
+        elif self.face is not None:
+            command, value = self.follow_body(self.face)
+
+        elapsed_t = time.time() - self.time_g
+        if elapsed_t < 2: # TODO
+            command, value = Command.NONE, value
 
         return command, value
 
@@ -272,8 +293,8 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
 
         if self.right_hand is not None and self.left_hand is not None:
             frame = HandGestureRecognizer.edit_frame(frame,
-                                                 self.left_hand,
-                                                 self.right_hand, self.gesture)
+                                                 self.left_hand, self.right_hand,
+                                                 self.gesture, self.value)
 
         # mp_drawing.draw_landmarks(
         #     frame,
