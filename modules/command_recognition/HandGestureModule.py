@@ -63,13 +63,16 @@ class HandGestureRecognizer:
             (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
 
             distance = math.dist((ttx, tty), (itx, ity))
-            delta = 0.1  # (1-0)/10 -> (end value - init value) / num steps
+
+            (wx, wy, wz) = left_hand.lmList[Hand.Keypoints.WRIST.value]
+            dist = math.dist((wx, wy), (itx, ity))
+            delta = (dist/10) # (1-0)/10 -> (end value - init value) / num steps
             value = distance // delta
 
         return hand_sign, value
 
     @staticmethod
-    def edit_frame(frame, left_hand: Hand, right_hand: Hand, gesture):
+    def edit_frame(frame, left_hand: Hand, right_hand: Hand, gesture, value):
         h, w, c = frame.shape
 
         if right_hand:
@@ -79,16 +82,12 @@ class HandGestureRecognizer:
             cv2.rectangle(frame, (bbox[0] - 20, bbox[1] - 20),
                           (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
                           (255, 0, 255), 2)
-            cv2.putText(frame, str(gesture), (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
+            cv2.putText(frame, str(gesture.value), (bbox[0] - 30, bbox[1] - 30), cv2.FONT_HERSHEY_PLAIN,
                         2, (0, 0, 255), 2)
 
         if left_hand:
             (ttx, tty, ttz) = left_hand.lmList[Hand.Keypoints.THUMB_TIP.value]
             (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
-
-            distance = math.dist((ttx, tty), (itx, ity))
-            delta = 0.1 # (1-0)/10 -> (end value - init value) / num steps
-            value = distance // delta
 
             cv2.line(frame, (int(ttx*w), int(tty*h)), (int(itx*w), int(ity*h)), (255, 0, 255), 2)
             cv2.putText(frame, str(value), (int(itx*w), int(ity*h)), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
