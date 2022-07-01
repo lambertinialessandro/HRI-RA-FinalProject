@@ -102,12 +102,14 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
             elif self.face_state == "Detected":
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 2:
+                    print("Locked")
                     self.face_state = "Locked"
                     self.face_last_T = time.time()
 
             elif self.face_state == "Lost":
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 1:
+                    print(locked)
                     self.face_state = "Locked"
 
             elif self.face_state == "Locked":
@@ -131,7 +133,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
 
                 control_x *= -100
                 control_y *= 100
-                control_z *= -100
+                control_z *= 100 * 3
 
                 control_z = control_z#*1.2 if 0.1 < face.w < 0.3 else 0
 
@@ -140,10 +142,12 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
         else:  # se non c'è un viso
             if self.face_state == "Detected":
                 self.face_state = "None"
+                print("none")
 
             elif self.face_state == "Locked":
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 0.5: # dopo 0.5 secondi lo considero perso
+                    print("lost")
                     self.face_state = "Lost"
                     self.face_last_T = time.time()
                 else: # continuo a mandare il comando vecchio per 0.5 secondi
@@ -152,6 +156,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
                                int(self.old_control_x))
 
             elif self.face_state == "Lost":
+                print("none")
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
                     self.face_state = "None"
