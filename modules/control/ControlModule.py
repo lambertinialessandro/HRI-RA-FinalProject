@@ -46,9 +46,6 @@ class ControlModule:
         if not self._drone.is_flying and command != Command.TAKE_OFF:
             return
 
-        if command != Command.NONE:
-            print(f"Applying command: {command}, {value}")
-
         if command == Command.NONE:
             pass
         elif command == Command.TAKE_OFF:
@@ -93,6 +90,9 @@ class ControlModule:
             self._drone  # TODO
 
     def execute(self, command: Command, value=None):
+        if command != Command.NONE:
+            print(f"Applying command: {command}, {value}")
+
         Thread(target=self.__execute, args=[command, value]).start()
 
     def end(self):
