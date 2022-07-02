@@ -101,40 +101,42 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
         self.time_g = time.time()
 
     def _execute(self) -> tuple:
+        command, value = Command.NONE, None
         r_hand = self._get_hands_info(Hand.HandType.RIGHT)
         l_hand = self._get_hands_info(Hand.HandType.LEFT)
 
         self.gesture, self.value = HandGestureRecognizer.execute(l_hand, r_hand)
+        if self.value >= 30:
+            if self.gesture == HandGesture.FORWARD:
+                command, value = Command.MOVE_FORWARD, self.value  # TODO
+            elif self.gesture == HandGesture.UP:
+                command, value = Command.MOVE_UP, self.value  # TODO
+            elif self.gesture == HandGesture.LAND:
+                command, value = Command.LAND, self.value  # TODO
+            elif self.gesture == HandGesture.DOWN:
+                command, value = Command.MOVE_DOWN, self.value  # TODO
+            elif self.gesture == HandGesture.BACK:
+                command, value = Command.MOVE_BACKWARD, self.value  # TODO
+            elif self.gesture == HandGesture.LEFT:
+                command, value = Command.MOVE_LEFT, self.value  # TODO
+            elif self.gesture == HandGesture.RIGHT:
+                command, value = Command.MOVE_RIGHT, self.value  # TODO
+        if self.gesture == HandGesture.STOP:
+            command, value = Command.SET_RC, (0, 0, 0, 0)  # TODO
 
-        if self.gesture == HandGesture.FORWARD:
-            command, value = Command.MOVE_FORWARD, self.value  # TODO
-        elif self.gesture == HandGesture.STOP:
-            command, value = Command.NONE, self.value  # TODO
-        elif self.gesture == HandGesture.UP:
-            command, value = Command.MOVE_UP, self.value  # TODO
-        elif self.gesture == HandGesture.LAND:
-            command, value = Command.LAND, self.value  # TODO
-        elif self.gesture == HandGesture.DOWN:
-            command, value = Command.MOVE_DOWN, self.value  # TODO
-        elif self.gesture == HandGesture.BACK:
-            command, value = Command.MOVE_BACKWARD, self.value  # TODO
-        elif self.gesture == HandGesture.LEFT:
-            command, value = Command.MOVE_LEFT, self.value  # TODO
-        elif self.gesture == HandGesture.RIGHT:
-            command, value = Command.MOVE_RIGHT, self.value  # TODO
-        else:
-            return Command.NONE, 0
-
-        if self.old_gesture == self.gesture:
-            elapsed_t = time.time() - self.time_g
+        elapsed_t = time.time() - self.time_g
+        if self.old_gesture == command and self.gesture != HandGesture.NONE and command != Command.NONE:
             if elapsed_t > 2:
                 self.time_g = time.time()
+                self.old_gesture = HandGesture.NONE
                 return command, value
         else:
-            self.old_gesture = self.gesture
-            self.time_g = time.time()
+            self.old_gesture = command
+            if elapsed_t > 2:
+                self.time_g = time.time()
+                return Command.SET_RC, (0, 0, 0, 0)
 
-        return Command.NONE, value
+        return Command.NONE, None
 
     def edit_frame(self, frame):
         r_hand = self._get_hands_info(Hand.HandType.RIGHT)

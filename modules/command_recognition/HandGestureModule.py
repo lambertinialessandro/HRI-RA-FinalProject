@@ -67,7 +67,9 @@ class HandGestureRecognizer:
             (wx, wy, wz) = left_hand.lmList[Hand.Keypoints.WRIST.value]
             dist = math.dist((wx, wy), (itx, ity))
             delta = (dist/10) # (1-0)/10 -> (end value - init value) / num steps
-            value = distance // delta
+            value = int(distance // delta)
+            if value != 0:
+                value = 30 + 5 * value
 
         return hand_sign, value
 
