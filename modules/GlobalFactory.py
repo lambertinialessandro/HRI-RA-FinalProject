@@ -11,15 +11,15 @@ from modules.command_recognition.CommandRecognitionFactory import \
     VideoCommandRecognitionFactory, VCREnum
 from modules.reasoning_agent.ReasoningAgentModule import ReasoningAgent
 from modules.control import ControlModule
-from modules.template_pattern.TemplatePatternFactory import \
-    TemplatePatternFactory, TemplateEnum
+from modules.pipeline_pattern.PipelinePatternFactory import \
+    PipelinePatternFactory, PipelineEnum
 
 
 class GlobalFactory:
     DroneEnum = DroneEnum
     StreamEnum = StreamEnum
     VCREnum = VCREnum
-    TemplateEnum = TemplateEnum
+    PipelineEnum = PipelineEnum
 
     def __init__(self):
         pass
@@ -28,7 +28,7 @@ class GlobalFactory:
     def create(type_drone: DroneEnum,
                type_stream: StreamEnum,
                type_cr: VCREnum,
-               type_template: TemplateEnum,
+               type_pipeline: PipelineEnum,
                input_idx=0, capture_api=None):
 
         drone, drone_edit_frame = DroneFactory.create(type_drone,
@@ -42,14 +42,14 @@ class GlobalFactory:
 
         control_module = ControlModule.ControlModule(drone)
 
-        template_pattern = TemplatePatternFactory.create(type_template,
+        pipeline_pattern = PipelinePatternFactory.create(type_pipeline,
                                                          drone,
                                                          stream_module,
                                                          command_recognition,
                                                          control_module,
                                                          drone_edit_frame)
 
-        return template_pattern
+        return pipeline_pattern
 
 
 if __name__ == "__main__":

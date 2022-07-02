@@ -6,12 +6,12 @@ import cv2
 
 # # TODO
 # # link between 2 files from different hierarchy maybe to be fixed
-# from modules.control.ControlModule import Command
+from modules.control.ControlModule import Command
 from modules.window.Window import Window
-from modules.template_pattern.WebServer import WebServer
+from modules.pipeline_pattern.WebServer import WebServer
 
 
-class AbstractTemplatePattern(ABC):
+class AbstractPipelinePattern(ABC):
     def __init__(self, stream_module, command_recognition,
                  control_module, drone_edit_frame):
         self.stream_module = stream_module
@@ -35,7 +35,7 @@ class AbstractTemplatePattern(ABC):
         pass
 
 
-class AbstractWebServerTemplatePattern(AbstractTemplatePattern):
+class AbstractWebServerPipelinePattern(AbstractPipelinePattern):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -60,7 +60,7 @@ class AbstractWebServerTemplatePattern(AbstractTemplatePattern):
                        bytearray(encodedImage) + b'\r\n')
 
     def end(self):
-        print("Done AbstractWebServerTemplatePattern!")
+        print("Done AbstractWebServerPipelinePattern!")
 
         print("[1/1] Turn off web_server")
         self.web_server.end()
@@ -68,17 +68,21 @@ class AbstractWebServerTemplatePattern(AbstractTemplatePattern):
         print("\n")
 
 
-class TemplatePattern(AbstractWebServerTemplatePattern):
+import time
+class PipelinePattern(AbstractWebServerPipelinePattern):
     def __init__(self, drone, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.drone = drone
         self.command = None
 
         self.state = True
+        self.last_t = time.time()
 
     def execute(self):
         try:
             while self.state:
+                time.sleep(0.2)
+
                 # 1. Get the frame
                 frame = self.stream_module.get_stream_frame()
 
@@ -86,7 +90,11 @@ class TemplatePattern(AbstractWebServerTemplatePattern):
                 self.command, value = self.command_recognition.execute(frame)
 
                 # 3. Execute the command
-                self.control_module.execute(self.command, value)
+                elapsed_t = time.time() - self.last_t
+                if elapsed_t > 0.5:
+                    self.control_module.execute(self.command, value)
+                    if self.command != Command.NONE:
+                        self.last_t = time.time()
 
                 # 4. Edit frame
                 frame = self.command_recognition.edit_frame(frame)
@@ -107,7 +115,7 @@ class TemplatePattern(AbstractWebServerTemplatePattern):
             self.end()
 
     def end(self):
-        print("Done TemplatePattern!")
+        print("Done PipelinePattern!")
         self.state = False
 
         print("[1/7] Turn off super()\n")
@@ -129,7 +137,7 @@ class TemplatePattern(AbstractWebServerTemplatePattern):
         print("\n")
 
 
-class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):
+class ReasoningPipelinePattern(AbstractWebServerPipelinePattern):
     def __init__(self, drone, reasoning_agent, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.drone = drone
@@ -171,7 +179,7 @@ class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):
             self.end()
 
     def end(self):
-        print("Done ReasoningTemplatePattern!")
+        print("Done ReasoningPipelinePattern!")
         self.state = False
 
         print("[1/7] Turn off super()\n")
@@ -214,7 +222,7 @@ class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):
 # from modules.window.Window import Window
 #
 #
-# class VideoTemplatePattern(AbstractTemplatePattern):
+# class VideoPipelinePattern(AbstractPipelinePattern):
 #     def __init__(self, video_stream_module, command_recognition, control_module, drone):
 #         super().__init__(video_stream_module, command_recognition, control_module)
 #
@@ -270,7 +278,7 @@ class ReasoningTemplatePattern(AbstractWebServerTemplatePattern):
 #         schedule.clear()
 #
 #
-# class AudioTemplatePattern(AbstractTemplatePattern):
+# class AudioPipelinePattern(AbstractPipelinePattern):
 #     def __init__(self, audio_stream_module, command_recognition, control_module, drone):
 #         super().__init__(audio_stream_module, command_recognition, control_module)
 #         self.drone = drone
