@@ -30,6 +30,8 @@ class Command(Enum):
     COOLING_ON = 40
     COOLING_OFF = 41
 
+    KEEP_ALIVE = 90
+
     FOLLOW_ME = 100
 
     STOP_EXECUTION = 1000
@@ -82,6 +84,9 @@ class ControlModule:
             self._drone.turn_motor_on()
         elif command == Command.COOLING_OFF:
             self._drone.turn_motor_off()
+
+        elif command == Command.KEEP_ALIVE:
+            self._drone.keepalive()
 
         elif command == Command.FOLLOW_ME:
             self._drone  # TODO

@@ -122,6 +122,10 @@ class AbstractDrone(ABC):
         pass
 
     @abstractmethod
+    def keepalive(self):
+        pass
+
+    @abstractmethod
     def end(self):
         pass
 
@@ -223,6 +227,9 @@ class DJITello(AbstractDrone):
 
     def turn_motor_off(self):
         self._tello.turn_motor_off()
+
+    def keepalive(self):
+        self._tello.send_keepalive()
 
     def end(self):
         self._tello.end()
@@ -349,6 +356,9 @@ class FakeDrone(AbstractDrone):
         pass
 
     def turn_motor_off(self):
+        pass
+
+    def keepalive(self):
         pass
 
     def end(self):

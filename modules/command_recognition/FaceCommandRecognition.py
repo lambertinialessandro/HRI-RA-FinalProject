@@ -79,6 +79,8 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
         self.old_control_y = 0
         self.old_control_z = 0
 
+        self.old_value = (1, 0, 0, 0)
+
         self.face_state = "None"
         self.face_last_T = 0
         self.face_old = None
@@ -109,7 +111,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
             elif self.face_state == "Lost":
                 face_elapsed_T = time.time() - self.face_last_T
                 if face_elapsed_T > 1:
-                    print(locked)
+                    print("locked")
                     self.face_state = "Locked"
 
             elif self.face_state == "Locked":
@@ -161,8 +163,11 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
                 if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
                     self.face_state = "None"
 
-        if value == (0, 0, 0, 0):
-            command = Command.NONE
+
+        if self.old_value == (0, 0, 0, 0):
+            command = Command.KEEP_ALIVE
+
+        self.old_value = value
         return command, value
 
     def _get_face_min_dist(self):

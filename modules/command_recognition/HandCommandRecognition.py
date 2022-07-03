@@ -134,7 +134,7 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
             self.old_gesture = command
             if elapsed_t > 2:
                 self.time_g = time.time()
-                return Command.SET_RC, (0, 0, 0, 0)
+                return Command.KEEP_ALIVE, None
 
         return Command.NONE, None
 
