@@ -226,21 +226,21 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             self.gesture, self.value = HandGestureRecognizer.execute(self.left_hand, self.right_hand)
 
             if self.gesture == HandGesture.FORWARD:
-                command, value = Command.MOVE_FORWARD, self.value  # TODO
+                command, value = Command.MOVE_FORWARD, self.value
             elif self.gesture == HandGesture.STOP:
-                command, value = Command.NONE, self.value  # TODO
+                command, value = Command.NONE, self.value
             elif self.gesture == HandGesture.UP:
-                command, value = Command.MOVE_UP, self.value  # TODO
+                command, value = Command.MOVE_UP, self.value
             elif self.gesture == HandGesture.LAND:
-                command, value = Command.LAND, self.value  # TODO
+                command, value = Command.LAND, self.value
             elif self.gesture == HandGesture.DOWN:
-                command, value = Command.MOVE_DOWN, self.value  # TODO
+                command, value = Command.MOVE_DOWN, self.value
             elif self.gesture == HandGesture.BACK:
-                command, value = Command.MOVE_BACKWARD, self.value  # TODO
+                command, value = Command.MOVE_BACKWARD, self.value
             elif self.gesture == HandGesture.LEFT:
-                command, value = Command.MOVE_LEFT, self.value  # TODO
+                command, value = Command.MOVE_LEFT, self.value
             elif self.gesture == HandGesture.RIGHT:
-                command, value = Command.MOVE_RIGHT, self.value  # TODO
+                command, value = Command.MOVE_RIGHT, self.value
             else:
                 command, value = Command.NONE, 0
 
@@ -261,7 +261,7 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             command, value = self.follow_body(self.face)
 
         elapsed_t = time.time() - self.time_g
-        if elapsed_t < 2: # TODO
+        if elapsed_t < 2:
             command, value = Command.NONE, value
 
         return command, value
@@ -439,6 +439,12 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             command, value = super()._execute()
 
         return command, value
+
+    # def _(self):
+    #     if self.face is not None:
+    #     cv2.putText(frame, f'{self.drone state}',
+    #         (int(self.face.x*w), int(self.face_state*h-20)), cv2.FONT_HERSHEY_PLAIN,
+    #         2, (255, 0, 255), 2)
 
     def end(self):
         super().end()

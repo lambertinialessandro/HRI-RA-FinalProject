@@ -108,21 +108,21 @@ class MediaPipeHandCommandRecognition(AbstractMediaPipeHandCommandRecognition):
         self.gesture, self.value = HandGestureRecognizer.execute(l_hand, r_hand)
         if self.value >= 30:
             if self.gesture == HandGesture.FORWARD:
-                command, value = Command.MOVE_FORWARD, self.value  # TODO
+                command, value = Command.MOVE_FORWARD, self.value
             elif self.gesture == HandGesture.UP:
-                command, value = Command.MOVE_UP, self.value  # TODO
+                command, value = Command.MOVE_UP, self.value
             elif self.gesture == HandGesture.LAND:
-                command, value = Command.LAND, self.value  # TODO
+                command, value = Command.LAND, self.value
             elif self.gesture == HandGesture.DOWN:
-                command, value = Command.MOVE_DOWN, self.value  # TODO
+                command, value = Command.MOVE_DOWN, self.value
             elif self.gesture == HandGesture.BACK:
-                command, value = Command.MOVE_BACKWARD, self.value  # TODO
+                command, value = Command.MOVE_BACKWARD, self.value
             elif self.gesture == HandGesture.LEFT:
-                command, value = Command.MOVE_LEFT, self.value  # TODO
+                command, value = Command.MOVE_LEFT, self.value
             elif self.gesture == HandGesture.RIGHT:
-                command, value = Command.MOVE_RIGHT, self.value  # TODO
+                command, value = Command.MOVE_RIGHT, self.value
         if self.gesture == HandGesture.STOP:
-            command, value = Command.SET_RC, (0, 0, 0, 0)  # TODO
+            command, value = Command.SET_RC, (0, 0, 0, 0)
 
         elapsed_t = time.time() - self.time_g
         if self.old_gesture == command and self.gesture != HandGesture.NONE and command != Command.NONE:
