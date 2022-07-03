@@ -81,7 +81,7 @@ class PipelinePattern(AbstractWebServerPipelinePattern):
     def execute(self):
         try:
             while self.state:
-                time.sleep(0.2)
+                #time.sleep(0.2)
 
                 # 1. Get the frame
                 frame = self.stream_module.get_stream_frame()
