@@ -296,6 +296,27 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
                                                  self.left_hand, self.right_hand,
                                                  self.gesture, self.value)
 
+        h, w, _ = frame.shape
+        shape = (w, h)
+        center = w//2, h//2
+        if self.face is not None:
+            cv2.rectangle(frame, self.face.to_unnormalized_tuple(shape), (255, 0, 255), 2)
+
+            cv2.circle(frame, (int(self.face.x*w), int(self.face.y*h)),
+                       4, (0, 255, 0), cv2.FILLED)
+
+            cv2.circle(frame, self.face.unnormalized_center(shape),
+                       2, (0, 255, 0), cv2.FILLED)
+
+            cv2.line(frame, center, self.face.unnormalized_center(shape),
+                     (0, 0, 0), thickness=1)
+            cv2.line(frame, center, (
+                            int(center[0] - self.old_control_x*360),
+                            int(center[1] - self.old_control_y*360)
+                        ), (255, 0, 0), thickness=2)
+
+        cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
+        return frame
         # mp_drawing.draw_landmarks(
         #     frame,
         #     self.results.face_landmarks,
