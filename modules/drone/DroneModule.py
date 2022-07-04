@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 
 import math
-import cv2  # TODO: remove this and FakeDrone
+import cv2
 import numpy as np
 
 from djitellopy import Tello
@@ -195,7 +195,6 @@ class DJITello(AbstractDrone):
             self._tello.takeoff()
 
     def land(self):
-        # if self.is_flying:
         self._tello.land()
 
     def move_forward(self, value):

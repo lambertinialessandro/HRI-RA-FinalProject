@@ -51,8 +51,6 @@ class KeyPointClassifier(object):
         results = np.squeeze(self.interpreter.get_tensor(output_index))
         best_res = np.argmax(results)
 
-        #print(np.round(results, 5))
-
         if results[best_res] <= 0.7 or \
             ((results[best_res] - sorted(results)[:-1]) < 0.5).any():
             return HandGesture.NONE

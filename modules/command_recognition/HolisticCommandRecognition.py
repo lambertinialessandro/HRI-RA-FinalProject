@@ -16,8 +16,6 @@ from modules.command_recognition.FaceGestureModule import Face
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 from modules.stream.RecordVideoModule import RecordVideoModule
 
-# TODO
-# link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
@@ -66,8 +64,8 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
         self.pose = None
 
         p = 0.7
-        i = 0.  # 0.01
-        d = 0.  # 0.05
+        i = 0.
+        d = 0.
         self._pid_x = PID(p, i, d, sample_time=0.01, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=0.01, setpoint=0.5)
         self._pid_z = PID(p, i, d, sample_time=0.01, setpoint=0.18)
@@ -96,12 +94,11 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             y_list = []
 
             for id, lm in enumerate(results.left_hand_landmarks.landmark):
-                px, py, pz = lm.x, lm.y, lm.x # int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                px, py, pz = lm.x, lm.y, lm.x
                 mylm_list.append([px, py, pz])
                 x_list.append(px)
                 y_list.append(py)
 
-            # bbox
             xmin, xmax = min(x_list), max(x_list)
             ymin, ymax = min(y_list), max(y_list)
             boxW = xmax - xmin
@@ -126,12 +123,11 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             y_list = []
 
             for id, lm in enumerate(results.right_hand_landmarks.landmark):
-                px, py, pz = lm.x, lm.y, lm.x # int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                px, py, pz = lm.x, lm.y, lm.x
                 mylm_list.append([px, py, pz])
                 x_list.append(px)
                 y_list.append(py)
 
-            # bbox
             xmin, xmax = min(x_list), max(x_list)
             ymin, ymax = min(y_list), max(y_list)
             boxW = xmax - xmin
@@ -199,17 +195,11 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
             y = value[2]
 
             command = Command.SET_RC
-            #if abs(control_x) < 5 and abs(control_y) < 5:
-            #    control_z = self._pid_z(face.w)
-            #else:
-            #    control_z = 0
 
             if control_z != self.old_control_z:
                 self.old_control_z = control_z
 
             control_z *= 100 * 3
-
-            #control_z = control_z if 0.1 < face.w < 0.3 else 0
 
             value = (0, int(control_z), y, x)
             return command, value
@@ -317,15 +307,6 @@ class HolisticCommandRecognition(AbstractCommandRecognitionModule):
 
         cv2.circle(frame, center, 5, (0, 0, 255), cv2.FILLED)
         return frame
-        # mp_drawing.draw_landmarks(
-        #     frame,
-        #     self.results.face_landmarks,
-        #     mp_holistic.FACEMESH_CONTOURS,
-        #     landmark_drawing_spec=mp_drawing_styles
-        #     .get_default_pose_landmarks_style()
-        # )
-
-        return frame
 
     def end(self):
         pass
@@ -345,7 +326,6 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
     def _talk(self, text):
         print(text)
         self.engine.say(text)
-        #self.engine.runAndWait()
 
     def _search_intruder(self):
         res, command, value = False, Command.NONE, None
@@ -356,13 +336,13 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             command, value = self.follow_face(self.face)
             self.stopped_s = True
 
-            if elapsed_t >= 3: #10:
+            if elapsed_t >= 3:
                 res = True
         else:
             self.recognize_T = time.time()
             elapsed_t = time.time() - self.stopped_s
             if elapsed_t > 10:
-                value = (0, 0, 0, 20) # self.eval_rotation()
+                value = (0, 0, 0, 20)
                 res, command, value = False, Command.SET_RC, value
                 self.stopped_s = time.time()
 
@@ -390,7 +370,7 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
         if self._secret_pass():
             elapsed_T = time.time() - self.secret_T
 
-            if elapsed_T > 1: #10:
+            if elapsed_T > 1:
                 res = True
 
         elif self.face is not None:
@@ -439,12 +419,6 @@ class HolisticRACommandRecognition(HolisticCommandRecognition):
             command, value = super()._execute()
 
         return command, value
-
-    # def _(self):
-    #     if self.face is not None:
-    #     cv2.putText(frame, f'{self.drone state}',
-    #         (int(self.face.x*w), int(self.face_state*h-20)), cv2.FONT_HERSHEY_PLAIN,
-    #         2, (255, 0, 255), 2)
 
     def end(self):
         super().end()

@@ -2,8 +2,6 @@
 from enum import Enum
 from threading import Thread
 
-# TODO
-# link between 2 files from different hierarchy maybe to be fixed
 from modules.drone.DroneModule import AbstractDrone as Drone
 
 
@@ -31,10 +29,6 @@ class Command(Enum):
     COOLING_OFF = 41
 
     KEEP_ALIVE = 90
-
-    FOLLOW_ME = 100
-
-    STOP_EXECUTION = 1000
 
     def __str__(self):
         return self.name
@@ -88,12 +82,6 @@ class ControlModule:
         elif command == Command.KEEP_ALIVE:
             self._drone.keepalive()
 
-        elif command == Command.FOLLOW_ME:
-            self._drone  # TODO
-
-        elif command == Command.STOP_EXECUTION:
-            self._drone  # TODO
-
     def execute(self, command: Command, value=None):
         if command != Command.NONE:
             print(f"Applying command: {command}, {value}")
@@ -101,6 +89,5 @@ class ControlModule:
         Thread(target=self.__execute, args=[command, value]).start()
 
     def end(self):
-        #self._drone.end()
         pass
 

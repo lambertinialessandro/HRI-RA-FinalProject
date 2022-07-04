@@ -19,21 +19,12 @@ class Window:
         cv2.namedWindow(name)
 
         def my_keyboard_hook(keyboard_event):
-            # print("Name:", keyboard_event.name)
-            # print("Scan code:", keyboard_event.scan_code)
-            # print("Time:", keyboard_event.time)
 
-            #if keyboard_event.name == "esc":
-            #    self._binded_obj.end()
-            #el
             if keyboard_event.name == "l":
                 self._binded_obj.drone.land()
             elif keyboard_event.name == "t":
                 self._binded_obj.drone.take_off()
-            #elif keyboard_event.name == "u":
-            #    self._binded_obj.drone.move_up(30)
-            #elif keyboard_event.name == "d":
-            #    self._binded_obj.drone.move_down(30)
+
             elif keyboard_event.name == "0":
                 print("Empty!")
                 self._binded_obj.command_recognition = vrf.create(VCREnum.Empty)
@@ -50,21 +41,8 @@ class Window:
                 print("Holistic RA!")
                 self._binded_obj.command_recognition = vrf.create(VCREnum.Holistic_RA)
 
-            elif keyboard_event.name == "up":  # name == "freccia su"
-                self._binded_obj.drone.set_rc_controls(0, 10, 0, 0)
-            elif keyboard_event.name == "down":  # name == "freccia giù"
-                self._binded_obj.drone.set_rc_controls(0, -10, 0, 0)
-            elif keyboard_event.name == "left":  # name == "freccia sinistra"
-                self._binded_obj.drone.set_rc_controls(0, 0, 0, 20)
-            elif keyboard_event.name == "right":  # name == "freccia destra"
-                self._binded_obj.drone.set_rc_controls(0, 0, 0, -20)
-            elif keyboard_event.name == "p":  # name == "freccia sinistra"
-                self._binded_obj.drone.set_rc_controls(0, 0, 20, 0)
-            elif keyboard_event.name == "o":  # name == "freccia destra"
-                self._binded_obj.drone.set_rc_controls(0, 0, -20, 0)
-            elif keyboard_event.name == "space":  # 57
+            elif keyboard_event.name == "space":
                 self._binded_obj.drone.set_rc_controls(0, 0, 0, 0)
-
 
             elif keyboard_event.name == "w":
                 self._binded_obj.drone.move_forward(30)
@@ -82,9 +60,6 @@ class Window:
                 self._binded_obj.drone.move_up(30)
             elif keyboard_event.name == "f":
                 self._binded_obj.drone.move_down(30)
-
-            #elif keyboard_event.name == "p":
-            #    plt.show()
 
 
         keyboard.on_press(my_keyboard_hook)

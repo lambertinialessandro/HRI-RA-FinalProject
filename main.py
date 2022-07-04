@@ -15,8 +15,8 @@ if platform.system() == 'Windows':
 
 # 1. Creating the sequence
 pipeline_pattern = GlobalFactory.create(
-    GlobalFactory.DroneEnum.DJITello, # DJITello  FakeDrone
-    GlobalFactory.StreamEnum.VideoDrone, # VideoDrone  VideoPC
+    GlobalFactory.DroneEnum.DJITello,
+    GlobalFactory.StreamEnum.VideoDrone,
     GlobalFactory.VCREnum.Holistic,
     GlobalFactory.PipelineEnum.BasePipeline,
     input_idx=input_idx,

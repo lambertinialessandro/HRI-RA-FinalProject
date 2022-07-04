@@ -1,6 +1,5 @@
 import dataclasses
 from enum import Enum
-from modules.control.ControlModule import Command
 import math
 import cv2
 
@@ -51,7 +50,7 @@ class HandGestureRecognizer:
     _keypointClassifier = KeyPointClassifier()
 
     @staticmethod
-    def execute(left_hand: Hand, right_hand: Hand) -> tuple:  # Gesture, value
+    def execute(left_hand: Hand, right_hand: Hand) -> tuple:
         hand_sign = HandGesture.NONE
         value = 0
 
@@ -66,7 +65,7 @@ class HandGestureRecognizer:
 
             (wx, wy, wz) = left_hand.lmList[Hand.Keypoints.WRIST.value]
             dist = math.dist((wx, wy), (itx, ity))
-            delta = (dist/10) # (1-0)/10 -> (end value - init value) / num steps
+            delta = (dist/10)
             value = int(distance // delta)
             if value != 0:
                 value = 30 + 5 * value
@@ -92,47 +91,9 @@ class HandGestureRecognizer:
             (itx, ity, itz) = left_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
 
             cv2.line(frame, (int(ttx*w), int(tty*h)), (int(itx*w), int(ity*h)), (255, 0, 255), 2)
-            cv2.putText(frame, str(value), (int(itx*w), int(ity*h)), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
+            cv2.putText(frame, str(value), (int(itx*w), int(ity*h)),
+                        cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
 
         return frame
 
-        # Old stuff:
-        # if right_hand:
-        #     # (cx, cy) = right_hand["center"]
-        #     (wx, wy, wz) = right_hand.lmList[Hand.Keypoints.WRIST.value]
-        #     (pmx, pmy, pmz) = right_hand.lmList[Hand.Keypoints.PINKY_MCP.value]
-        #     (imx, imy, imz) = right_hand.lmList[Hand.Keypoints.INDEX_FINGER_MCP.value]
-        #     (itx, ity, itz) = right_hand.lmList[Hand.Keypoints.INDEX_FINGER_TIP.value]
-        #
-        #     minDist = max(math.dist((wx, wy), (pmx, pmy)), math.dist((imx, imy), (pmx, pmy))) * 0.75
-        #
-        #     distance = math.dist((imx, imy), (itx, ity))
-        #     angle = math.degrees(math.atan2(ity - imy, itx - imx))
-        #     # print(angle)
-        #     delta = 25  # max 45
-        #
-        #     (mtx, mty, mtz) = right_hand.lmList[Hand.Keypoints.MIDDLE_FINGER_TIP.value]
-        #     (rtx, rty, rtz) = right_hand.lmList[Hand.Keypoints.RING_FINGER_TIP.value]
-        #     (ptx, pty, ptz) = right_hand.lmList[Hand.Keypoints.PINKY_TIP.value]
-        #     (rmx, rmy, rmz) = right_hand.lmList[Hand.Keypoints.RING_FINGER_MCP.value]
-        #
-        #     otherFingersDist = max(math.dist((mtx, mty), (rmx, rmy)),
-        #                            math.dist((rtx, rty), (rmx, rmy)),
-        #                            math.dist((ptx, pty), (rmx, rmy)))
-        #     if otherFingersDist > minDist:
-        #         return HandGesture.NONE, None
-        #
-        #     if distance > minDist:
-        #         if (-45 + delta) < angle < (45 - delta):
-        #             command = HandGesture.POINT_LEFT
-        #         elif (45 + delta) < angle < (135 - delta):
-        #             command = HandGesture.POINT_DOWN
-        #         elif (-135 + delta) < angle < (-45 - delta):
-        #             command = HandGesture.POINT_UP
-        #         elif (135 + delta) < angle or angle < (-135 - delta):
-        #             command = HandGesture.POINT_RIGHT
-        #
-        # # if command is not None and left_hand:
-        # #     pass
-        #
-        # return command, 15
+

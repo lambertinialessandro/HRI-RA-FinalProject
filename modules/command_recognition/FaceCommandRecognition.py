@@ -7,14 +7,12 @@ from simple_pid import PID
 import time
 import numpy as np
 
-# TODO: only for debug, to be deleted
 import sys
 sys.path.append('../')
 
 from modules.command_recognition.FaceGestureModule import Face
 from modules.command_recognition.AbstractCommandRecognitionModule import AbstractCommandRecognitionModule
 
-# TODO: link between 2 files from different hierarchy maybe to be fixed
 from modules.control.ControlModule import Command
 
 
@@ -67,13 +65,12 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
     def __init__(self, model_selection=1, min_detection_confidence=0.5, sample_time=0.01):
         super().__init__(model_selection=model_selection, min_detection_confidence=min_detection_confidence)
 
-        # 0.7, 0.01, 0.05
         p = 0.7
-        i = 0.  # 0.01
-        d = 0.  # 0.05
+        i = 0.
+        d = 0.
         self._pid_x = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
         self._pid_y = PID(p, i, d, sample_time=sample_time, setpoint=0.5)
-        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2) # TODO
+        self._pid_z = PID(p, i, d, sample_time=sample_time, setpoint=0.2)
 
         self.old_control_x = 0
         self.old_control_y = 0
@@ -91,7 +88,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
         value = (0, 0, 0, 0)
 
         pos = self._get_face_min_dist()
-        if pos != -1:  # se c'è un viso
+        if pos != -1:
             face = self.all_faces[pos]
             self.face_old = face
             self.face_old_ratio = face.get_ratio()
@@ -137,22 +134,20 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
                 control_y *= 100
                 control_z *= 100 * 3
 
-                control_z = control_z#*1.2 if 0.1 < face.w < 0.3 else 0
-
                 value = (0, int(control_z), int(control_y), int(control_x))
 
-        else:  # se non c'è un viso
+        else:
             if self.face_state == "Detected":
                 self.face_state = "None"
                 print("none")
 
             elif self.face_state == "Locked":
                 face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 0.5: # dopo 0.5 secondi lo considero perso
+                if face_elapsed_T > 0.5:
                     print("lost")
                     self.face_state = "Lost"
                     self.face_last_T = time.time()
-                else: # continuo a mandare il comando vecchio per 0.5 secondi
+                else:
                     value = (0, 0,
                                int(self.old_control_y),
                                int(self.old_control_x))
@@ -160,7 +155,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
             elif self.face_state == "Lost":
                 print("none")
                 face_elapsed_T = time.time() - self.face_last_T
-                if face_elapsed_T > 2: # dopo 2.0 secondi che non vedo un viso perso
+                if face_elapsed_T > 2:
                     self.face_state = "None"
 
 
@@ -176,16 +171,13 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
         if len_bboxes > 0:
             if self.face_state == "None":
                 pos = 0
-            # elif len_bboxes == 1:
-            #     if < 0.005
-            #     #if self._is_last_user(0):
-            #         pos = 0
+
             else:
                 base_x, base_y, _, _ = self.face_old.to_tuple()
 
                 mse = [round(np.sum(np.power([base_x-bbox.x, base_y-bbox.y], 2)), 3) for bbox in self.all_faces]
                 pos_mse = np.argmin(mse)
-                if mse[pos_mse] < 0.025: # TODO
+                if mse[pos_mse] < 0.025:
                     pos = pos_mse
 
         return pos
@@ -199,7 +191,7 @@ class PIDFaceCommandRecognition(AbstractMediaPipeFaceCommandRecognition):
         for bbox in self.all_faces:
             cv2.rectangle(frame, bbox.to_unnormalized_tuple(shape), (255, 0, 255), 2)
 
-            cv2.putText(frame, f'{i}. {round(bbox.x, 3)}, {round(bbox.y, 3)}%', # int(bbox.detection*100)
+            cv2.putText(frame, f'{i}. {round(bbox.x, 3)}, {round(bbox.y, 3)}%',
                         (int(bbox.x*w), int(bbox.y*h-20)), cv2.FONT_HERSHEY_PLAIN,
                         2, (255, 0, 255), 2)
             i = i + 1

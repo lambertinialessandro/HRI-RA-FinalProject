@@ -35,7 +35,6 @@ class Face:
         self.h /= height
 
     def get_ratio(self):
-        # right_eye, left_eye, nose, mouth, right_ear, left_ear
         eyes = np.diff([self.keypoints[0], self.keypoints[1]])
         ears = np.diff([self.keypoints[4], self.keypoints[5]])
         return np.mean(eyes/ears)

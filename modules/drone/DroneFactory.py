@@ -1,8 +1,6 @@
 
 from enum import Enum
 
-# TODO
-# only for debug, to be deleted
 import sys
 sys.path.append('../../')
 

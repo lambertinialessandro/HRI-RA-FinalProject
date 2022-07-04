@@ -34,5 +34,4 @@ class WebServer:
         self._thread.start()
 
     def end(self):
-        if self._thread is not None:
-            pass  #TODO: stop thread
+        pass

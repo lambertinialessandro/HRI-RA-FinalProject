@@ -10,7 +10,7 @@ class AbstractCommandRecognitionModule(ABC):
         pass
 
     @abstractmethod
-    def _execute(self) -> tuple:  # Command, value
+    def _execute(self) -> tuple:
         pass
 
     def execute(self, frame) -> tuple:
@@ -36,7 +36,7 @@ class EmptyCommandRecognition(AbstractCommandRecognitionModule):
     def _analyze_frame(self, frame):
         pass
 
-    def _execute(self) -> tuple:  # Command, value
+    def _execute(self) -> tuple:
         return Command.NONE, None
 
     def edit_frame(self, frame):

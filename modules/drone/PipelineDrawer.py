@@ -1,6 +1,4 @@
 
-# TODO
-# only for debug, to be deleted
 import sys
 sys.path.append('../../')
 
@@ -79,7 +77,7 @@ if __name__ == "__main__":
                    PipelineDrawer.DRONE_BATTERY,
                    PipelineDrawer.DRONE_TEMPERATURE,
                    PipelineDrawer.DRONE_HEIGHT,])
-                   #PipelineDrawer.DRONE_WIFI_SNR])
+
     try:
         while True:
             print(pd.pipeline[3].height)
