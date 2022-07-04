@@ -1,8 +1,6 @@
 
 from enum import Enum
 
-# TODO
-# only for debug, to be deleted
 import sys
 sys.path.append('../../')
 
@@ -13,7 +11,6 @@ from modules.stream.AudioStreamModule import ComputerMicrophoneStream
 class StreamEnum(Enum):
     VideoDrone = "VideoDrone"
     VideoPC = "VideoPC"
-    AudioPC = "AudioPC"
 
 
 class StreamFactory:
@@ -28,16 +25,12 @@ class StreamFactory:
             stream = VideoDroneStream(drone)
         elif type_stream == StreamEnum.VideoPC:
             stream = WebcamStream(input_idx=input_idx, capture_api=capture_api)
-        elif type_stream == StreamEnum.AudioPC:
-            stream = ComputerMicrophoneStream()
         else:
             raise ValueError(f"Type stream '{type_stream}' not accepted")
 
         return stream
 
 
-# TODO
-# only for debug, to be deleted
 if __name__ == "__main__":
     import cv2
 
