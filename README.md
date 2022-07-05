@@ -1,11 +1,9 @@
 # 2022 HRI Final Project
-<!--
 <p align="center">
     <img src="./READMEimages/title.png" style="width: 750px;"></img>
 </p>
--->
 
-Final project for the course of Human Robot Interaction 2021/2022.
+Final project for the course of Human Robot Interaction and Reasoning Agents 2021/2022.
 
 >Student: Alessandro Lambertini Mat: `1938390`;
 >
@@ -15,15 +13,19 @@ Final project for the course of Human Robot Interaction 2021/2022.
 
 ## 📝 Assignment
 
-1.	👷 WIP 👷
+-   **HRI**:
+    1.	👷 WIP 👷
+    2.	👷 WIP 👷
 
-## 💾 Dataset
-
--   👷 WIP 👷
+-   **RA**:
+    1.	👷 WIP 👷
+    2.	👷 WIP 👷
 
 ## 📜 Report
 
--   👷 WIP 👷
+-   report [Link 🔗](./HRI-RA%20FinalProject%20report.pdf)
+
+    In this file you can read more about the project.
 
 ## 💯 Final score:
 
@@ -43,6 +45,7 @@ for any doubt or clarification contact me on:
     -   [Gianluca Lofrumento 🔗](https://www.instagram.com/gianlucchio/).
 
 ## 🎞️ Snapshots
+
 <!--
 <p align="center">
     <img src="./READMEimages/_.png" style="width: 800px; height: 300px"></img>
