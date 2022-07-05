@@ -19,23 +19,28 @@ state = True
 tello = Tello()
 tello.connect()
 
-battery = tello.get_battery()
-height = tello.get_height()
-temperature = tello.get_temperature()
+# battery = tello.get_battery()
+# height = tello.get_height()
+# temperature = tello.get_temperature()
 
-def update_battery():
-    global tello, battery
-    battery = tello.get_battery()
-def update_height():
-    global tello, height
-    height = tello.get_height()
-def update_temperature():
-    global tello, temperature
-    temperature = tello.get_temperature()
+global lr, fb, rot
+lr = 0
+fb = 0
+rot = 0
 
-schedule.every(10).seconds.do(update_battery)
-schedule.every(1).seconds.do(update_height)
-schedule.every(5).seconds.do(update_temperature)
+# def update_battery():
+#     global tello, battery
+#     battery = tello.get_battery()
+# def update_height():
+#     global tello, height
+#     height = tello.get_height()
+# def update_temperature():
+#     global tello, temperature
+#     temperature = tello.get_temperature()
+
+# schedule.every(10).seconds.do(update_battery)
+# schedule.every(1).seconds.do(update_height)
+# schedule.every(5).seconds.do(update_temperature)
 
 tello.streamon()
 frame_read = tello.get_frame_read()
@@ -48,23 +53,31 @@ def my_keyboard_hook(keyboard_event):
         print("Scan code:", keyboard_event.scan_code)
         print("Time:", keyboard_event.time)
 
+        global lr, fb, rot
+
         if keyboard_event.name == "t":
             tello.takeoff()
         elif keyboard_event.name == "esc":
             tello.land()
             state = False
         elif keyboard_event.name == "w":
-            tello.move_forward(30)
+            #tello.move_forward(30)
+            fb = fb + 1
         elif keyboard_event.name == "s":
-            tello.move_back(30)
+            #tello.move_back(30)
+            fb = fb - 1
         elif keyboard_event.name == "a":
-            tello.move_left(30)
+            #tello.move_left(30)
+            lr = lr - 1
         elif keyboard_event.name == "d":
-            tello.move_right(30)
+            #tello.move_right(30)
+            lr = lr + 1
         elif keyboard_event.name == "e":
-            tello.rotate_clockwise(30)
+            #tello.rotate_clockwise(30)
+            rot = rot + 1
         elif keyboard_event.name == "q":
-            tello.rotate_counter_clockwise(30)
+            #tello.rotate_counter_clockwise(30)
+            rot = rot - 1
         elif keyboard_event.name == "r":
             tello.move_up(30)
         elif keyboard_event.name == "f":
@@ -74,23 +87,30 @@ def my_keyboard_hook(keyboard_event):
 
 keyboard.on_press(my_keyboard_hook)
 
+
+#frame = frame_read.frame
 try:
     time.sleep(2)
     while state:
-        schedule.run_pending()
+        # schedule.run_pending()
         # In reality you want to display frames in a seperate thread. Otherwise
         #  they will freeze while the drone moves.
-        frame = frame_read.frame
+        #frame = frame_read.frame
 
-        cv2.putText(frame, f"battery: {battery}", (10, 15), cv2.FONT_HERSHEY_PLAIN,
-                    fontScale=1, color=(0, 0, 255), thickness=1)
-        cv2.putText(frame, f"Height: {height}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
-                    fontScale=1, color=(0, 0, 255), thickness=1)
-        cv2.putText(frame, f"temperature: {temperature}", (10, 45), cv2.FONT_HERSHEY_PLAIN,
-                    fontScale=1, color=(0, 0, 255), thickness=1)
+        # cv2.putText(frame, f"battery: {battery}", (10, 15), cv2.FONT_HERSHEY_PLAIN,
+        #             fontScale=1, color=(0, 0, 255), thickness=1)
+        # cv2.putText(frame, f"Height: {height}", (10, 30), cv2.FONT_HERSHEY_PLAIN,
+        #             fontScale=1, color=(0, 0, 255), thickness=1)
+        # cv2.putText(frame, f"temperature: {temperature}", (10, 45), cv2.FONT_HERSHEY_PLAIN,
+        #             fontScale=1, color=(0, 0, 255), thickness=1)
 
-        cv2.imshow("drone", frame)
-        key = cv2.waitKey(1)
+        #global lr, fb, rot
+        if not (lr == 0 and fb == 0 and rot == 0):
+            tello.send_rc_control(lr, fb, rot, 0)
+            time.sleep(1)
+
+        #cv2.imshow("drone", frame)
+        #key = cv2.waitKey(1)
 finally:
     tello.end()
     cv2.destroyAllWindows()
