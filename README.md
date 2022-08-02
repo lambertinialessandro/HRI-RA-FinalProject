@@ -13,13 +13,9 @@ Final project for the course of Human Robot Interaction and Reasoning Agents 202
 
 ## 📝 Assignment
 
--   **HRI**:
-    1.	👷 WIP 👷
-    2.	👷 WIP 👷
-
--   **RA**:
-    1.	👷 WIP 👷
-    2.	👷 WIP 👷
+1.	Presentation of a paper related to the topics of the course Human Robot Interaction.
+2.	Presentation of a paper related to the topics of the course Reasoning Agents.
+3.	Implementation of a project where the techniques studied in the two courses are applied.
 
 ## 📜 Report
 
@@ -29,7 +25,7 @@ Final project for the course of Human Robot Interaction and Reasoning Agents 202
 
 ## 💯 Final score:
 
-Score: `--/30`
+Score: `28/30`
 
 ## 🙋 Info
 
@@ -44,12 +40,13 @@ for any doubt or clarification contact me on:
     -   [Denise Landini 🔗](https://www.instagram.com/_officialdeni_/);
     -   [Gianluca Lofrumento 🔗](https://www.instagram.com/gianlucchio/).
 
-## 🎞️ Snapshots
+## 💻 Link Youtube Video
 
-<p align="center"><br><b>---------- Link Video Youtube ----------</b></p>
-<p align="center">
-    [Link Video Youtube 🔗](👷 WIP 👷).
-</p>
+[Link Youtube Video 🔗](https://youtu.be/9-hA28TNSSU).
+
+This is the video that we created for the exam submission, in which we execute the code on the DJI Tello drone in a real environment.
+
+## 🎞️ Snapshots
 
 <p align="center"><br><b>---------- Code Structure ----------</b></p>
 <p align="center">
